@@ -38,7 +38,7 @@ def on_closing(event=None):
 
 top = tkinter.Tk()
 top.title("Chatter")
-top.geometry("900x500")
+# top.geometry("900x500")
 
 messages_frame = tkinter.Frame(top)
 my_msg = tkinter.StringVar()  # For the messages to be sent.
