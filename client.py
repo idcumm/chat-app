@@ -59,6 +59,7 @@ alignstr = "%dx%d+%d+%d" % (
 )
 top.geometry(alignstr)
 top.resizable(width=False, height=False)
+top.configure(bg="#282424")
 
 
 # ---------------------------------------------------------------
@@ -73,21 +74,23 @@ scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
 entry_field = tkinter.Entry(top, textvariable=my_msg)
 entry_field.bind("<Return>", send)
 entry_field["borderwidth"] = "1px"
-entry_field["fg"] = "#333333"
+entry_field["bg"] = "#282424"
+entry_field["fg"] = "#ffffff"
 entry_field["justify"] = "left"
 entry_field["relief"] = "sunken"
 entry_field.place(x=10, y=460, width=500, height=30)
 
 msg_list = tkinter.Listbox(top, yscrollcommand=scrollbar.set)
+msg_list["bg"] = "#282424"
 msg_list["borderwidth"] = "1px"
-msg_list["fg"] = "#333333"
+msg_list["fg"] = "#ffffff"
 msg_list["justify"] = "left"
 msg_list.place(x=10, y=10, width=570, height=440)
 
 send_button = tkinter.Button(top, text="Enviar", command=send)
 send_button["anchor"] = "se"
-send_button["bg"] = "#f0f0f0"
-send_button["fg"] = "#000000"
+send_button["bg"] = "#282424"
+send_button["fg"] = "#ffffff"
 send_button["justify"] = "center"
 send_button.place(x=520, y=460, width=50, height=30)
 

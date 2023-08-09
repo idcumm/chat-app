@@ -1,7 +1,7 @@
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 from os import system
-from random import randint
+import random
 from time import sleep
 
 system("title ServerSocket")
@@ -20,7 +20,7 @@ def accept_incoming_connections():
 def handle_client(client):  # Takes client socket as argument.
     """Handles a single client connection."""
     # name = client.recv(BUFSIZ).decode("utf8")
-    name = "user" + str(randint(1, 1000))
+    name = "User_" + str(random.randint(100000, 999999))
     welcome = "Bienvenido %s" % name
     client.send(bytes(welcome, "utf8"))
     msg = "%s se ha unido al chat!" % name
