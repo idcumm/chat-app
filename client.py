@@ -2,6 +2,7 @@ from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 import tkinter
 from os import system
+from time import sleep
 
 system("title ClientSocket")
 
@@ -38,25 +39,42 @@ def on_closing(event=None):
 
 top = tkinter.Tk()
 top.title("Chatter")
-# top.geometry("900x500")
+
+width = 600
+height = 500
+screenwidth = top.winfo_screenwidth()
+screenheight = top.winfo_screenheight()
+alignstr = "%dx%d+%d+%d" % (
+    width,
+    height,
+    (screenwidth - width) / 2,
+    (screenheight - height) / 2,
+)
+top.geometry(alignstr)
+top.resizable(width=False, height=False)
+
+my_msg = tkinter.StringVar()
+
+entry_field = tkinter.Entry(top, textvariable=my_msg)
+entry_field.bind("<Return>", send)
 
 messages_frame = tkinter.Frame(top)
-my_msg = tkinter.StringVar()  # For the messages to be sent.
-my_msg.set("")
+# For the messages to be sent.
 scrollbar = tkinter.Scrollbar(messages_frame)  # To navigate through past messages.
-# Following will contain the messages.
 msg_list = tkinter.Listbox(
     messages_frame, height=15, width=50, yscrollcommand=scrollbar.set
 )
+
+send_button = tkinter.Button(top, text="Enviar", command=send)
+
+my_msg.set("")
+
+
 scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
 msg_list.pack(side=tkinter.LEFT, fill=tkinter.BOTH)
 msg_list.pack()
 messages_frame.pack()
-
-entry_field = tkinter.Entry(top, textvariable=my_msg)
-entry_field.bind("<Return>", send)
 entry_field.pack()
-send_button = tkinter.Button(top, text="Enviar", command=send)
 send_button.pack()
 
 top.protocol("WM_DELETE_WINDOW", on_closing)
