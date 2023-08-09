@@ -10,6 +10,10 @@ system("title ClientSocket")
 HOST = "192.168.1.29"
 PORT = 33000
 
+ADDR = (HOST, PORT)
+
+BUFSIZ = 1024
+
 
 def receive():
     """Handles receiving of messages."""
@@ -39,6 +43,7 @@ def on_closing(event=None):
 
 # ---------------------------------------------------------------
 
+
 top = tkinter.Tk()
 top.title("Chatter")
 
@@ -55,15 +60,15 @@ alignstr = "%dx%d+%d+%d" % (
 top.geometry(alignstr)
 top.resizable(width=False, height=False)
 
+
 # ---------------------------------------------------------------
+
 
 my_msg = tkinter.StringVar()
 my_msg.set("")
 
-
 scrollbar = tkinter.Scrollbar(top)
 scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-
 
 entry_field = tkinter.Entry(top, textvariable=my_msg)
 entry_field.bind("<Return>", send)
@@ -73,13 +78,11 @@ entry_field["justify"] = "left"
 entry_field["relief"] = "sunken"
 entry_field.place(x=10, y=460, width=500, height=30)
 
-
 msg_list = tkinter.Listbox(top, yscrollcommand=scrollbar.set)
 msg_list["borderwidth"] = "1px"
 msg_list["fg"] = "#333333"
 msg_list["justify"] = "left"
 msg_list.place(x=10, y=10, width=570, height=440)
-
 
 send_button = tkinter.Button(top, text="Enviar", command=send)
 send_button["anchor"] = "se"
@@ -88,17 +91,17 @@ send_button["fg"] = "#000000"
 send_button["justify"] = "center"
 send_button.place(x=520, y=460, width=50, height=30)
 
-
 top.protocol("WM_DELETE_WINDOW", on_closing)
+
 
 # ---------------------------------------------------------------
 
-BUFSIZ = 1024
-ADDR = (HOST, PORT)
 
 client_socket = socket(AF_INET, SOCK_STREAM)
 client_socket.connect(ADDR)
 
-receive_thread = Thread(target=receive)
-receive_thread.start()
-tkinter.mainloop()  # Starts GUI execution.
+
+if __name__ == "__main__":
+    receive_thread = Thread(target=receive)
+    receive_thread.start()
+    tkinter.mainloop()
