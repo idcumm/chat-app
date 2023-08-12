@@ -7,6 +7,32 @@ import csv
 system("title ServerSocket")
 
 
+def set_name(x):
+    csvfile = []
+    in_i = False
+
+    with open("data.csv", "r") as file:
+        csvreader = csv.reader(file)
+        for row in csvreader:
+            csvfile.append(row)
+
+    search = x[0]
+
+    for i in csvfile:
+        if search in i:
+            in_i = True
+            index = csvfile.index(i)
+            csvfile[index] = x
+            break
+
+    if in_i == False:
+        csvfile.append(x)
+
+    with open("data.csv", "w", encoding="UTF8", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerows(csvfile)
+
+
 def assign_name(x):
     csvfile = []
     global name
@@ -42,9 +68,9 @@ def accept_incoming_connections():
 def handle_client(client):  # Takes client socket as argument.
     """Handles a single client connection."""
     global name
+    global client_address
     # name = client.recv(BUFSIZ).decode("utf8")
     assign_name(client_address[0])
-    print(name)
     if name == None:
         name = "User_" + str(random.randint(100000, 999999))
     welcome = "Bienvenido %s" % name
@@ -65,6 +91,8 @@ def handle_client(client):  # Takes client socket as argument.
                 welcome = "Has cambiado tu nombre a %s" % name
                 client.send(bytes(welcome, "utf8"))
                 clients[client] = name
+                towrite = [client_address[0], name]
+                set_name(towrite)
             else:
                 broadcast(msg, name + ": ")
         else:

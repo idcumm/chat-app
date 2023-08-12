@@ -1,46 +1,31 @@
 import csv
 
-# csvfile = []
 
-# with open("data.csv", "r") as file:
-#     csvreader = csv.reader(file)
-#     for row in csvreader:
-#         csvfile.append(row)
-
-# search = "192.168.1.29"
-
-# for i in csvfile:
-#     if search in i:
-#         name = i[1]
-#         print(f"{search} = {name}")
-#         break
-#     else:
-#         continue
-# input()
-
-
-def assign_name(x):
+def set_name(x):
     csvfile = []
-    global name
-    name = None
+    in_i = False
 
     with open("data.csv", "r") as file:
         csvreader = csv.reader(file)
         for row in csvreader:
             csvfile.append(row)
 
-    search = x
+    search = x[0]
 
     for i in csvfile:
         if search in i:
-            name = i[1]
-            print(f"{search} = {name}")
+            in_i = True
+            index = csvfile.index(i)
+            csvfile[index] = x
             break
-        else:
-            continue
+
+    if in_i == False:
+        csvfile.append(x)
+
+    with open("data.csv", "w", encoding="UTF8", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerows(csvfile)
 
 
-joined = "192.168.1.29"
-assign_name(joined)
-print(name)
-input()
+list = ["192.168.1.29", "jesus"]
+set_name(list)
