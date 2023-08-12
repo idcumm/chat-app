@@ -14,6 +14,33 @@ ADDR = (HOST, PORT)
 BUFSIZ = 1024
 
 
+def setname():
+    global my_name
+    msg = my_name.get()
+    my_msg.set("{setname}" + msg)
+    send()
+
+
+def openNewWindow():
+    global my_name
+    settings = tkinter.Toplevel(top)
+    settings.title("Settings")
+    settings.geometry("200x200")
+
+    my_name = tkinter.StringVar()
+    my_name.set("")
+
+    text = tkinter.Label(settings, text="Escribe tu nombre:")
+    text.pack()
+
+    entry_name = tkinter.Entry(settings, textvariable=my_name)
+    entry_name.bind("<Return>", send)
+    entry_name.pack()
+
+    set_name = tkinter.Button(settings, text="Apply", command=setname)
+    set_name.pack()
+
+
 def receive():
     """Handles receiving of messages."""
     while True:
@@ -84,7 +111,7 @@ msg_list["bg"] = "#282424"
 msg_list["borderwidth"] = "1px"
 msg_list["fg"] = "#ffffff"
 msg_list["justify"] = "left"
-msg_list.place(x=10, y=10, width=570, height=440)
+msg_list.place(x=10, y=50, width=560, height=400)
 
 send_button = tkinter.Button(top, text="Enviar", command=send)
 send_button["anchor"] = "se"
@@ -92,6 +119,13 @@ send_button["bg"] = "#282424"
 send_button["fg"] = "#ffffff"
 send_button["justify"] = "center"
 send_button.place(x=520, y=460, width=50, height=30)
+
+config_button = tkinter.Button(top, text="Settings", command=openNewWindow)
+config_button["anchor"] = "nw"
+config_button["bg"] = "#282424"
+config_button["fg"] = "#ffffff"
+config_button["justify"] = "center"
+config_button.place(x=10, y=10, width=50, height=30)
 
 top.protocol("WM_DELETE_WINDOW", on_closing)
 
