@@ -48,7 +48,7 @@ def assign_name(x):
     for i in csvfile:
         if search in i:
             name = i[1]
-            print(f"{search} = {name}")
+            # print(f"{search} = {name}")
             break
 
 
