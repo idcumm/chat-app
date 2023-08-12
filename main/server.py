@@ -50,8 +50,6 @@ def assign_name(x):
             name = i[1]
             print(f"{search} = {name}")
             break
-        else:
-            continue
 
 
 def accept_incoming_connections():
