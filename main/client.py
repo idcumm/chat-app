@@ -2,7 +2,6 @@ from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 import tkinter
 from os import system
-from time import sleep
 
 system("title ClientSocket")
 
