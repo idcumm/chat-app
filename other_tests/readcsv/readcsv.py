@@ -1,15 +1,15 @@
 import csv
 
-list = []
+csvfile = []
 
 with open("data.csv", "r") as file:
     csvreader = csv.reader(file)
     for row in csvreader:
-        list.append(row)
+        csvfile.append(row)
 
-search = "192.168.1.81"
+search = "192.168.1.29"
 
-for i in list:
+for i in csvfile:
     if search in i:
         name = i[1]
         print(f"{search} = {name}")
