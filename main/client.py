@@ -1,12 +1,14 @@
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 import tkinter
+import tkinter.font as tkFont
 from os import system
 
 system("title ClientSocket")
 
 # HOST = "127.0.0.1"
-HOST = "192.168.1.29"
+# HOST = "192.168.1.29"
+HOST = "192.168.1.151"
 PORT = 33000
 
 ADDR = (HOST, PORT)
@@ -101,6 +103,8 @@ entry_field = tkinter.Entry(top, textvariable=my_msg)
 entry_field.bind("<Return>", send)
 entry_field["borderwidth"] = "1px"
 entry_field["bg"] = "#282424"
+ft = tkFont.Font(family="Times", size=15)
+entry_field["font"] = ft
 entry_field["fg"] = "#ffffff"
 entry_field["justify"] = "left"
 entry_field["relief"] = "sunken"
@@ -109,6 +113,8 @@ entry_field.place(x=10, y=460, width=500, height=30)
 msg_list = tkinter.Listbox(top, yscrollcommand=scrollbar.set)
 msg_list["bg"] = "#282424"
 msg_list["borderwidth"] = "1px"
+ft = tkFont.Font(family="Times", size=15)
+msg_list["font"] = ft
 msg_list["fg"] = "#ffffff"
 msg_list["justify"] = "left"
 msg_list.place(x=10, y=50, width=560, height=400)
@@ -116,6 +122,8 @@ msg_list.place(x=10, y=50, width=560, height=400)
 send_button = tkinter.Button(top, text="Enviar", command=send)
 send_button["anchor"] = "se"
 send_button["bg"] = "#282424"
+ft = tkFont.Font(family="Times", size=10)
+send_button["font"] = ft
 send_button["fg"] = "#ffffff"
 send_button["justify"] = "center"
 send_button.place(x=520, y=460, width=50, height=30)
@@ -123,6 +131,8 @@ send_button.place(x=520, y=460, width=50, height=30)
 config_button = tkinter.Button(top, text="Settings", command=openNewWindow)
 config_button["anchor"] = "nw"
 config_button["bg"] = "#282424"
+ft = tkFont.Font(family="Times", size=10)
+config_button["font"] = ft
 config_button["fg"] = "#ffffff"
 config_button["justify"] = "center"
 config_button.place(x=10, y=10, width=50, height=30)

@@ -35,7 +35,6 @@ def set_name(x):
 
 def assign_name(x):
     csvfile = []
-    global name
     name = None
 
     with open("data.csv", "r") as file:
@@ -50,6 +49,7 @@ def assign_name(x):
             name = i[1]
             # print(f"{search} = {name}")
             break
+    return name
 
 
 def accept_incoming_connections():
@@ -65,10 +65,16 @@ def accept_incoming_connections():
 
 def handle_client(client):  # Takes client socket as argument.
     """Handles a single client connection."""
-    global name
     global client_address
+
+    # print()
+    # print(clients[client])
+    # print()
+    # print(addresses)
+    # print()
+
     # name = client.recv(BUFSIZ).decode("utf8")
-    assign_name(client_address[0])
+    name = assign_name(client_address[0])
     if name == None:
         name = "User_" + str(random.randint(100000, 999999))
     welcome = "Bienvenido %s" % name
