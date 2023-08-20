@@ -1,4 +1,4 @@
-"ARREGLAR ELS BINDS"
+#TODO make the app so it not only has group chat, dm's too
 
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
@@ -31,6 +31,7 @@ def ventana_inicio():
     global ventana_principal
     pestas_color = "DarkGrey"
     ventana_principal = Toplevel(top)
+    # ventana_principal.focus_force()
     ventana_principal.geometry("300x250")  # DIMENSIONES DE LA VENTANA
     ventana_principal.title("Login con tkinter")  # TITULO DE LA VENTANA
     Label(
@@ -66,6 +67,7 @@ def ventana_inicio():
 def registro():
     global ventana_registro
     ventana_registro = Toplevel(ventana_principal)
+    # ventana_registro.focus_force()
     ventana_registro.title("Registro")
     ventana_registro.geometry("300x250")
 
@@ -82,9 +84,8 @@ def registro():
     Label(ventana_registro, text="").pack()
     etiqueta_nombre = Label(ventana_registro, text="Nombre de usuario * ")
     etiqueta_nombre.pack()
-    entrada_nombre = Entry(
-        ventana_registro, textvariable=nombre_usuario
-    )  # ESPACIO PARA INTRODUCIR EL NOMBRE.
+    entrada_nombre = Entry(ventana_registro, textvariable=nombre_usuario)
+    entrada_nombre.focus_set()
     entrada_nombre.bind("<Return>", registro_usuario)
     entrada_nombre.pack()
     etiqueta_clave = Label(ventana_registro, text="Contraseña * ")
@@ -108,6 +109,7 @@ def registro():
 def login():
     global ventana_login
     ventana_login = Toplevel(ventana_principal)
+    # ventana_login.focus_force()
     ventana_login.title("Acceso a la cuenta")
     ventana_login.geometry("300x250")
     Label(ventana_login, text="Introduzca nombre de usuario y contraseña").pack()
@@ -124,6 +126,7 @@ def login():
 
     Label(ventana_login, text="Nombre usuario * ").pack()
     entrada_login_usuario = Entry(ventana_login, textvariable=verifica_usuario)
+    entrada_login_usuario.focus_set()
     entrada_login_usuario.bind("<Return>", verifica_login)
     entrada_login_usuario.pack()
     Label(ventana_login, text="").pack()
@@ -134,10 +137,10 @@ def login():
     Label(ventana_login, text="").pack()
     Button(
         ventana_login, text="Acceder", width=10, height=1, command=verifica_login
-    ).pack().bind("<Return>", send)
+    ).pack()
 
 
-def verifica_login():
+def verifica_login(event):
     usuario1 = verifica_usuario.get()
     clave1 = verifica_clave.get()
 
@@ -179,7 +182,7 @@ def borrar_no_registro():
     ventana_no_registro.destroy()
 
 
-def registro_usuario():
+def registro_usuario(event):
     usuario_info = nombre_usuario.get()
     clave_info = clave.get()
     towrite = [usuario_info, clave_info]
