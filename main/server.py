@@ -1,3 +1,6 @@
+# ==========>> MODULE IMPORT <<========== #
+
+
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 from os import system
@@ -63,42 +66,49 @@ def accept_incoming_connections():
         Thread(target=handle_client, args=(client,)).start()
 
 
-def handle_client(client):  # Takes client socket as argument.
-    """Handles a single client connection."""
+def handle_client(client):
     global client_address
-
-    # print()
-    # print(clients[client])
-    # print()
-    # print(addresses)
-    # print()
-
-    # name = client.recv(BUFSIZ).decode("utf8")
-    name = assign_name(client_address[0])
-    if name == None:
-        name = "User_" + str(random.randint(100000, 999999))
-    welcome = "Bienvenido %s" % name
-    client.send(bytes(welcome, "utf8"))
-    msg = "%s se ha unido al chat!" % name
-    broadcast(bytes(msg, "utf8"))
-    clients[client] = name
 
     while True:
         msg = client.recv(BUFSIZ)
 
-        console_print = str(bytes(name, "utf8") + bytes(": ", "utf8") + msg)
-        print(console_print[2:-1])
-
         if msg != bytes("{quit}", "utf8"):
-            if bytes("{setname}", "utf8") in msg:
-                name = str(msg)[11:-1]
-                welcome = "Has cambiado tu nombre a %s" % name
-                client.send(bytes(welcome, "utf8"))
-                clients[client] = name
-                towrite = [client_address[0], name]
-                set_name(towrite)
+            # if bytes("{setname}", "utf8") in msg:
+            #     name = str(msg)[11:-1]
+            #     welcome = "Has cambiado tu nombre a %s" % name
+            #     client.send(bytes(welcome, "utf8"))
+            #     clients[client] = name
+            #     towrite = [client_address[0], name]
+            #     set_name(towrite)
+            if bytes("{login}", "utf8") in msg:
+                exit = False
+                csvfile = []
+                search = str(msg)[9:-1].split()
+                with open("data.csv", "r") as file:
+                    csvreader = csv.reader(file)
+                    for row in csvreader:
+                        csvfile.append(row)
+
+                for i in csvfile:
+                    if search == i:
+                        exit = True
+                        client.send(bytes("{connect}", "utf8"))
+                        name = search[0]
+                        welcome = "Bienvenido %s" % name
+                        client.send(bytes(welcome, "utf8"))
+                        msg = "%s se ha unido al chat!" % name
+                        broadcast(bytes(msg, "utf8"))
+                        clients[client] = name
+
+                        break
+                if not exit == True:
+                    client.send(bytes("{no_usuario}", "utf8"))
+
+                pass
             else:
                 broadcast(msg, name + ": ")
+                console_print = str(bytes(name, "utf8") + bytes(": ", "utf8") + msg)
+                print(console_print[2:-1])
         else:
             # client.send(bytes("{quit}", "utf8"))
             client.close()

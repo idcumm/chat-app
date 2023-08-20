@@ -1,14 +1,11 @@
-# ==========>> DEFINITION OF FUNCTIONS <<========== #
+# CREANDO LOGIN CON PYTHON Y TKINTER.
 
-
+# IMPORTAMOS LIBRERÍAS NECESARIAS.
 from tkinter import *
 import os
-import csv
 
 
-# ==========>> DEFINITION OF FUNCTIONS <<========== #
-
-
+# CREAMOS VENTANA PRINCIPAL.
 def ventana_inicio():
     global ventana_principal
     pestas_color = "DarkGrey"
@@ -34,6 +31,7 @@ def ventana_inicio():
     ventana_principal.mainloop()
 
 
+# CREAMOS VENTANA PARA REGISTRO.
 def registro():
     global ventana_registro
     ventana_registro = Toplevel(ventana_principal)
@@ -74,6 +72,9 @@ def registro():
     ).pack()  # BOTÓN "Registrarse"
 
 
+# CREAMOS VENTANA PARA LOGIN.
+
+
 def login():
     global ventana_login
     ventana_login = Toplevel(ventana_principal)
@@ -104,58 +105,93 @@ def login():
     ).pack()
 
 
+# VENTANA "VERIFICACION DE LOGIN".
+
+
 def verifica_login():
-    exit = False
-    csvfile = []
     usuario1 = verifica_usuario.get()
     clave1 = verifica_clave.get()
-    search = [usuario1, clave1]
-    
-    entrada_login_usuario.delete(0, END)
-    entrada_login_clave.delete(0, END)
+    entrada_login_usuario.delete(
+        0, END
+    )  # BORRA INFORMACIÓN DEL CAMPO "Nombre usuario *" AL MOSTRAR NUEVA VENTANA.
+    entrada_login_clave.delete(
+        0, END
+    )  # BORRA INFORMACIÓN DEL CAMPO "Contraseña *" AL MOSTRAR NUEVA VENTANA.
 
-    with open("data.csv", "r") as file:
-        csvreader = csv.reader(file)
-        for row in csvreader:
-            csvfile.append(row)             
+    lista_archivos = os.listdir()  # GENERA LISTA DE ARCHIVOS UBICADOS EN EL DIRECTORIO.
+    # SI EL NOMBRE SE ENCUENTRA EN LA LISTA DE ARCHIVOS..
+    if usuario1 in lista_archivos:
+        archivo1 = open(usuario1, "r")  # APERTURA DE ARCHIVO EN MODO LECTURA
+        verifica = (
+            archivo1.read().splitlines()
+        )  # LECTURA DEL ARCHIVO QUE CONTIENE EL nombre Y contraseña.
+        # SI LA CONTRASEÑA INTRODUCIDA SE ENCUENTRA EN EL ARCHIVO...
+        if clave1 in verifica:
+            exito_login()  # ...EJECUTAR FUNCIÓN "exito_login()"
+        # SI LA CONTRASEÑA NO SE ENCUENTRA EN EL ARCHIVO....
+        else:
+            no_clave()  # ...EJECUTAR "no_clave()"
+    # SI EL NOMBRE INTRODUCIDO NO SE ENCUENTRA EN EL DIRECTORIO...
+    else:
+        no_usuario()  # ..EJECUTA "no_usuario()".
 
-    for i in csvfile:
-        if search == i:
-            exit = True
-            ventana_login.destroy()
-            break
-    if not exit == True:
-        no_usuario()  
+
+# VENTANA "Login finalizado con exito".
+
+
+def exito_login():
+    global ventana_exito
+    ventana_exito = Toplevel(ventana_login)
+    ventana_exito.title("Exito")
+    ventana_exito.geometry("150x100")
+    Label(ventana_exito, text="Login finalizado con exito").pack()
+    Button(ventana_exito, text="OK", command=borrar_exito_login).pack()
+
+
+# VENTANA DE "Contraseña incorrecta".
+
+
+def no_clave():
+    global ventana_no_clave
+    ventana_no_clave = Toplevel(ventana_login)
+    ventana_no_clave.title("ERROR")
+    ventana_no_clave.geometry("150x100")
+    Label(ventana_no_clave, text="Contraseña incorrecta ").pack()
+    Button(
+        ventana_no_clave, text="OK", command=borrar_no_clave
+    ).pack()  # EJECUTA "borrar_no_clave()".
+
+
+# VENTANA DE "Usuario no encontrado".
 
 
 def no_usuario():
     global ventana_no_usuario
     ventana_no_usuario = Toplevel(ventana_login)
     ventana_no_usuario.title("ERROR")
-    ventana_no_usuario.geometry("250x100")
-    Label(ventana_no_usuario, text="Usuario o contraseña incorrecta.").pack()
+    ventana_no_usuario.geometry("150x100")
+    Label(ventana_no_usuario, text="Usuario no encontrado").pack()
     Button(
         ventana_no_usuario, text="OK", command=borrar_no_usuario
     ).pack()  # EJECUTA "borrar_no_usuario()"
 
 
-def no_registro():
-    global ventana_no_registro
-    ventana_no_registro = Toplevel(ventana_registro)
-    ventana_no_registro.title("ERROR")
-    ventana_no_registro.geometry("250x100")
-    Label(ventana_no_registro, text="Este nombre de usuario ya está en uso.").pack()
-    Button(
-        ventana_no_registro, text="OK", command=borrar_no_registro
-    ).pack()  # EJECUTA "borrar_no_registro()"
+# CERRADO DE VENTANAS
+
+
+def borrar_exito_login():
+    ventana_exito.destroy()
+
+
+def borrar_no_clave():
+    ventana_no_clave.destroy()
 
 
 def borrar_no_usuario():
     ventana_no_usuario.destroy()
-    
 
-def borrar_no_registro():
-    ventana_no_registro.destroy()
+
+# REGISTRO USUARIO
 
 
 def registro_usuario():
@@ -163,36 +199,19 @@ def registro_usuario():
     clave_info = clave.get()
     towrite = [usuario_info, clave_info]
 
+    file = open("data.csv", "w")  # CREACION DE ARCHIVO CON "nombre" y "clave"
+    file.write(usuario_info + "," + clave_info)
+    file.close()
+
     entrada_nombre.delete(0, END)
     entrada_clave.delete(0, END)
 
-    csvfile = []
-    user_in_use = False
-
-    with open("data.csv", "r") as file:
-        csvreader = csv.reader(file)
-        for row in csvreader:
-            csvfile.append(row)
-
-    search = towrite[0]
-
-    for i in csvfile:
-        if search in i:
-            user_in_use = True
-            no_registro()
-            break
-
-    if user_in_use == False:
-        csvfile.append(towrite)
-        ventana_registro.destroy()
-        
-
-    with open("data.csv", "w", encoding="UTF8", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerows(csvfile)
-
-
-# ==========>> MAIN CODE <<========== #
+    Label(
+        ventana_registro,
+        text="Registro completado con éxito",
+        fg="green",
+        font=("calibri", 11),
+    ).pack()
 
 
 ventana_inicio()  # EJECUCIÓN DE LA VENTANA DE INICIO.
