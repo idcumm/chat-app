@@ -1,4 +1,4 @@
-#TODO make the app so it not only has group chat, dm's too
+# TODO make the app so it not only has group chat, dm's too
 
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
@@ -140,7 +140,7 @@ def login():
     ).pack()
 
 
-def verifica_login(event):
+def verifica_login(event=None):
     usuario1 = verifica_usuario.get()
     clave1 = verifica_clave.get()
 
@@ -182,7 +182,7 @@ def borrar_no_registro():
     ventana_no_registro.destroy()
 
 
-def registro_usuario(event):
+def registro_usuario(event=None):
     usuario_info = nombre_usuario.get()
     clave_info = clave.get()
     towrite = [usuario_info, clave_info]
@@ -308,6 +308,7 @@ if __name__ == "__main__":
     scrollbar.pack(side=RIGHT, fill=Y)
 
     entry_field.bind("<Return>", send)
+    entry_field.focus_set()
     entry_field["borderwidth"] = "1px"
     entry_field["bg"] = "#282424"
     ft = tkFont.Font(family="Times", size=15)
