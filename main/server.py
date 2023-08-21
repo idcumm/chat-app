@@ -103,8 +103,34 @@ def handle_client(client):
                         break
                 if not exit == True:
                     client.send(bytes("{no_usuario}", "utf8"))
+            elif bytes("{register}", "utf8") in msg:
+                towrite = str(msg)[12:-1].split()
 
-                pass
+                csvfile = []
+                user_in_use = False
+
+                with open("data.csv", "r") as file:
+                    csvreader = csv.reader(file)
+                    for row in csvreader:
+                        csvfile.append(row)
+
+                search = towrite[0]
+
+                for i in csvfile:
+                    if search in i:
+                        user_in_use = True
+                        break
+
+                if user_in_use == False:
+                    csvfile.append(towrite)
+                    client.send(bytes("{register}", "utf8"))
+                else:
+                    client.send(bytes("{no_register}", "utf8"))
+
+                with open("data.csv", "w", encoding="UTF8", newline="") as file:
+                    writer = csv.writer(file)
+                    writer.writerows(csvfile)
+
             else:
                 broadcast(msg, name + ": ")
                 console_print = str(bytes(name, "utf8") + bytes(": ", "utf8") + msg)

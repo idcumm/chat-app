@@ -187,48 +187,19 @@ def registro_usuario(event=None):
     clave_info = clave.get()
     towrite = [usuario_info, clave_info]
 
-    entrada_nombre.delete(0, END)
-    entrada_clave.delete(0, END)
-
-    csvfile = []
-    user_in_use = False
-
-    with open("data.csv", "r") as file:
-        csvreader = csv.reader(file)
-        for row in csvreader:
-            csvfile.append(row)
-
-    search = towrite[0]
-
-    for i in csvfile:
-        if search in i:
-            user_in_use = True
-            break
-
-    if user_in_use == False:
-        for i in towrite:
-            if " " in i:
-                no_spaces = False
-                break
-            else:
-                no_spaces = True
-        if no_spaces == True:
-            csvfile.append(towrite)
-            Label(
-                ventana_principal,
-                text="Registro completado con éxito",
-                fg="green",
-                font=("calibri", 11),
-            ).pack()
-            ventana_registro.destroy()
-        else:
+    for i in towrite:
+        if " " in i:
+            no_spaces = False
+            entrada_nombre.delete(0, END)
+            entrada_clave.delete(0, END)
             no_registro()
-    else:
-        no_registro()
-
-    with open("data.csv", "w", encoding="UTF8", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerows(csvfile)
+            break
+        else:
+            no_spaces = True
+    if no_spaces == True:
+        msg = f"{usuario_info} {clave_info}"
+        my_msg.set("{register}" + msg)
+        send()
 
 
 def receive():
@@ -242,6 +213,16 @@ def receive():
                 user_loged = True
             elif "{no_usuario}" in str(msg):
                 no_usuario()
+            elif "{register}" in str(msg):
+                Label(
+                    ventana_principal,
+                    text="Registro completado con éxito",
+                    fg="green",
+                    font=("calibri", 11),
+                ).pack()
+                ventana_registro.destroy()
+            elif "{no_register}" in str(msg):
+                no_registro()
             else:
                 msg_list.insert(END, msg)
         except OSError:  # Possibly client has left the chat.
@@ -259,6 +240,8 @@ def send(event=None):  # event is passed by binders.
         client_socket.close()
         top.quit()
     if "{login}" in msg:
+        client_socket.send(bytes(msg, "utf8"))
+    if "{register}" in msg:
         client_socket.send(bytes(msg, "utf8"))
 
 
