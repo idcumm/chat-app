@@ -6,8 +6,11 @@ from threading import Thread
 from os import system
 import random
 import csv
+from datetime import datetime
+from time import sleep
 
 system("title ServerSocket")
+history = []
 
 
 def set_name(x):
@@ -68,6 +71,7 @@ def accept_incoming_connections():
 
 def handle_client(client):
     global client_address
+    global history
 
     while True:
         msg = client.recv(BUFSIZ)
@@ -94,11 +98,13 @@ def handle_client(client):
                         exit = True
                         client.send(bytes("{connect}", "utf8"))
                         name = search[0]
-                        welcome = "Bienvenido %s" % name
-                        client.send(bytes(welcome, "utf8"))
+                        # welcome = "Bienvenido %s" % name
+                        # client.send(bytes(welcome, "utf8"))
+                        clients[client] = name
+                        client.send(bytes("{history}" + str(history), "utf8"))
+                        sleep(0.2)
                         msg = "%s se ha unido al chat!" % name
                         broadcast(bytes(msg, "utf8"))
-                        clients[client] = name
 
                         break
                 if not exit == True:
@@ -136,18 +142,34 @@ def handle_client(client):
                 console_print = str(bytes(name, "utf8") + bytes(": ", "utf8") + msg)
                 print(console_print[2:-1])
         else:
-            # client.send(bytes("{quit}", "utf8"))
+            msg = "%s se ha ido del chat." % name
+            broadcast(bytes(msg, "utf8"))
+            console_print = str(
+                bytes(name, "utf8") + bytes(": ", "utf8") + bytes(msg, "utf8")
+            )
+            print(console_print[2:-1])
+            sleep(0.2)
+            # try:
+            #     client.send(bytes("{quit}", "utf8"))
+            # except ConnectionResetError:
+            #     continue
             client.close()
             del clients[client]
-            broadcast(bytes("%s se ha ido del chat." % name, "utf8"))
             break
 
 
 def broadcast(msg, prefix=""):  # prefix is for name identification.
+    global history
     """Broadcasts a message to all the clients."""
 
     for sock in clients:
-        sock.send(bytes(prefix, "utf8") + msg)
+        date = datetime.now().strftime("%H:%M")
+        try:
+            sock.send(bytes("(" + date + ") " + prefix, "utf8") + msg)
+        except ConnectionResetError:
+            print("ConnectionResetError")
+        history.append(bytes("(" + date + ") " + prefix, "utf8") + msg)
+        # print(history)
 
 
 clients = {}

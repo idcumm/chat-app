@@ -1,5 +1,6 @@
 # TODO make the app so it not only has group chat, dm's too
-
+# TODO arreglar history chat
+# TODO arreglar leave chat
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -9,6 +10,7 @@ from tkinter import *
 import tkinter.font as tkFont
 from os import system
 import csv
+from time import sleep
 
 
 # ==========>> ASSIGNATION OF VARIABLES <<========== #
@@ -17,7 +19,7 @@ import csv
 if __name__ == "__main__":
     system("title ClientSocket")
 
-HOST = "192.168.1.183"
+HOST = "192.168.1.29"
 PORT = 33000
 ADDR = (HOST, PORT)
 
@@ -204,6 +206,7 @@ def registro_usuario(event=None):
 
 def receive():
     global user_loged
+    global history
     """Handles receiving of messages."""
     while True:
         try:
@@ -211,6 +214,12 @@ def receive():
             if "{connect}" in str(msg):
                 ventana_principal.destroy()
                 user_loged = True
+            elif "{history}" in str(msg):
+                history = str(msg)[12:-2].split("', b'")
+                print(history)
+                if not history == [""]:
+                    for i in history:
+                        msg_list.insert(END, i)
             elif "{no_usuario}" in str(msg):
                 no_usuario()
             elif "{register}" in str(msg):
@@ -249,6 +258,7 @@ def on_closing(event=None):
     """This function is to be called when the window is closed."""
     my_msg.set("{quit}")
     send()
+    sleep(0.2)
     exit()
 
 
