@@ -208,22 +208,20 @@ def registro_usuario(event=None):
 def receive():
     global user_loged
     global history
-    """Handles receiving of messages."""
     while True:
         try:
             msg = client_socket.recv(BUFSIZ).decode("utf8")
-            if "{connect}" in str(msg):
+            if "{connect}" in msg:
                 ventana_principal.destroy()
                 user_loged = True
-            elif "{history}" in str(msg):
-                history = str(msg)[12:-2].split("', b'")
-                print(history)
+            elif "{history}" in msg:
+                history = msg[12:-2].split("', b'")
                 if not history == [""]:
                     for i in history:
                         msg_list.insert(END, i)
-            elif "{no_usuario}" in str(msg):
+            elif "{no_usuario}" in msg:
                 no_usuario()
-            elif "{register}" in str(msg):
+            elif "{register}" in msg:
                 Label(
                     ventana_principal,
                     text="Registro completado con éxito",
@@ -231,35 +229,37 @@ def receive():
                     font=("calibri", 11),
                 ).pack()
                 ventana_registro.destroy()
-            elif "{no_register}" in str(msg):
+            elif "{no_register}" in msg:
                 no_registro()
+            elif "{quit}" in msg:
+                client_socket.close()
+                top.quit()
             else:
                 msg_list.insert(END, msg)
         except OSError:  # Possibly client has left the chat.
-            break
+            print("Error: OSError 1")
+            client_socket.close()
+            top.quit()
+            exit()
 
 
 def send(event=None):  # event is passed by binders.
     global user_loged
-    """Handles sending of messages."""
     msg = my_msg.get()
     my_msg.set("")
-    if user_loged == True:
-        client_socket.send(bytes(msg, "utf8"))
-    if msg == "{quit}":
-        client_socket.close()
-        top.quit()
-    if "{login}" in msg:
-        client_socket.send(bytes(msg, "utf8"))
-    if "{register}" in msg:
-        client_socket.send(bytes(msg, "utf8"))
+    if user_loged == False:
+        if "{quit}" in msg or "{login}" in msg or "{register}" in msg:
+            client_socket.send(bytes(msg, "utf8"))
+    elif user_loged == True:
+        try:
+            client_socket.send(bytes(msg, "utf8"))
+        except OSError:
+            print("Error: OSError 2")
 
 
 def on_closing(event=None):
-    """This function is to be called when the window is closed."""
     my_msg.set("{quit}")
     send()
-    sleep(0.2)
     exit()
 
 
@@ -331,3 +331,4 @@ if __name__ == "__main__":
     top.protocol("WM_DELETE_WINDOW", on_closing)
     ventana_inicio()
     mainloop()
+    exit()
