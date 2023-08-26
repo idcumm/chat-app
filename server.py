@@ -94,13 +94,6 @@ def handle_client(client):
             client.close()
             del clients[client]
             break
-            # if bytes("{setname}", "utf8") in msg:
-            #     name = str(msg)[11:-1]
-            #     welcome = "Has cambiado tu nombre a %s" % name
-            #     client.send(bytes(welcome, "utf8"))
-            #     clients[client] = name
-            #     towrite = [client_address[0], name]
-            #     set_name(towrite)
         else:
             broadcast(msg, name + ": ")
             console_print = name + ": " + msg.decode("utf8")
