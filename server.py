@@ -29,12 +29,12 @@ def handle_client(client):
     global history
 
     while True:
-        msg = client.recv(BUFSIZ)
+        msg = client.recv(BUFSIZ).decode("utf8")
 
-        if "{login}" in msg.decode("utf8"):
+        if "{login}" in msg:
             exit = False
             csvfile = []
-            search = msg.decode("utf8")[7:].split()
+            search = msg[7:].split()
             with open("data.csv", "r") as file:
                 csvreader = csv.reader(file)
                 for row in csvreader:
@@ -45,8 +45,6 @@ def handle_client(client):
                     exit = True
                     client.send(bytes("{connect}", "utf8"))
                     name = search[0]
-                    # welcome = "Bienvenido %s" % name
-                    # client.send(bytes(welcome, "utf8"))
                     clients[client] = name
                     client.send(bytes("{history}" + str(history), "utf8"))
                     sleep(0.2)
@@ -58,8 +56,8 @@ def handle_client(client):
                     break
             if not exit == True:
                 client.send(bytes("{no_usuario}", "utf8"))
-        elif "{register}" in msg.decode("utf8"):
-            towrite = msg.decode("utf8")[10:].split()
+        elif "{register}" in msg:
+            towrite = msg[10:].split()
 
             csvfile = []
             user_in_use = False
@@ -85,7 +83,7 @@ def handle_client(client):
             with open("data.csv", "w", encoding="UTF8", newline="") as file:
                 writer = csv.writer(file)
                 writer.writerows(csvfile)
-        elif "{quit}" in msg.decode("utf8"):
+        elif "{quit}" in msg:
             msg = f"%s se ha ido del chat." % name
             broadcast(bytes(msg, "utf8"))
             msg = f"%s se ha ido del chat. {client_address}" % name
