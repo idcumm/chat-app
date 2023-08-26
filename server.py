@@ -13,51 +13,6 @@ system("title ServerSocket")
 history = []
 
 
-def set_name(x):
-    csvfile = []
-    in_i = False
-
-    with open("data.csv", "r") as file:
-        csvreader = csv.reader(file)
-        for row in csvreader:
-            csvfile.append(row)
-
-    search = x[0]
-
-    for i in csvfile:
-        if search in i:
-            in_i = True
-            index = csvfile.index(i)
-            csvfile[index] = x
-            break
-
-    if in_i == False:
-        csvfile.append(x)
-
-    with open("data.csv", "w", encoding="UTF8", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerows(csvfile)
-
-
-def assign_name(x):
-    csvfile = []
-    name = None
-
-    with open("data.csv", "r") as file:
-        csvreader = csv.reader(file)
-        for row in csvreader:
-            csvfile.append(row)
-
-    search = x
-
-    for i in csvfile:
-        if search in i:
-            name = i[1]
-            # print(f"{search} = {name}")
-            break
-    return name
-
-
 def accept_incoming_connections():
     """Sets up handling for incoming clients."""
     global client_address
@@ -76,10 +31,10 @@ def handle_client(client):
     while True:
         msg = client.recv(BUFSIZ)
 
-        if bytes("{login}", "utf8") in msg:
+        if "{login}" in msg.decode("utf8"):
             exit = False
             csvfile = []
-            search = str(msg)[9:-1].split()
+            search = msg.decode("utf8")[7:].split()
             with open("data.csv", "r") as file:
                 csvreader = csv.reader(file)
                 for row in csvreader:
@@ -103,8 +58,8 @@ def handle_client(client):
                     break
             if not exit == True:
                 client.send(bytes("{no_usuario}", "utf8"))
-        elif bytes("{register}", "utf8") in msg:
-            towrite = str(msg)[12:-1].split()
+        elif "{register}" in msg.decode("utf8"):
+            towrite = msg.decode("utf8")[10:].split()
 
             csvfile = []
             user_in_use = False
