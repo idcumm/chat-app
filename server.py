@@ -9,17 +9,15 @@ import csv
 from datetime import datetime
 from time import sleep
 
-system("title ServerSocket")
-history = []
+
+# ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
 def accept_incoming_connections():
-    """Sets up handling for incoming clients."""
     global client_address
     while True:
         client, client_address = SERVER.accept()
         print("%s:%s se ha conectado." % client_address)
-        # client.send(bytes("Escrive tu nombre", "utf8"))
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).start()
 
@@ -30,7 +28,6 @@ def handle_client(client):
 
     while True:
         msg = client.recv(BUFSIZ).decode("utf8")
-
         if "{login}" in msg:
             exit = False
             csvfile = []
@@ -49,7 +46,7 @@ def handle_client(client):
                     client.send(bytes("{history}" + str(history), "utf8"))
                     sleep(0.2)
                     msg = f"%s se ha unido al chat!" % name
-                    broadcast(bytes(msg, "utf8"))
+                    broadcast(msg)
                     msg = f"%s se ha unido al chat! {client_address}" % name
                     print(msg)
 
@@ -85,7 +82,7 @@ def handle_client(client):
                 writer.writerows(csvfile)
         elif "{quit}" in msg:
             msg = f"%s se ha ido del chat." % name
-            broadcast(bytes(msg, "utf8"))
+            broadcast(msg)
             msg = f"%s se ha ido del chat. {client_address}" % name
             print(msg)
             client.send(bytes("{quit}", "utf8"))
@@ -94,27 +91,25 @@ def handle_client(client):
             break
         else:
             broadcast(msg, name + ": ")
-            console_print = name + ": " + msg.decode("utf8")
-            print(console_print)
+            print(name + ": " + msg)
 
 
 def broadcast(msg, prefix=""):  # prefix is for name identification.
     global history
-    """Broadcasts a message to all the clients."""
-
     for sock in clients:
         date = datetime.now().strftime("%H:%M")
         try:
-            sock.send(bytes("(" + date + ") " + prefix, "utf8") + msg)
-
+            sock.send(bytes("(" + date + ") " + prefix + msg, "utf8"))
         except ConnectionResetError:
             print("Error: ConnectionResetError 2")
-
-    history.append(bytes("(" + date + ") " + prefix, "utf8") + msg)
+    history.append(bytes("(" + date + ") " + prefix + msg, "utf8"))
 
 
 clients = {}
 addresses = {}
+history = []
+
+system("title ServerSocket")
 
 HOST = ""
 PORT = 33000
