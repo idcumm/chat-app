@@ -131,7 +131,10 @@ def handle_client(client):
                 writer = csv.writer(file)
                 writer.writerows(csvfile)
         elif "{quit}" in msg.decode("utf8"):
-            broadcast(bytes("%s se ha ido del chat." % name, "utf8"))
+            msg = f"%s se ha ido del chat." % name
+            broadcast(bytes(msg, "utf8"))
+            msg = f"%s se ha ido del chat. {client_address}" % name
+            print(msg)
             client.send(bytes("{quit}", "utf8"))
             client.close()
             del clients[client]
@@ -157,11 +160,11 @@ def broadcast(msg, prefix=""):  # prefix is for name identification.
         date = datetime.now().strftime("%H:%M")
         try:
             sock.send(bytes("(" + date + ") " + prefix, "utf8") + msg)
-            history.append(bytes("(" + date + ") " + prefix, "utf8") + msg)
+
         except ConnectionResetError:
             print("Error: ConnectionResetError 2")
 
-        # print(history)
+    history.append(bytes("(" + date + ") " + prefix, "utf8") + msg)
 
 
 clients = {}

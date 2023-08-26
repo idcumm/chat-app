@@ -1,6 +1,4 @@
 # TODO make the app so it not only has group chat, dm's too
-# TODO arreglar history chat duplication glitch
-# TODO arreglar leave chat
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
