@@ -95,8 +95,8 @@ def handle_client(client):
 
 def broadcast(msg, prefix=""):  # prefix is for name identification.
     global history
+    date = datetime.now().strftime("%H:%M")
     for sock in clients:
-        date = datetime.now().strftime("%H:%M")
         try:
             sock.send(bytes("(" + date + ") " + prefix + msg, "utf8"))
         except ConnectionResetError:
