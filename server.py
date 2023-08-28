@@ -4,7 +4,6 @@
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 from os import system
-import random
 import csv
 from datetime import datetime
 from time import sleep

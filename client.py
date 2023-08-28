@@ -8,8 +8,6 @@ from threading import Thread
 from tkinter import *
 import tkinter.font as tkFont
 from os import system
-import csv
-from time import sleep
 
 
 # ==========>> ASSIGNATION OF VARIABLES <<========== #
