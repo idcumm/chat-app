@@ -28,20 +28,35 @@ def handle_client(client):
     while True:
         msg = client.recv(BUFSIZ).decode("utf8")
         if "{login}" in msg:
-            exit = False
-            csvfile = []
-            search = msg[7:].split()
-            with open("data.csv", "r") as file:
-                csvreader = csv.reader(file)
-                for row in csvreader:
-                    csvfile.append(row)
+            username, password = msg[7:].split()
+            with open("data.csv", "r+", encoding="utf8", newline="") as file:
+                data = []
+                r = csv.reader(file)
+                login_state = 0
 
-            for i in csvfile:
-                if search == i:
-                    exit = True
-                    client.send(bytes("{connect}", "utf8"))
-                    name = search[0]
+                for row in r:
+                    data.append(row)
+
+                if not data:
+                    login_state = 3
+
+                else:
+                    for i in data:
+                        if i[0] == username:
+                            if i[1] == password:
+                                login_state = 1
+                                break
+
+                            else:
+                                login_state = 2
+
+                        else:
+                            login_state = 3
+
+                if login_state == 1:
+                    name = username
                     clients[client] = name
+                    client.send(bytes("{connect}", "utf8"))
                     client.send(bytes("{history}" + str(history), "utf8"))
                     sleep(0.2)
                     msg = f"%s se ha unido al chat!" % name
@@ -49,44 +64,46 @@ def handle_client(client):
                     msg = f"%s se ha unido al chat! {client_address}" % name
                     print(msg)
 
-                    break
-            if not exit == True:
-                client.send(bytes("{no_usuario}", "utf8"))
+                elif login_state == 2:
+                    client.send(bytes("{no_usuario}", "utf8"))
+
+                elif login_state == 3:
+                    client.send(bytes("{no_usuario}", "utf8"))
+
+                else:
+                    print("Unknown error")
+
         elif "{register}" in msg:
-            towrite = msg[10:].split()
+            username, password = msg[10:].split()
+            with open("data.csv", "r+", encoding="utf8", newline="") as file:
+                data = []
+                w = csv.writer(file)
+                r = csv.reader(file)
+                user_in_use = False
 
-            csvfile = []
-            user_in_use = False
+                for row in r:
+                    data.append(row)
 
-            with open("data.csv", "r") as file:
-                csvreader = csv.reader(file)
-                for row in csvreader:
-                    csvfile.append(row)
+                if not data:
+                    w.writerow([username, password])
+                else:
+                    for i in data:
+                        if username in i[0]:
+                            user_in_use = True
+                            client.send(bytes("{no_register}", "utf8"))
+                            break
+                    if not user_in_use:
+                        w.writerow([username, password])
+                        client.send(bytes("{register}", "utf8"))
 
-            search = towrite[0]
-
-            for i in csvfile:
-                if search in i:
-                    user_in_use = True
-                    break
-
-            if user_in_use == False:
-                csvfile.append(towrite)
-                client.send(bytes("{register}", "utf8"))
-            else:
-                client.send(bytes("{no_register}", "utf8"))
-
-            with open("data.csv", "w", encoding="UTF8", newline="") as file:
-                writer = csv.writer(file)
-                writer.writerows(csvfile)
         elif "{quit}" in msg:
+            client.send(bytes("{quit}", "utf8"))
+            client.close()
+            del clients[client]
             msg = f"%s se ha ido del chat." % name
             broadcast(msg)
             msg = f"%s se ha ido del chat. {client_address}" % name
             print(msg)
-            client.send(bytes("{quit}", "utf8"))
-            client.close()
-            del clients[client]
             break
         else:
             broadcast(msg, name + ": ")
