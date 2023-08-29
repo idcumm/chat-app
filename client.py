@@ -209,7 +209,7 @@ class App:
         global top_login
         Label(
             top_login,
-            text="Este nombre de usuario y/o contraseña \n no están disponibles",
+            text="Este nombre de usuario y/o contraseña no están disponibles",
         ).pack()
 
 
