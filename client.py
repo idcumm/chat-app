@@ -2,6 +2,7 @@
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
 # TODO fer verificar i register amb def ver(user, password): in no amb user.get()
 # TODO fer que no es pugui registrar ni logear amb la contrasenya o user vacio
+# TODO fer o tot angles o tot castella
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -168,15 +169,26 @@ def ventana_inicio():
 
 
 def login(usuario, clave, event=None):
-    msg = f"{usuario} {clave}"
-    my_msg.set("{login}" + msg)
-    send()
+    list = [usuario, clave]
+    if " " in usuario or usuario == "":
+        no_spaces = False
+        login_user_error()
+    elif " " in clave or clave == "":
+        no_spaces = False
+        login_password_error()
+    else:
+        no_spaces = True
+
+    if no_spaces == True:
+        msg = f"{usuario} {clave}"
+        my_msg.set("{login}" + msg)
+        send()
 
 
 def register(usuario, clave, event=None):
-    towrite = [usuario, clave]
+    list = [usuario, clave]
 
-    for i in towrite:
+    for i in list:
         if " " in i or i == "":
             no_spaces = False
             register_error()
