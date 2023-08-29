@@ -8,9 +8,10 @@
 # TODO cambiar l'enviament de misatges de res a /broadcast ({broadcast})
 # TODO fer que els errors de tkinter es borrin avans de sortir un altre
 # TODO fer el encriptatge
-# TODO que no surto la consola al obrir client.pyw
+# TODO que no surti la consola al obrir client.pyw
 # TODO millorar el print de la consola
 # TODO buscar manera de diferenciar els meus misatges als dels altres
+# TODO fer separacio de misatges per persona (2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 

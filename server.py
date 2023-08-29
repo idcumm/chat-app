@@ -99,7 +99,7 @@ def handle_client(client):
                             w.writerow([username, password])
                         else:
                             for i in data:
-                                if username in i[0]:
+                                if username == i[0]:
                                     user_in_use = True
                                     client.send(bytes("/register_error", "utf8"))
                                     break
