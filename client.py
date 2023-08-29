@@ -167,14 +167,12 @@ def ventana_inicio():
 
 
 def login(usuario, clave, event=None):
-    print(usuario, clave)
     msg = f"{usuario} {clave}"
     my_msg.set("{login}" + msg)
     send()
 
 
 def register(usuario, clave, event=None):
-    print(usuario, clave)
     towrite = [usuario, clave]
 
     for i in towrite:

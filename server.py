@@ -66,10 +66,10 @@ def handle_client(client):
                     print(msg)
 
                 elif login_state == 2:
-                    client.send(bytes("{login_user_error}", "utf8"))
+                    client.send(bytes("{login_password_error}", "utf8"))
 
                 elif login_state == 3:
-                    client.send(bytes("{login_password_error}", "utf8"))
+                    client.send(bytes("{login_user_error}", "utf8"))
 
                 else:
                     print("Unknown error")
