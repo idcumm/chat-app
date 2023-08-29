@@ -1,3 +1,4 @@
+# TODO fer si data.csv no existe, el crea
 # ==========>> MODULE IMPORT <<========== #
 
 
