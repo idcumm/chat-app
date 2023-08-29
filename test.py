@@ -1,5 +1,4 @@
 from tkinter import *
-from time import sleep
 
 def lab():
     global blue_label
