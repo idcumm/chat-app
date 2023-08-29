@@ -57,7 +57,7 @@ def handle_client(client):
                 if login_state == 1:
                     name = username
                     clients[client] = name
-                    client.send(bytes("{connect}", "utf8"))
+                    client.send(bytes("{login}", "utf8"))
                     client.send(bytes("{history}" + str(history), "utf8"))
                     sleep(0.2)
                     msg = f"%s se ha unido al chat!" % name
@@ -66,10 +66,10 @@ def handle_client(client):
                     print(msg)
 
                 elif login_state == 2:
-                    client.send(bytes("{no_usuario}", "utf8"))
+                    client.send(bytes("{login_user_error}", "utf8"))
 
                 elif login_state == 3:
-                    client.send(bytes("{no_usuario}", "utf8"))
+                    client.send(bytes("{login_password_error}", "utf8"))
 
                 else:
                     print("Unknown error")
@@ -91,7 +91,7 @@ def handle_client(client):
                     for i in data:
                         if username in i[0]:
                             user_in_use = True
-                            client.send(bytes("{no_register}", "utf8"))
+                            client.send(bytes("{register_error}", "utf8"))
                             break
                     if not user_in_use:
                         w.writerow([username, password])

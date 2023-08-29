@@ -91,30 +91,30 @@ class App:
 
 
 def ventana_inicio():
-    global ventana_principal
+    global top_login
     global verifica_usuario
     global verifica_clave
 
-    ventana_principal = Frame(top)
+    top_login = Frame(top)
     verifica_usuario = StringVar()
     verifica_clave = StringVar()
 
     Label(
-        ventana_principal,
+        top_login,
         text="\n\n\n\n\n\n\n\n",
         width="300",
     ).pack()
 
     Label(
-        ventana_principal,
+        top_login,
         text="Introduzca el nombre de usuario y la contraseña\n",
         font=("Calibri", 13),
     ).pack()
 
-    Label(ventana_principal, text="Nombre de usuario *", font=("Calibri", 13)).pack()
+    Label(top_login, text="Nombre de usuario *", font=("Calibri", 13)).pack()
 
     entry_usuario = Entry(
-        ventana_principal,
+        top_login,
         width="30",
         font=("Calibri", 13),
         textvariable=verifica_usuario,
@@ -122,14 +122,14 @@ def ventana_inicio():
     entry_usuario.focus_set()
     entry_usuario.bind(
         "<Return>",
-        lambda: verifica_login(verifica_usuario.get(), verifica_clave.get()),
+        lambda: login(verifica_usuario.get(), verifica_clave.get()),
     )
     entry_usuario.pack()
 
-    Label(ventana_principal, text="Contraseña *", font=("Calibri", 13)).pack()
+    Label(top_login, text="Contraseña *", font=("Calibri", 13)).pack()
 
     entry_contrasena = Entry(
-        ventana_principal,
+        top_login,
         width="30",
         font=("Calibri", 13),
         textvariable=verifica_clave,
@@ -137,50 +137,50 @@ def ventana_inicio():
     )
     entry_contrasena.bind(
         "<Return>",
-        lambda: verifica_login(verifica_usuario.get(), verifica_clave.get()),
+        lambda: login(verifica_usuario.get(), verifica_clave.get()),
     )
     entry_contrasena.pack()
 
-    Label(ventana_principal, text="").pack()
+    Label(top_login, text="").pack()
 
     Button(
-        ventana_principal,
+        top_login,
         text="Login",
         width="20",
         bg="DarkGrey",
-        command=lambda: verifica_login(verifica_usuario.get(), verifica_clave.get()),
+        command=lambda: login(verifica_usuario.get(), verifica_clave.get()),
         font=("Calibri", 13),
     ).pack()
 
-    Label(ventana_principal, text="").pack()
+    Label(top_login, text="").pack()
 
     Button(
-        ventana_principal,
+        top_login,
         text="Register",
         width="20",
         bg="DarkGrey",
-        command=lambda: registro_usuario(verifica_usuario.get(), verifica_clave.get()),
+        command=lambda: register(verifica_usuario.get(), verifica_clave.get()),
         font=("Calibri", 13),
     ).pack()
 
-    ventana_principal.pack(side=LEFT, fill=BOTH)
+    top_login.pack(side=LEFT, fill=BOTH)
 
 
-def verifica_login(usuario, clave, event=None):
+def login(usuario, clave, event=None):
     print(usuario, clave)
     msg = f"{usuario} {clave}"
     my_msg.set("{login}" + msg)
     send()
 
 
-def registro_usuario(usuario, clave, event=None):
+def register(usuario, clave, event=None):
     print(usuario, clave)
     towrite = [usuario, clave]
 
     for i in towrite:
         if " " in i:
             no_spaces = False
-            no_registro()
+            register_error()
             break
         else:
             no_spaces = True
@@ -190,15 +190,20 @@ def registro_usuario(usuario, clave, event=None):
         send()
 
 
-def no_usuario():
-    global ventana_principal
-    Label(ventana_principal, text="Usuario o contraseña incorrecta.").pack()
+def login_user_error():
+    global top_login
+    Label(top_login, text="Usuario no encontrado.").pack()
 
 
-def no_registro():
-    global ventana_principal
+def login_password_error():
+    global top_login
+    Label(top_login, text="Contraseña incorrecta.").pack()
+
+
+def register_error():
+    global top_login
     Label(
-        ventana_principal,
+        top_login,
         text="Este nombre de usuario y/o contraseña \n no están disponibles",
     ).pack()
 
@@ -209,20 +214,23 @@ def receive():
     while True:
         try:
             msg = client_socket.recv(BUFSIZ).decode("utf8")
-            if "{connect}" in msg:
-                ventana_principal.destroy()
+            if "{login}" in msg:
+                top_login.destroy()
+                entry_field.focus_set()
                 user_loged = True
             elif "{history}" in msg:
                 history = msg[12:-2].split("', b'")
                 if not history == [""]:
                     for i in history:
                         msg_list.insert(END, i)
-            elif "{no_usuario}" in msg:
-                no_usuario()
+            elif "{login_user_error}" in msg:
+                login_user_error()
+            elif "{login_password_error}" in msg:
+                login_password_error()
             elif "{register}" in msg:
-                verifica_login(verifica_usuario.get(), verifica_clave.get())
-            elif "{no_register}" in msg:
-                no_registro()
+                login(verifica_usuario.get(), verifica_clave.get())
+            elif "{register_error}" in msg:
+                register_error()
             elif "{quit}" in msg:
                 client_socket.close()
                 top.quit()
@@ -259,7 +267,7 @@ def on_closing(event=None):
 
 
 client_socket = socket(AF_INET, SOCK_STREAM)
-HOST = "192.168.1.151"
+HOST = "127.0.0.1"
 PORT = 33000
 ADDR = (HOST, PORT)
 
