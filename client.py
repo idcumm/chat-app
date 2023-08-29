@@ -6,6 +6,7 @@
 # TODO fer autoscroll
 # TODO fer si data.csv no existe, el crea
 # TODO fer que no crashei quan es tanca
+# TODO posar dia i hora en missatges
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -26,6 +27,9 @@ class App:
         global scrollbar
         global entry_field
         global send_button
+        global top_login
+        global verifica_usuario
+        global verifica_clave
 
         # window
         top.title("Chatt app")
@@ -91,13 +95,6 @@ class App:
         send_button["fg"] = "#ffffff"
         send_button["justify"] = "center"
         send_button.place(x=1190, y=660, width=50, height=30)
-
-        App.ventana_inicio()
-
-    def ventana_inicio():
-        global top_login
-        global verifica_usuario
-        global verifica_clave
 
         top_login = Frame(top)
         verifica_usuario = StringVar()
