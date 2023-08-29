@@ -1,6 +1,7 @@
 # TODO make the app so it not only has group chat, dm's too
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
 # TODO fer verificar i register amb def ver(user, password): in no amb user.get()
+# TODO fer que no es pugui registrar ni logear amb la contrasenya o user vacio
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -176,7 +177,7 @@ def register(usuario, clave, event=None):
     towrite = [usuario, clave]
 
     for i in towrite:
-        if " " in i:
+        if " " in i or i == "":
             no_spaces = False
             register_error()
             break
