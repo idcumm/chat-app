@@ -31,7 +31,7 @@ def handle_client(client):
             print(name + ": " + msg)
         except UnboundLocalError:
             print(f"{client_address}: {msg}")
-        if "{login}" in msg:
+        if "/login" in msg:
             username, password = msg[7:].split()
             while True:
                 try:
@@ -62,8 +62,8 @@ def handle_client(client):
                         if login_state == 1:
                             name = username
                             clients[client] = name
-                            client.send(bytes("{login}", "utf8"))
-                            client.send(bytes("{history}" + str(history), "utf8"))
+                            client.send(bytes("/login", "utf8"))
+                            client.send(bytes("/history" + str(history), "utf8"))
                             sleep(0.2)
                             msg = f"%s se ha unido al chat!" % name
                             broadcast(msg)
@@ -71,10 +71,10 @@ def handle_client(client):
                             print(msg)
 
                         elif login_state == 2:
-                            client.send(bytes("{login_password_error}", "utf8"))
+                            client.send(bytes("/login_password_error", "utf8"))
 
                         elif login_state == 3:
-                            client.send(bytes("{login_user_error}", "utf8"))
+                            client.send(bytes("/login_user_error", "utf8"))
 
                         else:
                             print("Unknown error")
@@ -82,7 +82,7 @@ def handle_client(client):
                 except FileNotFoundError:
                     open("data.csv", "x")
 
-        elif "{register}" in msg:
+        elif "/register" in msg:
             username, password = msg[10:].split()
             while True:
                 try:
@@ -101,17 +101,17 @@ def handle_client(client):
                             for i in data:
                                 if username in i[0]:
                                     user_in_use = True
-                                    client.send(bytes("{register_error}", "utf8"))
+                                    client.send(bytes("/register_error", "utf8"))
                                     break
                             if not user_in_use:
                                 w.writerow([username, password])
-                                client.send(bytes("{register}", "utf8"))
+                                client.send(bytes("/register", "utf8"))
                         break
                 except FileNotFoundError:
                     open("data.csv", "x")
 
-        elif "{quit}" in msg:
-            client.send(bytes("{quit}", "utf8"))
+        elif "/quit" in msg:
+            client.send(bytes("/quit", "utf8"))
             client.close()
             del clients[client]
             msg = f"%s se ha ido del chat." % name

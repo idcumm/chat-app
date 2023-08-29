@@ -1,14 +1,16 @@
-# TODO make the app so it not only has group chat, dm's too
+# TODO fer que el chat tingui missatges privats
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
-# TODO fer tot un sol idioma
+# TODO fer tot en un sol idioma
 # TODO assegurarse d'haver arreglat register
 # TODO fer autoscroll
 # TODO fer que no crashei quan es tanca
 # TODO posar dia i hora en missatges
-# TODO cambiar {command} per /command
-# TODO cambiar l'enviament de misatges a /broadcast ({broadcast})
+# TODO cambiar l'enviament de misatges de res a /broadcast ({broadcast})
 # TODO fer que els errors de tkinter es borrin avans de sortir un altre
 # TODO fer el encriptatge
+# TODO que no surto la consola al obrir client.pyw
+# TODO millorar el print de la consola
+# TODO buscar manera de diferenciar els meus misatges als dels altres
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -181,7 +183,7 @@ class App:
 
         if no_spaces == True:
             msg = f"{usuario} {clave}"
-            my_msg.set("{login}" + msg)
+            my_msg.set("/login" + " " + msg)
             send()
 
     def register(usuario, clave, event=None):
@@ -196,7 +198,7 @@ class App:
                 no_spaces = True
         if no_spaces == True:
             msg = f"{usuario} {clave}"
-            my_msg.set("{register}" + msg)
+            my_msg.set("/register" + " " + msg)
             send()
 
     def login_user_error():
@@ -222,24 +224,24 @@ def receive():
         try:
             msg = client_socket.recv(BUFSIZ).decode("utf8")
             print(msg)
-            if "{login}" in msg:
+            if "/login" == msg:
                 top_login.destroy()
                 entry_field.focus_set()
                 user_loged = True
-            elif "{history}" in msg:
+            elif "/history" in msg:
                 history = msg[12:-2].split("', b'")
                 if not history == [""]:
                     for i in history:
                         msg_list.insert(END, i)
-            elif "{login_user_error}" in msg:
+            elif "/login_user_error" == msg:
                 App.login_user_error()
-            elif "{login_password_error}" in msg:
+            elif "/login_password_error" == msg:
                 App.login_password_error()
-            elif "{register}" in msg:
+            elif "/register" == msg:
                 App.login(verifica_usuario.get(), verifica_clave.get())
-            elif "{register_error}" in msg:
+            elif "/register_error" == msg:
                 App.register_error()
-            elif "{quit}" in msg:
+            elif "/quit" == msg:
                 client_socket.close()
                 top.quit()
             else:
@@ -256,7 +258,7 @@ def send(event=None):  # event is passed by binders.
     msg = my_msg.get()
     my_msg.set("")
     if user_loged == False:
-        if "{quit}" in msg or "{login}" in msg or "{register}" in msg:
+        if "/quit" in msg or "/login" in msg or "/register" in msg:
             client_socket.send(bytes(msg, "utf8"))
     elif user_loged == True:
         try:
@@ -266,7 +268,7 @@ def send(event=None):  # event is passed by binders.
 
 
 def on_closing(event=None):
-    my_msg.set("{quit}")
+    my_msg.set("/quit")
     send()
     exit()
 
