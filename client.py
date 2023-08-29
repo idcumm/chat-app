@@ -1,9 +1,10 @@
 # TODO make the app so it not only has group chat, dm's too
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
 # TODO fer verificar i register amb def ver(user, password): in no amb user.get()
-# TODO fer que no es pugui registrar ni logear amb la contrasenya o user vacio
-# TODO fer o tot angles o tot castella
+# TODO fer tot un sol idioma
 # TODO arreglar register
+# TODO fer autoscroll
+# TODO fer si data.csv no existe, el crea
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
