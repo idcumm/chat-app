@@ -33,72 +33,82 @@ def handle_client(client):
             print(f"{client_address}: {msg}")
         if "{login}" in msg:
             username, password = msg[7:].split()
-            with open("data.csv", "r+", encoding="utf8", newline="") as file:
-                data = []
-                r = csv.reader(file)
-                login_state = 0
+            while True:
+                try:
+                    with open("data.csv", "r+", encoding="utf8", newline="") as file:
+                        data = []
+                        r = csv.reader(file)
+                        login_state = 0
 
-                for row in r:
-                    data.append(row)
+                        for row in r:
+                            data.append(row)
 
-                if not data:
-                    login_state = 3
-
-                else:
-                    for i in data:
-                        if i[0] == username:
-                            if i[1] == password:
-                                login_state = 1
-                                break
-
-                            else:
-                                login_state = 2
-
-                        else:
+                        if not data:
                             login_state = 3
 
-                if login_state == 1:
-                    name = username
-                    clients[client] = name
-                    client.send(bytes("{login}", "utf8"))
-                    client.send(bytes("{history}" + str(history), "utf8"))
-                    sleep(0.2)
-                    msg = f"%s se ha unido al chat!" % name
-                    broadcast(msg)
-                    msg = f"%s se ha unido al chat! {client_address}" % name
-                    print(msg)
+                        else:
+                            for i in data:
+                                if i[0] == username:
+                                    if i[1] == password:
+                                        login_state = 1
+                                        break
 
-                elif login_state == 2:
-                    client.send(bytes("{login_password_error}", "utf8"))
+                                    else:
+                                        login_state = 2
 
-                elif login_state == 3:
-                    client.send(bytes("{login_user_error}", "utf8"))
+                                else:
+                                    login_state = 3
 
-                else:
-                    print("Unknown error")
+                        if login_state == 1:
+                            name = username
+                            clients[client] = name
+                            client.send(bytes("{login}", "utf8"))
+                            client.send(bytes("{history}" + str(history), "utf8"))
+                            sleep(0.2)
+                            msg = f"%s se ha unido al chat!" % name
+                            broadcast(msg)
+                            msg = f"%s se ha unido al chat! {client_address}" % name
+                            print(msg)
+
+                        elif login_state == 2:
+                            client.send(bytes("{login_password_error}", "utf8"))
+
+                        elif login_state == 3:
+                            client.send(bytes("{login_user_error}", "utf8"))
+
+                        else:
+                            print("Unknown error")
+                        break
+                except FileNotFoundError:
+                    open("data.csv", "x")
 
         elif "{register}" in msg:
             username, password = msg[10:].split()
-            with open("data.csv", "r+", encoding="utf8", newline="") as file:
-                data = []
-                w = csv.writer(file)
-                r = csv.reader(file)
-                user_in_use = False
+            while True:
+                try:
+                    with open("data.csv", "r+", encoding="utf8", newline="") as file:
+                        data = []
+                        w = csv.writer(file)
+                        r = csv.reader(file)
+                        user_in_use = False
 
-                for row in r:
-                    data.append(row)
+                        for row in r:
+                            data.append(row)
 
-                if not data:
-                    w.writerow([username, password])
-                else:
-                    for i in data:
-                        if username in i[0]:
-                            user_in_use = True
-                            client.send(bytes("{register_error}", "utf8"))
-                            break
-                    if not user_in_use:
-                        w.writerow([username, password])
-                        client.send(bytes("{register}", "utf8"))
+                        if not data:
+                            w.writerow([username, password])
+                        else:
+                            for i in data:
+                                if username in i[0]:
+                                    user_in_use = True
+                                    client.send(bytes("{register_error}", "utf8"))
+                                    break
+                            if not user_in_use:
+                                w.writerow([username, password])
+                                client.send(bytes("{register}", "utf8"))
+                        break
+                except FileNotFoundError:
+                    open("data.csv", "x")
 
         elif "{quit}" in msg:
             client.send(bytes("{quit}", "utf8"))

@@ -1,14 +1,14 @@
 # TODO make the app so it not only has group chat, dm's too
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
-# TODO fer verificar i register amb def ver(user, password): in no amb user.get()
 # TODO fer tot un sol idioma
-# TODO arreglar register
+# TODO assegurarse d'haver arreglat register
 # TODO fer autoscroll
-# TODO fer si data.csv no existe, el crea
 # TODO fer que no crashei quan es tanca
 # TODO posar dia i hora en missatges
 # TODO cambiar {command} per /command
 # TODO cambiar l'enviament de misatges a /broadcast ({broadcast})
+# TODO fer que els errors de tkinter es borrin avans de sortir un altre
+# TODO fer el puto encriptatge
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -221,6 +221,7 @@ def receive():
     while True:
         try:
             msg = client_socket.recv(BUFSIZ).decode("utf8")
+            print(msg)
             if "{login}" in msg:
                 top_login.destroy()
                 entry_field.focus_set()
