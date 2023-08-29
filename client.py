@@ -7,6 +7,8 @@
 # TODO fer si data.csv no existe, el crea
 # TODO fer que no crashei quan es tanca
 # TODO posar dia i hora en missatges
+# TODO cambiar {command} per /command
+# TODO cambiar l'enviament de misatges a /broadcast ({broadcast})
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 

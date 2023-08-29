@@ -16,7 +16,7 @@ def accept_incoming_connections():
     global client_address
     while True:
         client, client_address = SERVER.accept()
-        print("%s:%s se ha conectado." % client_address)
+        print(f"{client_address} se ha conectado.")
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).start()
 
@@ -27,6 +27,10 @@ def handle_client(client):
 
     while True:
         msg = client.recv(BUFSIZ).decode("utf8")
+        try:
+            print(name + ": " + msg)
+        except UnboundLocalError:
+            print(f"{client_address}: {msg}")
         if "{login}" in msg:
             username, password = msg[7:].split()
             with open("data.csv", "r+", encoding="utf8", newline="") as file:
@@ -107,7 +111,6 @@ def handle_client(client):
             break
         else:
             broadcast(msg, name + ": ")
-            print(name + ": " + msg)
 
 
 def broadcast(msg, prefix=""):  # prefix is for name identification.
