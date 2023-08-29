@@ -8,7 +8,7 @@
 # TODO cambiar {command} per /command
 # TODO cambiar l'enviament de misatges a /broadcast ({broadcast})
 # TODO fer que els errors de tkinter es borrin avans de sortir un altre
-# TODO fer el puto encriptatge
+# TODO fer el encriptatge
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
