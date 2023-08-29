@@ -3,6 +3,7 @@
 # TODO fer verificar i register amb def ver(user, password): in no amb user.get()
 # TODO fer que no es pugui registrar ni logear amb la contrasenya o user vacio
 # TODO fer o tot angles o tot castella
+# TODO arreglar register
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
