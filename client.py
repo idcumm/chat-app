@@ -1,15 +1,16 @@
-# TODO fer que el chat tingui missatges privats
+# # # # TODO fer que el chat tingui missatges privats
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
 # TODO fer tot en un sol idioma
 # TODO fer autoscroll
 # TODO posar dia i hora en missatges
 # TODO cambiar l'enviament de misatges de res a /broadcast ({broadcast})
-# TODO fer el encriptatge
+# # # # TODO fer el encriptatge
 # TODO que no surti la consola al obrir client.pyw
 # TODO millorar el print de la consola
 # TODO buscar manera de diferenciar els meus misatges als dels altres
 # TODO fer separacio de misatges per persona (2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
 # TODO poder posar espais al data.csv
+# TODO en comptes de enviar tot per send() (entry), enviaro per  client_socket.send()
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 

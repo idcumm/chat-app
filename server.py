@@ -26,7 +26,21 @@ def handle_client(client):
     global history
 
     while True:
-        msg = client.recv(BUFSIZ).decode("utf8")
+        try:
+            msg = client.recv(BUFSIZ).decode("utf8")
+        except ConnectionResetError:
+            client.close()
+            try:
+                del clients[client]
+                msg = f"%s se ha ido del chat." % name
+                broadcast(msg)
+                msg = f"%s se ha ido del chat. {client_address}" % name
+                print(msg)
+                break
+            except KeyError:
+                print(KeyError)
+                break
+
         try:
             print(name + ": " + msg)
         except UnboundLocalError:
