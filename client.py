@@ -1,7 +1,6 @@
 # TODO fer que el chat tingui missatges privats
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
 # TODO fer tot en un sol idioma
-# TODO assegurarse d'haver arreglat register
 # TODO fer autoscroll
 # TODO fer que no crashei quan es tanca
 # TODO posar dia i hora en missatges
@@ -12,6 +11,7 @@
 # TODO millorar el print de la consola
 # TODO buscar manera de diferenciar els meus misatges als dels altres
 # TODO fer separacio de misatges per persona (2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
+# TODO poder posar espais al data.csv
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -204,18 +204,45 @@ class App:
 
     def login_user_error():
         global top_login
-        Label(top_login, text="Usuario no encontrado.").pack()
+        global Error
+        try:
+            Error.destroy()
+        except NameError:
+            print("UnboundLocalError")
+        Error = Label(
+            top_login,
+            text="\nUsuario no encontrado.",
+            font=("Calibri", 13),
+        )
+        Error.pack()
 
     def login_password_error():
         global top_login
-        Label(top_login, text="Contraseña incorrecta.").pack()
+        global Error
+        try:
+            Error.destroy()
+        except NameError:
+            print("UnboundLocalError")
+        Error = Label(
+            top_login,
+            text="\nContraseña incorrecta.",
+            font=("Calibri", 13),
+        )
+        Error.pack()
 
     def register_error():
         global top_login
-        Label(
+        global Error
+        try:
+            Error.destroy()
+        except NameError:
+            print("UnboundLocalError")
+        Error = Label(
             top_login,
-            text="Este nombre de usuario y/o contraseña no están disponibles",
-        ).pack()
+            text="\nEste nombre de usuario y/o contraseña no están disponibles",
+            font=("Calibri", 13),
+        )
+        Error.pack()
 
 
 def receive():
