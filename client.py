@@ -9,8 +9,23 @@
 # TODO millorar el print de la consola
 # TODO buscar manera de diferenciar els meus misatges als dels altres
 # TODO fer separacio de misatges per persona (2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
+# -=-=-=- devesaguillem@gmail.com se ha unido! -=-=-=-
+
+# - - - - devesaguillem@gmail.com - - - - 
+# (00:00) Hola chicos!
+# (00:00) Como estan? Espero que Muy Bien
+#
+# - - - - devesapere@gmail.com - - - - 
+# (00:01) Mal
+#
+# - - - - devesaguillem@gmail.com - - - - 
+# (00:02) Por?
+#
 # TODO poder posar espais al data.csv
 # TODO en comptes de enviar tot per send() (entry), enviaro per  client_socket.send()
+# TODO posar limit de caracters al nom i als missatges
+# # # # TODO simular un atac informatic al servidor
+# TODO arreglar bind de enter
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -300,7 +315,7 @@ def on_closing(event=None):
 
 
 client_socket = socket(AF_INET, SOCK_STREAM)
-HOST = "192.168.1.151"
+HOST = "127.0.0.1"
 PORT = 33000
 ADDR = (HOST, PORT)
 
