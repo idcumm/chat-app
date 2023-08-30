@@ -2,10 +2,8 @@
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
 # TODO fer tot en un sol idioma
 # TODO fer autoscroll
-# TODO fer que no crashei quan es tanca
 # TODO posar dia i hora en missatges
 # TODO cambiar l'enviament de misatges de res a /broadcast ({broadcast})
-# TODO fer que els errors de tkinter es borrin avans de sortir un altre
 # TODO fer el encriptatge
 # TODO que no surti la consola al obrir client.pyw
 # TODO millorar el print de la consola
@@ -172,7 +170,6 @@ class App:
         top_login.pack(side=LEFT, fill=BOTH)
 
     def login(usuario, clave, event=None):
-        list = [usuario, clave]
         if " " in usuario or usuario == "":
             no_spaces = False
             App.login_user_error()
@@ -180,9 +177,6 @@ class App:
             no_spaces = False
             App.login_password_error()
         else:
-            no_spaces = True
-
-        if no_spaces == True:
             msg = f"{usuario} {clave}"
             my_msg.set("/login" + " " + msg)
             send()
@@ -208,7 +202,7 @@ class App:
         try:
             Error.destroy()
         except NameError:
-            print("UnboundLocalError")
+            print(NameError)
         Error = Label(
             top_login,
             text="\nUsuario no encontrado.",
@@ -222,7 +216,7 @@ class App:
         try:
             Error.destroy()
         except NameError:
-            print("UnboundLocalError")
+            print(NameError)
         Error = Label(
             top_login,
             text="\nContraseña incorrecta.",
@@ -236,7 +230,7 @@ class App:
         try:
             Error.destroy()
         except NameError:
-            print("UnboundLocalError")
+            print(NameError)
         Error = Label(
             top_login,
             text="\nEste nombre de usuario y/o contraseña no están disponibles",
@@ -275,7 +269,7 @@ def receive():
             else:
                 msg_list.insert(END, msg)
         except OSError:  # Possibly client has left the chat.
-            print("Error: OSError 1")
+            print(OSError)
             client_socket.close()
             top.quit()
             exit()
@@ -292,7 +286,7 @@ def send(event=None):  # event is passed by binders.
         try:
             client_socket.send(bytes(msg, "utf8"))
         except OSError:
-            print("Error: OSError 2")
+            print(OSError)
 
 
 def on_closing(event=None):
@@ -305,7 +299,7 @@ def on_closing(event=None):
 
 
 client_socket = socket(AF_INET, SOCK_STREAM)
-HOST = "127.0.0.1"
+HOST = "192.168.1.151"
 PORT = 33000
 ADDR = (HOST, PORT)
 

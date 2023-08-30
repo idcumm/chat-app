@@ -33,92 +33,97 @@ def handle_client(client):
             print(f"{client_address}: {msg}")
         if "/login" in msg:
             username, password = msg[7:].split()
-            while True:
-                try:
-                    with open("data.csv", "r+", encoding="utf8", newline="") as file:
-                        data = []
-                        r = csv.reader(file)
-                        login_state = 0
+            try:
+                with open("data.csv", "r+", encoding="utf8", newline="") as file:
+                    data = []
+                    r = csv.reader(file)
+                    login_state = 0
 
-                        for row in r:
-                            data.append(row)
+                    for row in r:
+                        data.append(row)
 
-                        if not data:
-                            login_state = 3
+                    if not data:
+                        login_state = 3
 
-                        else:
-                            for i in data:
-                                if i[0] == username:
-                                    if i[1] == password:
-                                        login_state = 1
-                                        break
-
-                                    else:
-                                        login_state = 2
+                    else:
+                        for i in data:
+                            if i[0] == username:
+                                if i[1] == password:
+                                    login_state = 1
+                                    break
 
                                 else:
-                                    login_state = 3
+                                    login_state = 2
 
-                        if login_state == 1:
-                            name = username
-                            clients[client] = name
-                            client.send(bytes("/login", "utf8"))
-                            client.send(bytes("/history" + str(history), "utf8"))
-                            sleep(0.2)
-                            msg = f"%s se ha unido al chat!" % name
-                            broadcast(msg)
-                            msg = f"%s se ha unido al chat! {client_address}" % name
-                            print(msg)
+                            else:
+                                login_state = 3
 
-                        elif login_state == 2:
-                            client.send(bytes("/login_password_error", "utf8"))
+                    if login_state == 1:
+                        name = username
+                        clients[client] = name
+                        client.send(bytes("/login", "utf8"))
+                        client.send(bytes("/history" + " " + str(history), "utf8"))
+                        sleep(0.2)
+                        msg = f"%s se ha unido al chat!" % name
+                        broadcast(msg)
+                        msg = f"%s se ha unido al chat! {client_address}" % name
+                        print(msg)
 
-                        elif login_state == 3:
-                            client.send(bytes("/login_user_error", "utf8"))
+                    elif login_state == 2:
+                        client.send(bytes("/login_password_error", "utf8"))
 
-                        else:
-                            print("Unknown error")
-                        break
-                except FileNotFoundError:
-                    open("data.csv", "x")
+                    elif login_state == 3:
+                        client.send(bytes("/login_user_error", "utf8"))
+
+                    else:
+                        print("Unknown error")
+            except FileNotFoundError:
+                print(FileNotFoundError)
+                client.send(bytes("/login_user_error", "utf8"))
 
         elif "/register" in msg:
             username, password = msg[10:].split()
-            while True:
-                try:
-                    with open("data.csv", "r+", encoding="utf8", newline="") as file:
-                        data = []
-                        w = csv.writer(file)
-                        r = csv.reader(file)
-                        user_in_use = False
+            try:
+                print(FileExistsError)
+                x = open("data.csv", "x")
+                x.close()
+            except FileExistsError:
+                pass
+            with open("data.csv", "r+", encoding="utf8", newline="") as file:
+                data = []
+                w = csv.writer(file)
+                r = csv.reader(file)
+                user_in_use = False
 
-                        for row in r:
-                            data.append(row)
+                for row in r:
+                    data.append(row)
 
-                        if not data:
-                            w.writerow([username, password])
-                        else:
-                            for i in data:
-                                if username == i[0]:
-                                    user_in_use = True
-                                    client.send(bytes("/register_error", "utf8"))
-                                    break
-                            if not user_in_use:
-                                w.writerow([username, password])
-                                client.send(bytes("/register", "utf8"))
-                        break
-                except FileNotFoundError:
-                    open("data.csv", "x")
-
+                if not data:
+                    w.writerow([username, password])
+                    client.send(bytes("/register", "utf8"))
+                else:
+                    for i in data:
+                        if username == i[0]:
+                            user_in_use = True
+                            client.send(bytes("/register_error", "utf8"))
+                            break
+                    if not user_in_use:
+                        w.writerow([username, password])
+                        client.send(bytes("/register", "utf8"))
         elif "/quit" in msg:
             client.send(bytes("/quit", "utf8"))
             client.close()
-            del clients[client]
-            msg = f"%s se ha ido del chat." % name
-            broadcast(msg)
-            msg = f"%s se ha ido del chat. {client_address}" % name
-            print(msg)
-            break
+            try:
+                del clients[client]
+                msg = f"%s se ha ido del chat." % name
+                broadcast(msg)
+                msg = f"%s se ha ido del chat. {client_address}" % name
+                print(msg)
+                break
+            except KeyError:
+                print(KeyError)
+                break
+
         else:
             broadcast(msg, name + ": ")
 
@@ -130,7 +135,7 @@ def broadcast(msg, prefix=""):  # prefix is for name identification.
         try:
             sock.send(bytes("(" + date + ") " + prefix + msg, "utf8"))
         except ConnectionResetError:
-            print("Error: ConnectionResetError 2")
+            print(ConnectionResetError)
     history.append(bytes("(" + date + ") " + prefix + msg, "utf8"))
 
 
