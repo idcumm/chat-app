@@ -98,9 +98,9 @@ def handle_client(client):
         elif "/register" in msg:
             username, password = msg[10:].split()
             try:
-                print(FileExistsError)
                 x = open("data.csv", "x")
                 x.close()
+                print(FileExistsError)
             except FileExistsError:
                 pass
             with open("data.csv", "r+", encoding="utf8", newline="") as file:
