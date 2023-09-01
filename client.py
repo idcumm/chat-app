@@ -19,9 +19,9 @@
 # - - - - devesaguillem@gmail.com - - - -
 # (00:02) Por?
 #
-# TODO poder posar espais al data.csv
-# TODO posar limit de caracters al nom i als missatges
+# TODO posar un misatge de error al eliminar part del usuario o contrasenya perque es massa llarg
 # # # # TODO simular un atac informatic al servidor
+# TODO si el misatge es massa llarg que es pugui llegir
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -96,11 +96,13 @@ class App:
         scrollbar.config(command=msg_list.yview)
         msg_list["bg"] = "#282424"
         msg_list["borderwidth"] = "1px"
+        msg_list["selectbackground"] = "#282424"
         ft = tkFont.Font(family="Times", size=15)
         msg_list["font"] = ft
         msg_list["fg"] = "#ffffff"
         msg_list["justify"] = "left"
         msg_list.place(x=380, y=10, width=830, height=640)
+        # msg_list.tag_config("right", justify="right")
 
         # send_button
         send_button = Button(top, text="Enviar", command=msg_send)
@@ -184,30 +186,21 @@ class App:
 
 
 def login(usuario, clave, event=None):
-    if " " in usuario or usuario == "":
-        no_spaces = False
-        login_user_error()
-    elif " " in clave or clave == "":
-        no_spaces = False
-        login_password_error()
-    else:
-        msg = f"{usuario} {clave}"
-        command_send("/login " + msg)
+    if len(usuario) > 20:
+        usuario = usuario[:20]
+    if len(clave) > 20:
+        clave = clave[:20]
+    msg = f'"{usuario}", "{clave}"'
+    command_send("/login " + msg)
 
 
 def register(usuario, clave, event=None):
-    list = [usuario, clave]
-
-    for i in list:
-        if " " in i or i == "":
-            no_spaces = False
-            register_error()
-            break
-        else:
-            no_spaces = True
-    if no_spaces == True:
-        msg = f"{usuario} {clave}"
-        command_send("/register " + msg)
+    if len(usuario) > 20:
+        usuario = usuario[:20]
+    if len(clave) > 20:
+        clave = clave[:20]
+    msg = f'"{usuario}", "{clave}"'
+    command_send("/register " + msg)
 
 
 def login_user_error():

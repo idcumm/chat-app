@@ -47,7 +47,8 @@ def handle_client(client):
             print(f"{client_address}: {msg}")
 
         if "/login" in msg:
-            username, password = msg[7:].split()
+            username, password = msg[8:-1].split('", "')
+            print(username, password)
             try:
                 with open("data.csv", "r+", encoding="utf8", newline="") as file:
                     data = []
@@ -77,7 +78,7 @@ def handle_client(client):
                         name = username
                         clients[client] = name
                         client.send("/login".encode("utf8"))
-                        client.send("/history " + str(history).encode("utf8"))
+                        client.send(("/history " + str(history)).encode("utf8"))
                         sleep(0.2)
                         msg = f"%s se ha unido al chat!" % name
                         broadcast(msg)
@@ -98,7 +99,7 @@ def handle_client(client):
                 client.send("/login_user_error".encode("utf8"))
 
         elif "/register" in msg:
-            username, password = msg[10:].split()
+            username, password = msg[11:-1].split('", "')
             try:
                 x = open("data.csv", "x")
                 x.close()
@@ -151,7 +152,7 @@ def broadcast(msg, prefix=""):  # prefix is for name identification.
     date = datetime.now().strftime("%H:%M")
     for sock in clients:
         try:
-            sock.send("(" + date + ") " + prefix + msg.encode("utf8"))
+            sock.send(("(" + date + ") " + prefix + msg).encode("utf8"))
         except ConnectionResetError:
             print(ConnectionResetError)
     history.append("(" + date + ") " + prefix + msg)
