@@ -1,9 +1,7 @@
 # # # # TODO fer que el chat tingui missatges privats
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
 # TODO fer tot en un sol idioma
-# TODO fer autoscroll
 # TODO posar dia i hora en missatges
-# TODO cambiar l'enviament de misatges de res a /broadcast ({broadcast})
 # # # # TODO fer el encriptatge
 # TODO que no surti la consola al obrir client.pyw
 # TODO millorar el print de la consola
@@ -11,21 +9,20 @@
 # TODO fer separacio de misatges per persona (2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
 # -=-=-=- devesaguillem@gmail.com se ha unido! -=-=-=-
 
-# - - - - devesaguillem@gmail.com - - - - 
+# - - - - devesaguillem@gmail.com - - - -
 # (00:00) Hola chicos!
 # (00:00) Como estan? Espero que Muy Bien
 #
-# - - - - devesapere@gmail.com - - - - 
+# - - - - devesapere@gmail.com - - - -
 # (00:01) Mal
 #
-# - - - - devesaguillem@gmail.com - - - - 
+# - - - - devesaguillem@gmail.com - - - -
 # (00:02) Por?
 #
 # TODO poder posar espais al data.csv
 # TODO en comptes de enviar tot per send() (entry), enviaro per  client_socket.send()
 # TODO posar limit de caracters al nom i als missatges
 # # # # TODO simular un atac informatic al servidor
-# TODO arreglar bind de enter
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -34,6 +31,7 @@ from threading import Thread
 from tkinter import *
 import tkinter.font as tkFont
 from os import system
+from functools import partial
 
 
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
@@ -142,7 +140,7 @@ class App:
         entry_usuario.focus_set()
         entry_usuario.bind(
             "<Return>",
-            lambda: App.login(verifica_usuario.get(), verifica_clave.get()),
+            lambda event: login(verifica_usuario.get(), verifica_clave.get()),
         )
         entry_usuario.pack()
 
@@ -157,7 +155,7 @@ class App:
         )
         entry_contrasena.bind(
             "<Return>",
-            lambda: App.login(verifica_usuario.get(), verifica_clave.get()),
+            lambda event: login(verifica_usuario.get(), verifica_clave.get()),
         )
         entry_contrasena.pack()
 
@@ -168,7 +166,7 @@ class App:
             text="Login",
             width="20",
             bg="DarkGrey",
-            command=lambda: App.login(verifica_usuario.get(), verifica_clave.get()),
+            command=lambda: login(verifica_usuario.get(), verifica_clave.get()),
             font=("Calibri", 13),
         ).pack()
 
@@ -179,80 +177,91 @@ class App:
             text="Register",
             width="20",
             bg="DarkGrey",
-            command=lambda: App.register(verifica_usuario.get(), verifica_clave.get()),
+            command=lambda: register(verifica_usuario.get(), verifica_clave.get()),
             font=("Calibri", 13),
         ).pack()
 
         top_login.pack(side=LEFT, fill=BOTH)
 
-    def login(usuario, clave, event=None):
-        if " " in usuario or usuario == "":
+
+def login(usuario, clave, event=None):
+    if " " in usuario or usuario == "":
+        no_spaces = False
+        login_user_error()
+    elif " " in clave or clave == "":
+        no_spaces = False
+        login_password_error()
+    else:
+        msg = f"{usuario} {clave}"
+        my_msg.set("/login" + " " + msg)
+        send()
+
+
+def register(usuario, clave, event=None):
+    list = [usuario, clave]
+
+    for i in list:
+        if " " in i or i == "":
             no_spaces = False
-            App.login_user_error()
-        elif " " in clave or clave == "":
-            no_spaces = False
-            App.login_password_error()
+            register_error()
+            break
         else:
-            msg = f"{usuario} {clave}"
-            my_msg.set("/login" + " " + msg)
-            send()
+            no_spaces = True
+    if no_spaces == True:
+        msg = f"{usuario} {clave}"
+        my_msg.set("/register" + " " + msg)
+        send()
 
-    def register(usuario, clave, event=None):
-        list = [usuario, clave]
 
-        for i in list:
-            if " " in i or i == "":
-                no_spaces = False
-                App.register_error()
-                break
-            else:
-                no_spaces = True
-        if no_spaces == True:
-            msg = f"{usuario} {clave}"
-            my_msg.set("/register" + " " + msg)
-            send()
+def login_user_error():
+    global top_login
+    global Error
+    try:
+        Error.destroy()
+    except NameError:
+        print(NameError)
+    Error = Label(
+        top_login,
+        text="\nUsuario no encontrado.",
+        font=("Calibri", 13),
+    )
+    Error.pack()
 
-    def login_user_error():
-        global top_login
-        global Error
-        try:
-            Error.destroy()
-        except NameError:
-            print(NameError)
-        Error = Label(
-            top_login,
-            text="\nUsuario no encontrado.",
-            font=("Calibri", 13),
-        )
-        Error.pack()
 
-    def login_password_error():
-        global top_login
-        global Error
-        try:
-            Error.destroy()
-        except NameError:
-            print(NameError)
-        Error = Label(
-            top_login,
-            text="\nContraseña incorrecta.",
-            font=("Calibri", 13),
-        )
-        Error.pack()
+def login_password_error():
+    global top_login
+    global Error
+    try:
+        Error.destroy()
+    except NameError:
+        print(NameError)
+    Error = Label(
+        top_login,
+        text="\nContraseña incorrecta.",
+        font=("Calibri", 13),
+    )
+    Error.pack()
 
-    def register_error():
-        global top_login
-        global Error
-        try:
-            Error.destroy()
-        except NameError:
-            print(NameError)
-        Error = Label(
-            top_login,
-            text="\nEste nombre de usuario y/o contraseña no están disponibles",
-            font=("Calibri", 13),
-        )
-        Error.pack()
+
+def register_error():
+    global top_login
+    global Error
+    try:
+        Error.destroy()
+    except NameError:
+        print(NameError)
+    Error = Label(
+        top_login,
+        text="\nEste nombre de usuario y/o contraseña no están disponibles",
+        font=("Calibri", 13),
+    )
+    Error.pack()
+
+
+def onAdd(place, text):
+    global msg_list
+    msg_list.insert(place, text)
+    msg_list.yview(place)
 
 
 def receive():
@@ -267,23 +276,24 @@ def receive():
                 entry_field.focus_set()
                 user_loged = True
             elif "/history" in msg:
-                history = msg[12:-2].split("', b'")
+                history = eval(msg[9:])
                 if not history == [""]:
                     for i in history:
-                        msg_list.insert(END, i)
+                        onAdd(END, i)
             elif "/login_user_error" == msg:
-                App.login_user_error()
+                login_user_error()
             elif "/login_password_error" == msg:
-                App.login_password_error()
+                login_password_error()
             elif "/register" == msg:
-                App.login(verifica_usuario.get(), verifica_clave.get())
+                login(verifica_usuario.get(), verifica_clave.get())
             elif "/register_error" == msg:
-                App.register_error()
+                register_error()
             elif "/quit" == msg:
                 client_socket.close()
                 top.quit()
             else:
-                msg_list.insert(END, msg)
+                onAdd(END, msg)
+
         except OSError:  # Possibly client has left the chat.
             print(OSError)
             client_socket.close()

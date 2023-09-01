@@ -45,6 +45,7 @@ def handle_client(client):
             print(name + ": " + msg)
         except UnboundLocalError:
             print(f"{client_address}: {msg}")
+
         if "/login" in msg:
             username, password = msg[7:].split()
             try:
@@ -76,7 +77,7 @@ def handle_client(client):
                         name = username
                         clients[client] = name
                         client.send(bytes("/login", "utf8"))
-                        client.send(bytes("/history" + " " + str(history), "utf8"))
+                        client.send(bytes("/history " + str(history), "utf8"))
                         sleep(0.2)
                         msg = f"%s se ha unido al chat!" % name
                         broadcast(msg)
@@ -150,7 +151,7 @@ def broadcast(msg, prefix=""):  # prefix is for name identification.
             sock.send(bytes("(" + date + ") " + prefix + msg, "utf8"))
         except ConnectionResetError:
             print(ConnectionResetError)
-    history.append(bytes("(" + date + ") " + prefix + msg, "utf8"))
+    history.append("(" + date + ") " + prefix + msg)
 
 
 clients = {}
