@@ -20,9 +20,9 @@
 # (00:02) Por?
 #
 # TODO poder posar espais al data.csv
-# TODO en comptes de enviar tot per send() (entry), enviaro per  client_socket.send()
 # TODO posar limit de caracters al nom i als missatges
 # # # # TODO simular un atac informatic al servidor
+# TODO cambiar bytes() per .encode()
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -82,7 +82,7 @@ class App:
 
         # entry_field
         entry_field = Entry(top, textvariable=my_msg)
-        entry_field.bind("<Return>", send)
+        entry_field.bind("<Return>", msg_send)
         entry_field.focus_set()
         entry_field["borderwidth"] = "1px"
         entry_field["bg"] = "#282424"
@@ -104,7 +104,7 @@ class App:
         msg_list.place(x=380, y=10, width=830, height=640)
 
         # send_button
-        send_button = Button(top, text="Enviar", command=send)
+        send_button = Button(top, text="Enviar", command=msg_send)
         send_button["anchor"] = "se"
         send_button["bg"] = "#282424"
         ft = tkFont.Font(family="Times", size=10)
@@ -193,8 +193,7 @@ def login(usuario, clave, event=None):
         login_password_error()
     else:
         msg = f"{usuario} {clave}"
-        my_msg.set("/login" + " " + msg)
-        send()
+        command_send("/login " + msg)
 
 
 def register(usuario, clave, event=None):
@@ -209,8 +208,7 @@ def register(usuario, clave, event=None):
             no_spaces = True
     if no_spaces == True:
         msg = f"{usuario} {clave}"
-        my_msg.set("/register" + " " + msg)
-        send()
+        command_send("/register " + msg)
 
 
 def login_user_error():
@@ -265,7 +263,6 @@ def onAdd(place, text):
 
 
 def receive():
-    global user_loged
     global history
     while True:
         try:
@@ -274,7 +271,6 @@ def receive():
             if "/login" == msg:
                 top_login.destroy()
                 entry_field.focus_set()
-                user_loged = True
             elif "/history" in msg:
                 history = eval(msg[9:])
                 if not history == [""]:
@@ -301,23 +297,21 @@ def receive():
             exit()
 
 
-def send(event=None):  # event is passed by binders.
-    global user_loged
+def msg_send(event=None):  # event is passed by binders.
     msg = my_msg.get()
     my_msg.set("")
-    if user_loged == False:
-        if "/quit" in msg or "/login" in msg or "/register" in msg:
-            client_socket.send(bytes(msg, "utf8"))
-    elif user_loged == True:
-        try:
-            client_socket.send(bytes(msg, "utf8"))
-        except OSError:
-            print(OSError)
+    try:
+        client_socket.send(bytes(msg, "utf8"))
+    except OSError:
+        print(OSError)
+
+
+def command_send(msg, event=None):
+    client_socket.send(msg.encode("utf8"))
 
 
 def on_closing(event=None):
-    my_msg.set("/quit")
-    send()
+    command_send("/quit")
     exit()
 
 
@@ -333,7 +327,6 @@ BUFSIZ = 1024
 
 if __name__ == "__main__":
     system("title ClientSocket")
-    user_loged = False
 
     client_socket.connect(ADDR)
     receive_thread = Thread(target=receive)
