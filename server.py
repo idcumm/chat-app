@@ -76,8 +76,8 @@ def handle_client(client):
                     if login_state == 1:
                         name = username
                         clients[client] = name
-                        client.send(bytes("/login", "utf8"))
-                        client.send(bytes("/history " + str(history), "utf8"))
+                        client.send("/login".encode("utf8"))
+                        client.send("/history " + str(history).encode("utf8"))
                         sleep(0.2)
                         msg = f"%s se ha unido al chat!" % name
                         broadcast(msg)
@@ -85,16 +85,17 @@ def handle_client(client):
                         print(msg)
 
                     elif login_state == 2:
-                        client.send(bytes("/login_password_error", "utf8"))
+                        client.send("/login_password_error".encode("utf8"))
 
                     elif login_state == 3:
-                        client.send(bytes("/login_user_error", "utf8"))
+                        client.send("/login_user_error".encode("utf8"))
 
                     else:
                         print("Unknown error")
+
             except FileNotFoundError:
                 print(FileNotFoundError)
-                client.send(bytes("/login_user_error", "utf8"))
+                client.send("/login_user_error".encode("utf8"))
 
         elif "/register" in msg:
             username, password = msg[10:].split()
@@ -102,8 +103,10 @@ def handle_client(client):
                 x = open("data.csv", "x")
                 x.close()
                 print(FileExistsError)
+
             except FileExistsError:
                 pass
+
             with open("data.csv", "r+", encoding="utf8", newline="") as file:
                 data = []
                 w = csv.writer(file)
@@ -115,18 +118,18 @@ def handle_client(client):
 
                 if not data:
                     w.writerow([username, password])
-                    client.send(bytes("/register", "utf8"))
+                    client.send("/register".encode("utf8"))
                 else:
                     for i in data:
                         if username == i[0]:
                             user_in_use = True
-                            client.send(bytes("/register_error", "utf8"))
+                            client.send("/register_error".encode("utf8"))
                             break
                     if not user_in_use:
                         w.writerow([username, password])
-                        client.send(bytes("/register", "utf8"))
+                        client.send("/register".encode("utf8"))
         elif "/quit" in msg:
-            client.send(bytes("/quit", "utf8"))
+            client.send("/quit".encode("utf8"))
             client.close()
             try:
                 del clients[client]
@@ -148,7 +151,7 @@ def broadcast(msg, prefix=""):  # prefix is for name identification.
     date = datetime.now().strftime("%H:%M")
     for sock in clients:
         try:
-            sock.send(bytes("(" + date + ") " + prefix + msg, "utf8"))
+            sock.send("(" + date + ") " + prefix + msg.encode("utf8"))
         except ConnectionResetError:
             print(ConnectionResetError)
     history.append("(" + date + ") " + prefix + msg)

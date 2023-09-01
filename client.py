@@ -22,7 +22,6 @@
 # TODO poder posar espais al data.csv
 # TODO posar limit de caracters al nom i als missatges
 # # # # TODO simular un atac informatic al servidor
-# TODO cambiar bytes() per .encode()
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -301,7 +300,7 @@ def msg_send(event=None):  # event is passed by binders.
     msg = my_msg.get()
     my_msg.set("")
     try:
-        client_socket.send(bytes(msg, "utf8"))
+        client_socket.send(msg.encode("utf8"))
     except OSError:
         print(OSError)
 
