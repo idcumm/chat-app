@@ -18,8 +18,9 @@
 # - - - - devesaguillem@gmail.com - - - -
 # (00:02) Por?
 #
-# TODO posar un misatge de error al eliminar part del usuario o contrasenya perque es massa llarg
 # # # # TODO simular un atac informatic al servidor
+# TODO que el client pugui saber el seu propi nom
+# TODO quan tornes a obrir el chat history, que els teus misatges estiguin a la dreta i no a la esquerra
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -185,21 +186,36 @@ class App:
 
 
 def login(usuario, clave, event=None):
-    if len(usuario) > 20:
-        usuario = usuario[:20]
-    if len(clave) > 20:
-        clave = clave[:20]
-    msg = f'"{usuario}", "{clave}"'
-    command_send("/login " + msg)
+    global username
+    username = usuario
+    if len(usuario) > 20 or len(clave) > 20:
+        login_lenght_error()
+    else:
+        msg = f'"{usuario}", "{clave}"'
+        command_send("/login " + msg)
 
 
 def register(usuario, clave, event=None):
-    if len(usuario) > 20:
-        usuario = usuario[:20]
-    if len(clave) > 20:
-        clave = clave[:20]
-    msg = f'"{usuario}", "{clave}"'
-    command_send("/register " + msg)
+    if len(usuario) > 20 or len(clave) > 20:
+        login_lenght_error()
+    else:
+        msg = f'"{usuario}", "{clave}"'
+        command_send("/register " + msg)
+
+
+def login_lenght_error():
+    global top_login
+    global Error
+    try:
+        Error.destroy()
+    except NameError:
+        print(NameError)
+    Error = Label(
+        top_login,
+        text="\nEl usuario y la contraseña deben ser inferiores a 20 carácteres.",
+        font=("Calibri", 13),
+    )
+    Error.pack()
 
 
 def login_user_error():
@@ -250,7 +266,7 @@ def register_error():
 def onAdd(place, text, tag=None):
     global msg_list
     msg_list.configure(state="normal")
-    msg_list.insert(place, text + "\n", tag)
+    msg_list.insert(place, text + "\n\n", tag)
     msg_list.configure(state="disabled")
     msg_list.yview(place)
 
@@ -262,6 +278,7 @@ def receive():
             msg = client_socket.recv(BUFSIZ).decode("utf8")
             print(msg)
             if "/login" == msg:
+                top.title(f"Chatt app - Logged as {username}")
                 top_login.destroy()
                 entry_field.focus_set()
             elif "/history" in msg:
@@ -294,7 +311,7 @@ def msg_send(event=None):  # event is passed by binders.
     msg = my_msg.get()
     my_msg.set("")
     date = datetime.now().strftime("%H:%M")
-    full_msg = "(" + date + ") " + "You: " + msg
+    full_msg = username + ": " + msg + " (" + date + ")"
     onAdd(END, full_msg, tag="right")
     try:
         client_socket.send(msg.encode("utf8"))
