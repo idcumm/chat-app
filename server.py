@@ -16,7 +16,7 @@ def accept_incoming_connections():
     global client_address
     while True:
         client, client_address = SERVER.accept()
-        # client_list.append(client)
+        print(client_address)
         print(f"{client_address} se ha conectado.")
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).start()
@@ -78,6 +78,7 @@ def handle_client(client):
                     if login_state == 1:
                         name = username
                         clients[client] = name
+                        print(clients)
                         client.send("/login".encode("utf8"))
                         client.send(("/history " + str(history)).encode("utf8"))
                         sleep(0.2)
@@ -163,7 +164,6 @@ def broadcast(msg, prefix="", client=""):  # prefix is for name identification.
 clients = {}
 addresses = {}
 history = []
-client_list = []
 
 system("title ServerSocket")
 
