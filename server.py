@@ -16,6 +16,7 @@ def accept_incoming_connections():
     global client_address
     while True:
         client, client_address = SERVER.accept()
+        # client_list.append(client)
         print(f"{client_address} se ha conectado.")
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).start()
@@ -33,7 +34,7 @@ def handle_client(client):
             try:
                 del clients[client]
                 msg = f"%s se ha ido del chat." % name
-                broadcast(msg)
+                broadcast(msg, client=client)
                 msg = f"%s se ha ido del chat. {client_address}" % name
                 print(msg)
                 break
@@ -81,7 +82,7 @@ def handle_client(client):
                         client.send(("/history " + str(history)).encode("utf8"))
                         sleep(0.2)
                         msg = f"%s se ha unido al chat!" % name
-                        broadcast(msg)
+                        broadcast(msg, client=client)
                         msg = f"%s se ha unido al chat! {client_address}" % name
                         print(msg)
 
@@ -135,7 +136,7 @@ def handle_client(client):
             try:
                 del clients[client]
                 msg = f"%s se ha ido del chat." % name
-                broadcast(msg)
+                broadcast(msg, client=client)
                 msg = f"%s se ha ido del chat. {client_address}" % name
                 print(msg)
                 break
@@ -144,23 +145,25 @@ def handle_client(client):
                 break
 
         else:
-            broadcast(msg, name + ": ")
+            broadcast(msg, name + ": ", client=client)
 
 
-def broadcast(msg, prefix=""):  # prefix is for name identification.
+def broadcast(msg, prefix="", client=""):  # prefix is for name identification.
     global history
     date = datetime.now().strftime("%H:%M")
     for sock in clients:
-        try:
-            sock.send(("(" + date + ") " + prefix + msg).encode("utf8"))
-        except ConnectionResetError:
-            print(ConnectionResetError)
+        if sock != client:
+            try:
+                sock.send(("(" + date + ") " + prefix + msg).encode("utf8"))
+            except ConnectionResetError:
+                print(ConnectionResetError)
     history.append("(" + date + ") " + prefix + msg)
 
 
 clients = {}
 addresses = {}
 history = []
+client_list = []
 
 system("title ServerSocket")
 

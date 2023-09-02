@@ -5,7 +5,6 @@
 # # # # TODO fer el encriptatge
 # TODO que no surti la consola al obrir client.pyw
 # TODO millorar el print de la consola
-# TODO buscar manera de diferenciar els meus misatges als dels altres
 # TODO fer separacio de misatges per persona (2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
 # -=-=-=- devesaguillem@gmail.com se ha unido! -=-=-=-
 
@@ -21,7 +20,6 @@
 #
 # TODO posar un misatge de error al eliminar part del usuario o contrasenya perque es massa llarg
 # # # # TODO simular un atac informatic al servidor
-# TODO si el misatge es massa llarg que es pugui llegir
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -31,6 +29,7 @@ from tkinter import *
 import tkinter.font as tkFont
 from os import system
 from functools import partial
+from datetime import datetime
 
 
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
@@ -92,17 +91,17 @@ class App:
         entry_field["relief"] = "sunken"
         entry_field.place(x=380, y=660, width=800, height=30)
 
-        msg_list = Listbox(top, yscrollcommand=scrollbar.set)
+        msg_list = Text(top, yscrollcommand=scrollbar.set)
         scrollbar.config(command=msg_list.yview)
         msg_list["bg"] = "#282424"
         msg_list["borderwidth"] = "1px"
-        msg_list["selectbackground"] = "#282424"
+        # msg_list["selectbackground"] = "#282424"
         ft = tkFont.Font(family="Times", size=15)
         msg_list["font"] = ft
         msg_list["fg"] = "#ffffff"
-        msg_list["justify"] = "left"
+        # msg_list["justify"] = "left"
         msg_list.place(x=380, y=10, width=830, height=640)
-        # msg_list.tag_config("right", justify="right")
+        msg_list.tag_config("right", justify="right")
 
         # send_button
         send_button = Button(top, text="Enviar", command=msg_send)
@@ -248,9 +247,11 @@ def register_error():
     Error.pack()
 
 
-def onAdd(place, text):
+def onAdd(place, text, tag=None):
     global msg_list
-    msg_list.insert(place, text)
+    msg_list.configure(state="normal")
+    msg_list.insert(place, text + "\n", tag)
+    msg_list.configure(state="disabled")
     msg_list.yview(place)
 
 
@@ -292,6 +293,9 @@ def receive():
 def msg_send(event=None):  # event is passed by binders.
     msg = my_msg.get()
     my_msg.set("")
+    date = datetime.now().strftime("%H:%M")
+    full_msg = "(" + date + ") " + "You: " + msg
+    onAdd(END, full_msg, tag="right")
     try:
         client_socket.send(msg.encode("utf8"))
     except OSError:
