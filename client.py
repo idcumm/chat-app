@@ -19,8 +19,6 @@
 # (00:02) Por?
 #
 # # # # TODO simular un atac informatic al servidor
-# TODO que el client pugui saber el seu propi nom
-# TODO quan tornes a obrir el chat history, que els teus misatges estiguin a la dreta i no a la esquerra
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -96,11 +94,9 @@ class App:
         scrollbar.config(command=msg_list.yview)
         msg_list["bg"] = "#282424"
         msg_list["borderwidth"] = "1px"
-        # msg_list["selectbackground"] = "#282424"
         ft = tkFont.Font(family="Times", size=15)
         msg_list["font"] = ft
         msg_list["fg"] = "#ffffff"
-        # msg_list["justify"] = "left"
         msg_list.place(x=380, y=10, width=830, height=640)
         msg_list.tag_config("right", justify="right")
         msg_list.tag_config("center", justify="center")
@@ -331,9 +327,6 @@ def receive():
 def msg_send(event=None):  # event is passed by binders.
     msg = my_msg.get()
     my_msg.set("")
-    # date = datetime.now().strftime("%H:%M")
-    # full_msg = username + ": " + msg + " (" + date + ")"
-    # onAdd(END, full_msg, tag="right")
     try:
         client_socket.send(msg.encode("utf8"))
     except OSError:
@@ -356,7 +349,6 @@ client_socket = socket(AF_INET, SOCK_STREAM)
 HOST = "127.0.0.1"
 PORT = 33000
 ADDR = (HOST, PORT)
-
 BUFSIZ = 1024
 
 if __name__ == "__main__":
