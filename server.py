@@ -16,7 +16,6 @@ def accept_incoming_connections():
     global client_address
     while True:
         client, client_address = SERVER.accept()
-        print(client_address)
         print(f"{client_address} se ha conectado.")
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).start()
@@ -33,8 +32,8 @@ def handle_client(client):
             client.close()
             try:
                 del clients[client]
-                msg = f"%s se ha ido del chat." % name
-                broadcast(msg, client=client)
+                msg = f"se ha ido del chat."
+                broadcast(msg, name, "leave")
                 msg = f"%s se ha ido del chat. {client_address}" % name
                 print(msg)
                 break
@@ -49,7 +48,6 @@ def handle_client(client):
 
         if "/login" in msg:
             username, password = msg[8:-1].split('", "')
-            print(username, password)
             try:
                 with open("data.csv", "r+", encoding="utf8", newline="") as file:
                     data = []
@@ -78,12 +76,11 @@ def handle_client(client):
                     if login_state == 1:
                         name = username
                         clients[client] = name
-                        print(clients)
                         client.send("/login".encode("utf8"))
                         client.send(("/history " + str(history)).encode("utf8"))
                         sleep(0.2)
-                        msg = f"%s se ha unido al chat!" % name
-                        broadcast(msg, client=client)
+                        msg = f"se ha unido al chat!"
+                        broadcast(msg, name, "join")
                         msg = f"%s se ha unido al chat! {client_address}" % name
                         print(msg)
 
@@ -136,8 +133,8 @@ def handle_client(client):
             client.close()
             try:
                 del clients[client]
-                msg = f"%s se ha ido del chat." % name
-                broadcast(msg, client=client)
+                msg = f"se ha ido del chat."
+                broadcast(msg, name, "leave")
                 msg = f"%s se ha ido del chat. {client_address}" % name
                 print(msg)
                 break
@@ -146,19 +143,22 @@ def handle_client(client):
                 break
 
         else:
-            broadcast(msg, name + ": ", client=client)
+            broadcast(msg, name, "broadcast")
 
 
-def broadcast(msg, prefix="", client=""):  # prefix is for name identification.
+def broadcast(msg, prefix, type):  # prefix is for name identification.
     global history
     date = datetime.now().strftime("%H:%M")
     for sock in clients:
-        if sock != client:
-            try:
-                sock.send(("(" + date + ") " + prefix + msg).encode("utf8"))
-            except ConnectionResetError:
-                print(ConnectionResetError)
-    history.append("(" + date + ") " + prefix + msg)
+        try:
+            sock.send(
+                str({"date": date, "msg": msg, "name": prefix, "type": type}).encode(
+                    "utf8"
+                )
+            )
+        except ConnectionResetError:
+            print(ConnectionResetError)
+    history.append({"date": date, "msg": msg, "name": prefix, "type": type})
 
 
 clients = {}

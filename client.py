@@ -103,6 +103,7 @@ class App:
         # msg_list["justify"] = "left"
         msg_list.place(x=380, y=10, width=830, height=640)
         msg_list.tag_config("right", justify="right")
+        msg_list.tag_config("center", justify="center")
 
         # send_button
         send_button = Button(top, text="Enviar", command=msg_send)
@@ -285,7 +286,17 @@ def receive():
                 history = eval(msg[9:])
                 if not history == [""]:
                     for i in history:
-                        onAdd(END, i)
+                        # i = eval(i)
+                        if i["type"] == "broadcast":
+                            if i["name"] == username:
+                                msg = f'{i["name"]}: {i["msg"]} ({i["date"]})'
+                                onAdd(END, msg, "right")
+                            else:
+                                msg = f'({i["date"]}) {i["name"]}: {i["msg"]}'
+                                onAdd(END, msg)
+                        elif i["type"] == "join" or i["type"] == "leave":
+                            msg = f'{i["name"]} {i["msg"]}'
+                            onAdd(END, msg, "center")
             elif "/login_user_error" == msg:
                 login_user_error()
             elif "/login_password_error" == msg:
@@ -298,7 +309,17 @@ def receive():
                 client_socket.close()
                 top.quit()
             else:
-                onAdd(END, msg)
+                msg = eval(msg)
+                if msg["type"] == "broadcast":
+                    if msg["name"] == username:
+                        msg = f'{msg["name"]}: {msg["msg"]} ({msg["date"]})'
+                        onAdd(END, msg, "right")
+                    else:
+                        msg = f'({msg["date"]}) {msg["name"]}: {msg["msg"]}'
+                        onAdd(END, msg)
+                elif msg["type"] == "join" or msg["type"] == "leave":
+                    msg = f'{msg["name"]} {msg["msg"]}'
+                    onAdd(END, msg, "center")
 
         except OSError:  # Possibly client has left the chat.
             print(OSError)
@@ -310,9 +331,9 @@ def receive():
 def msg_send(event=None):  # event is passed by binders.
     msg = my_msg.get()
     my_msg.set("")
-    date = datetime.now().strftime("%H:%M")
-    full_msg = username + ": " + msg + " (" + date + ")"
-    onAdd(END, full_msg, tag="right")
+    # date = datetime.now().strftime("%H:%M")
+    # full_msg = username + ": " + msg + " (" + date + ")"
+    # onAdd(END, full_msg, tag="right")
     try:
         client_socket.send(msg.encode("utf8"))
     except OSError:
