@@ -1,20 +1,26 @@
 from Crypto.Cipher import AES
 
-def encrypt(inpt):
+
+def enc(inpt):
+    global cipher
+    cipher = AES.new(KEY, AES.MODE_EAX)
     outpt = cipher.encrypt(inpt)
     return outpt
 
-def decrypt(inpt):
-    outpt = inpt
+
+def dec(inpt):
+    global cipher
+    nonce = cipher.nonce
+    cipher = AES.new(KEY, AES.MODE_EAX, nonce=nonce)
+    outpt = cipher.decrypt(inpt)
     return outpt
 
 
-KEY = b'C&F)H@McQfTjWnZr'
-cipher = AES.new(KEY, AES.MODE_EAX)
-nonce = cipher.nonce
+KEY = b"C&F)H@McQfTjWnZr"
 
-inpt = 'hola'.encode()
 
-outpt = encrypt(inpt)
-
-print(outpt)
+inpt = "hola".encode()
+encrypted_text = enc(inpt)
+print(encrypted_text)
+decrypted_text = dec(encrypted_text)
+print(decrypted_text)
