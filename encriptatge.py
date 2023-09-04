@@ -16,7 +16,7 @@ def dec(inpt):
     return outpt
 
 
-KEY = b"C&F)H@McQfTjWnZr"
+KEY = b"C&F)H@McQfTjWnZr"  # 16 bytes long
 
 
 inpt = "hola".encode()
