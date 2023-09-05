@@ -1,10 +1,14 @@
 # # # # TODO fer que el chat tingui missatges privats
+# # # # TODO simular un atac informatic al servidor
+# # # # TODO fer el encriptatge
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
 # TODO fer tot en un sol idioma
 # TODO posar dia i hora en missatges
-# # # # TODO fer el encriptatge
 # TODO que no surti la consola al obrir client.pyw
 # TODO millorar el print de la consola
+# TODO Quan la aplicció no tingui focus i revi un misatge, faigi ping i ficar l'icono tronja
+# TODO Que detecti el nom del ultim misatge i si es el mateix que no escrigui el nom.
+# TODO fer funcio tot allo que es repeteix molt
 # TODO fer separacio de misatges per persona (2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
 # -=-=-=- devesaguillem@gmail.com se ha unido! -=-=-=-
 
@@ -18,7 +22,6 @@
 # - - - - devesaguillem@gmail.com - - - -
 # (00:02) Por?
 #
-# # # # TODO simular un atac informatic al servidor
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
@@ -307,10 +310,7 @@ def receive():
             else:
                 msg = eval(msg)
                 if msg["type"] == "broadcast":
-                    if msg["name"] == username:
-                        msg = f'{msg["name"]}: {msg["msg"]} ({msg["date"]})'
-                        onAdd(END, msg, "right")
-                    else:
+                    if not msg["name"] == username:
                         msg = f'({msg["date"]}) {msg["name"]}: {msg["msg"]}'
                         onAdd(END, msg)
                 elif msg["type"] == "join" or msg["type"] == "leave":
@@ -327,6 +327,9 @@ def receive():
 def msg_send(event=None):  # event is passed by binders.
     msg = my_msg.get()
     my_msg.set("")
+    date = datetime.now().strftime("%H:%M")
+    msg = f"{username}: {msg} ({date})"
+    onAdd(END, msg, "right")
     try:
         client_socket.send(msg.encode("utf8"))
     except OSError:

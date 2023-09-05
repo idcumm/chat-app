@@ -19,7 +19,7 @@ def dec(inpt):
 KEY = b"C&F)H@McQfTjWnZr"  # 16 bytes long
 
 
-inpt = "hola".encode()
+inpt = "hola com estas".encode()
 encrypted_text = enc(inpt)
 print(encrypted_text)
 decrypted_text = dec(encrypted_text)
