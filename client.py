@@ -263,12 +263,12 @@ def register_error():
     Error.pack()
 
 
-def onAdd(place, text, tag=None):
+def onAdd(text, tag=None):
     global msg_list
     msg_list.configure(state="normal")
-    msg_list.insert(place, text + "\n\n", tag)
+    msg_list.insert(END, text + "\n\n", tag)
     msg_list.configure(state="disabled")
-    msg_list.yview(place)
+    msg_list.yview(END)
 
 
 def receive():
@@ -289,13 +289,13 @@ def receive():
                         if i["type"] == "broadcast":
                             if i["name"] == username:
                                 msg = f'{i["name"]}: {i["msg"]} ({i["date"]})'
-                                onAdd(END, msg, "right")
+                                onAdd(msg, "right")
                             else:
                                 msg = f'({i["date"]}) {i["name"]}: {i["msg"]}'
-                                onAdd(END, msg)
+                                onAdd(msg)
                         elif i["type"] == "join" or i["type"] == "leave":
                             msg = f'{i["name"]} {i["msg"]}'
-                            onAdd(END, msg, "center")
+                            onAdd(msg, "center")
             elif "/login_user_error" == msg:
                 login_user_error()
             elif "/login_password_error" == msg:
@@ -312,10 +312,10 @@ def receive():
                 if msg["type"] == "broadcast":
                     if not msg["name"] == username:
                         msg = f'({msg["date"]}) {msg["name"]}: {msg["msg"]}'
-                        onAdd(END, msg)
+                        onAdd(msg)
                 elif msg["type"] == "join" or msg["type"] == "leave":
                     msg = f'{msg["name"]} {msg["msg"]}'
-                    onAdd(END, msg, "center")
+                    onAdd(msg, "center")
 
         except OSError:  # Possibly client has left the chat.
             print(OSError)
@@ -329,7 +329,7 @@ def msg_send(event=None):  # event is passed by binders.
     my_msg.set("")
     date = datetime.now().strftime("%H:%M")
     msg = f"{username}: {msg} ({date})"
-    onAdd(END, msg, "right")
+    onAdd(msg, "right")
     try:
         client_socket.send(msg.encode("utf8"))
     except OSError:
