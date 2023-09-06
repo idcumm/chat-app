@@ -149,13 +149,13 @@ def broadcast(prefix, type, msg=""):  # prefix is for name identification.
     for sock in clients:
         try:
             sock.send(
-                str({"date": date, "msg": msg, "name": prefix, "type": type}).encode(
+                str({"date": date, "type": type, "name": prefix, "msg": msg}).encode(
                     "utf8"
                 )
             )
         except ConnectionResetError:
             print(ConnectionResetError)
-    history.append({"date": date, "msg": msg, "name": prefix, "type": type})
+    history.append({"date": date, "type": type, "name": prefix, "msg": msg})
 
 
 clients = {}

@@ -323,7 +323,7 @@ def msg_send(event=None):
     msg = my_msg.get()
     my_msg.set("")
     date = datetime.now().strftime("%H:%M")
-    msg_ = {"date": date, "msg": msg, "name": username, "type": "broadcast"}
+    msg_ = {"date": date, "type": "broadcast", "name": username, "msg": msg}
     onAdd(msg_, True)
     try:
         client_socket.send(msg.encode("utf8"))
