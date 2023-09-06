@@ -263,10 +263,22 @@ def register_error():
     Error.pack()
 
 
-def onAdd(text, tag=None):
-    global msg_list
+def onAdd(x, self_messages=False):
     msg_list.configure(state="normal")
-    msg_list.insert(END, text + "\n\n", tag)
+    if x["type"] == "broadcast":
+        if x["name"] == username:
+            if self_messages == True:
+                msg_list.insert(
+                    END,
+                    f'{x["name"]}: {x["msg"]} ({x["date"]})\n\n',
+                    "right",
+                )
+        else:
+            msg_list.insert(END, f'({x["date"]}) {x["name"]}: {x["msg"]}\n\n')
+    elif x["type"] == "join":
+        msg_list.insert(END, f'{x["name"]} se ha unido al chat! :)\n\n', "center")
+    elif x["type"] == "leave":
+        msg_list.insert(END, f'{x["name"]} se ha ido del chat! :(\n\n', "center")
     msg_list.configure(state="disabled")
     msg_list.yview(END)
 
@@ -284,18 +296,8 @@ def receive():
             elif "/history" in msg:
                 history = eval(msg[9:])
                 if not history == [""]:
-                    for i in history:
-                        # i = eval(i)
-                        if i["type"] == "broadcast":
-                            if i["name"] == username:
-                                msg = f'{i["name"]}: {i["msg"]} ({i["date"]})'
-                                onAdd(msg, "right")
-                            else:
-                                msg = f'({i["date"]}) {i["name"]}: {i["msg"]}'
-                                onAdd(msg)
-                        elif i["type"] == "join" or i["type"] == "leave":
-                            msg = f'{i["name"]} {i["msg"]}'
-                            onAdd(msg, "center")
+                    for msg in history:
+                        onAdd(msg, True)
             elif "/login_user_error" == msg:
                 login_user_error()
             elif "/login_password_error" == msg:
@@ -309,13 +311,7 @@ def receive():
                 top.quit()
             else:
                 msg = eval(msg)
-                if msg["type"] == "broadcast":
-                    if not msg["name"] == username:
-                        msg = f'({msg["date"]}) {msg["name"]}: {msg["msg"]}'
-                        onAdd(msg)
-                elif msg["type"] == "join" or msg["type"] == "leave":
-                    msg = f'{msg["name"]} {msg["msg"]}'
-                    onAdd(msg, "center")
+                onAdd(msg)
 
         except OSError:  # Possibly client has left the chat.
             print(OSError)
@@ -328,8 +324,8 @@ def msg_send(event=None):  # event is passed by binders.
     msg = my_msg.get()
     my_msg.set("")
     date = datetime.now().strftime("%H:%M")
-    msg = f"{username}: {msg} ({date})"
-    onAdd(msg, "right")
+    msg_ = {"date": date, "msg": msg, "name": username, "type": "broadcast"}
+    onAdd(msg_, True)
     try:
         client_socket.send(msg.encode("utf8"))
     except OSError:

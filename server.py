@@ -32,8 +32,7 @@ def handle_client(client):
             client.close()
             try:
                 del clients[client]
-                msg = f"se ha ido del chat."
-                broadcast(msg, name, "leave")
+                broadcast(name, "leave")
                 msg = f"%s se ha ido del chat. {client_address}" % name
                 print(msg)
                 break
@@ -79,8 +78,7 @@ def handle_client(client):
                         client.send("/login".encode("utf8"))
                         client.send(("/history " + str(history)).encode("utf8"))
                         sleep(0.2)
-                        msg = f"se ha unido al chat!"
-                        broadcast(msg, name, "join")
+                        broadcast(name, "join")
                         msg = f"%s se ha unido al chat! {client_address}" % name
                         print(msg)
 
@@ -133,8 +131,7 @@ def handle_client(client):
             client.close()
             try:
                 del clients[client]
-                msg = f"se ha ido del chat."
-                broadcast(msg, name, "leave")
+                broadcast(name, "leave")
                 msg = f"%s se ha ido del chat. {client_address}" % name
                 print(msg)
                 break
@@ -143,10 +140,10 @@ def handle_client(client):
                 break
 
         else:
-            broadcast(msg, name, "broadcast")
+            broadcast(name, "broadcast", msg=msg)
 
 
-def broadcast(msg, prefix, type):  # prefix is for name identification.
+def broadcast(prefix, type, msg=""):  # prefix is for name identification.
     global history
     date = datetime.now().strftime("%H:%M")
     for sock in clients:
