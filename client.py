@@ -12,17 +12,17 @@
 # TODO fer separacio de misatges per persona (2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
 # -=-=-=- devesaguillem@gmail.com se ha unido! -=-=-=-
 
-# - - - - devesaguillem@gmail.com - - - -
-# (00:00) Hola chicos!
-# (00:00) Como estan? Espero que Muy Bien
+#                                              - - - - devesaguillem@gmail.com - - - -
+#                                              (00:00) Hola chicos!
+#                                              (00:00) Como estan? Espero que Muy Bien
 #
 # - - - - devesapere@gmail.com - - - -
 # (00:01) Mal
 #
-# - - - - devesaguillem@gmail.com - - - -
-# (00:02) Por?
+#                                              - - - - devesaguillem@gmail.com - - - -
+#                                              (00:02) Por?
 #
-# ==========>> DEFINITION OF FUNCTIONS <<========== #
+# ==========>> MODULE IMPORT <<========== #
 
 
 from socket import AF_INET, socket, SOCK_STREAM
@@ -30,7 +30,6 @@ from threading import Thread
 from tkinter import *
 import tkinter.font as tkFont
 from os import system
-from functools import partial
 from datetime import datetime
 
 
@@ -313,14 +312,14 @@ def receive():
                 msg = eval(msg)
                 onAdd(msg)
 
-        except OSError:  # Possibly client has left the chat.
+        except OSError:
             print(OSError)
             client_socket.close()
             top.quit()
             exit()
 
 
-def msg_send(event=None):  # event is passed by binders.
+def msg_send(event=None):
     msg = my_msg.get()
     my_msg.set("")
     date = datetime.now().strftime("%H:%M")
