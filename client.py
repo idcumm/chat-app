@@ -344,7 +344,7 @@ def on_closing(event=None):
 
 
 client_socket = socket(AF_INET, SOCK_STREAM)
-HOST = "192.168.1.29"  # "127.0.0.1"
+HOST = "127.0.0.1"  # "127.0.0.1"
 PORT = 33000
 ADDR = (HOST, PORT)
 BUFSIZ = 1024
