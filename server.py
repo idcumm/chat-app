@@ -143,7 +143,7 @@ def handle_client(client):
             broadcast(name, "broadcast", msg=msg)
 
 
-def broadcast(prefix, type, msg=""):  # prefix is for name identification.
+def broadcast(prefix, type, msg=""):
     global history
     date = datetime.now().strftime("%H:%M")
     for sock in clients:
