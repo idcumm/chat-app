@@ -130,7 +130,8 @@ class App:
             font=("Calibri", 13),
         ).pack()
 
-        Label(top_login, text="Nombre de usuario *", font=("Calibri", 13)).pack()
+        Label(top_login, text="Nombre de usuario *",
+              font=("Calibri", 13)).pack()
 
         entry_usuario = Entry(
             top_login,
@@ -167,7 +168,8 @@ class App:
             text="Login",
             width="20",
             bg="DarkGrey",
-            command=lambda: login(verifica_usuario.get(), verifica_clave.get()),
+            command=lambda: login(verifica_usuario.get(),
+                                  verifica_clave.get()),
             font=("Calibri", 13),
         ).pack()
 
@@ -178,7 +180,8 @@ class App:
             text="Register",
             width="20",
             bg="DarkGrey",
-            command=lambda: register(verifica_usuario.get(), verifica_clave.get()),
+            command=lambda: register(
+                verifica_usuario.get(), verifica_clave.get()),
             font=("Calibri", 13),
         ).pack()
 
@@ -276,9 +279,11 @@ def onAdd(x, self_messages=False):
         else:
             msg_list.insert(END, f'({x["date"]}) {x["name"]}: {x["msg"]}\n\n')
     elif x["type"] == "join":
-        msg_list.insert(END, f'{x["name"]} se ha unido al chat! :)\n\n', "center")
+        msg_list.insert(
+            END, f'{x["name"]} se ha unido al chat! :)\n\n', "center")
     elif x["type"] == "leave":
-        msg_list.insert(END, f'{x["name"]} se ha ido del chat! :(\n\n', "center")
+        msg_list.insert(
+            END, f'{x["name"]} se ha ido del chat! :(\n\n', "center")
     msg_list.configure(state="disabled")
     msg_list.yview(END)
 
@@ -344,14 +349,14 @@ def on_closing(event=None):
 # ==========>> MAIN CODE <<========== #
 
 
-client_socket = socket(AF_INET, SOCK_STREAM)
-HOST = "127.0.0.1"  # "127.0.0.1"
-PORT = 33000
-ADDR = (HOST, PORT)
-BUFSIZ = 1024
-
 if __name__ == "__main__":
-    system("title ClientSocket")
+    client_socket = socket(AF_INET, SOCK_STREAM)
+    HOST = "127.0.0.1"  # "127.0.0.1"
+    PORT = 33000
+    ADDR = (HOST, PORT)
+    BUFSIZ = 1024
+
+    # system("title ClientSocket")
 
     client_socket.connect(ADDR)
     receive_thread = Thread(target=receive)
