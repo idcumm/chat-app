@@ -25,11 +25,12 @@
 # ==========>> MODULE IMPORT <<========== #
 
 
+import subprocess
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 from tkinter import *
 import tkinter.font as tkFont
-from os import system
+from os import popen
 from datetime import datetime
 
 
@@ -347,7 +348,6 @@ def on_closing(event=None):
 
 # ==========>> MAIN CODE <<========== #
 
-
 if __name__ == "__main__":
     client_socket = socket(AF_INET, SOCK_STREAM)
     HOST = "127.0.0.1"  # "127.0.0.1"
@@ -355,7 +355,7 @@ if __name__ == "__main__":
     ADDR = (HOST, PORT)
     BUFSIZ = 1024
 
-    # system("title ClientSocket")
+    popen("title ClientSocket")
 
     client_socket.connect(ADDR)
     receive_thread = Thread(target=receive)
