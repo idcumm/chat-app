@@ -195,7 +195,7 @@ def login(usuario, clave, event=None):
         login_lenght_error()
     else:
         msg = f'"{usuario}", "{clave}"'
-        command_send("/login " + msg)
+        command_send(f"/login {msg}")
 
 
 def register(usuario, clave, event=None):
@@ -203,7 +203,7 @@ def register(usuario, clave, event=None):
         login_lenght_error()
     else:
         msg = f'"{usuario}", "{clave}"'
-        command_send("/register " + msg)
+        command_send(f"/register {msg}")
 
 
 def login_lenght_error():

@@ -46,7 +46,7 @@ def handle_client(client):
             print(f"{client_address}: {msg}")
 
         if "/login" in msg:
-            username, password = msg[8:-1].split('", "')
+            username, password = eval(msg[7:])
             try:
                 with open("data.csv", "r+", encoding="utf8", newline="") as file:
                     data = []
@@ -76,7 +76,8 @@ def handle_client(client):
                         name = username
                         clients[client] = name
                         client.send("/login".encode("utf8"))
-                        client.send(("/history " + str(history)).encode("utf8"))
+                        client.send(
+                            ("/history " + str(history)).encode("utf8"))
                         sleep(0.2)
                         broadcast(name, "join")
                         msg = f"%s se ha unido al chat! {client_address}" % name
@@ -96,7 +97,7 @@ def handle_client(client):
                 client.send("/login_user_error".encode("utf8"))
 
         elif "/register" in msg:
-            username, password = msg[11:-1].split('", "')
+            username, password = eval(msg[10:])
             try:
                 x = open("data.csv", "x")
                 x.close()
