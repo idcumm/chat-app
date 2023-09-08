@@ -10,7 +10,6 @@
 # TODO Que detecti el nom del ultim misatge i si es el mateix que no escrigui el nom.
 # TODO fer funcio tot allo que es repeteix molt
 # TODO fer separacio de misatges per persona (2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
-# TODO cambiar .split() per eval()
 # -=-=-=- devesaguillem@gmail.com se ha unido! -=-=-=-
 
 #                                              - - - - devesaguillem@gmail.com - - - -
