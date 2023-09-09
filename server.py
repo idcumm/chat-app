@@ -33,17 +33,19 @@ def handle_client(client):
             try:
                 del clients[client]
                 broadcast(name, "leave")
-                msg = f"%s se ha ido del chat. {client_address}" % name
-                print(msg)
+                # msg = f"%s se ha ido del chat. {client_address}" % name
+                # print(msg)
                 break
             except KeyError:
                 print(KeyError)
                 break
 
         try:
-            print(name + ": " + msg)
+            # print(name + ": " + msg)
+            pass
         except UnboundLocalError:
-            print(f"{client_address}: {msg}")
+            # print(f"{client_address}: {msg}")
+            pass
 
         if "/login" in msg:
             username, password = eval(msg[7:])
@@ -76,12 +78,13 @@ def handle_client(client):
                         name = username
                         clients[client] = name
                         client.send("/login".encode("utf8"))
-                        client.send(
-                            ("/history " + str(history)).encode("utf8"))
-                        sleep(0.2)
+                        for i in reversed(history):
+                            client.send(
+                                ("/history " + str(i)).encode("utf8"))
+                            sleep(0.05)
                         broadcast(name, "join")
-                        msg = f"%s se ha unido al chat! {client_address}" % name
-                        print(msg)
+                        # msg = f"%s se ha unido al chat! {client_address}" % name
+                        # print(msg)
 
                     elif login_state == 2:
                         client.send("/login_password_error".encode("utf8"))

@@ -25,13 +25,16 @@
 # ==========>> MODULE IMPORT <<========== #
 
 
-import subprocess
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 from tkinter import *
 import tkinter.font as tkFont
 from os import popen
 from datetime import datetime
+import base64
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+import hashlib
 
 
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
@@ -194,6 +197,8 @@ def login(usuario, clave, event=None):
     if len(usuario) > 20 or len(clave) > 20:
         login_lenght_error()
     else:
+        usuario = encrypt(usuario)
+        clave = encrypt(clave)
         msg = f'"{usuario}", "{clave}"'
         command_send(f"/login {msg}")
 
@@ -202,6 +207,8 @@ def register(usuario, clave, event=None):
     if len(usuario) > 20 or len(clave) > 20:
         login_lenght_error()
     else:
+        usuario = encrypt(usuario)
+        clave = encrypt(clave)
         msg = f'"{usuario}", "{clave}"'
         command_send(f"/register {msg}")
 
@@ -266,24 +273,28 @@ def register_error():
     Error.pack()
 
 
-def onAdd(x, self_messages=False):
+def onAdd(position, x, self_messages=False, local=False):
     msg_list.configure(state="normal")
+    if local == False:
+        x['name'] = decrypt(x['name'])
+        x['msg'] = decrypt(x['msg'])
     if x["type"] == "broadcast":
         if x["name"] == username:
             if self_messages == True:
                 msg_list.insert(
-                    END,
+                    position,
                     f'{x["name"]}: {x["msg"]} ({x["date"]})\n\n',
                     "right",
                 )
         else:
-            msg_list.insert(END, f'({x["date"]}) {x["name"]}: {x["msg"]}\n\n')
+            msg_list.insert(
+                position, f'({x["date"]}) {x["name"]}: {x["msg"]}\n\n')
     elif x["type"] == "join":
         msg_list.insert(
-            END, f'{x["name"]} se ha unido al chat! :)\n\n', "center")
+            position, f'{x["name"]} se ha unido al chat!\n\n', "center")
     elif x["type"] == "leave":
         msg_list.insert(
-            END, f'{x["name"]} se ha ido del chat! :(\n\n', "center")
+            position, f'{x["name"]} se ha ido del chat!\n\n', "center")
     msg_list.configure(state="disabled")
     msg_list.yview(END)
 
@@ -299,10 +310,10 @@ def receive():
                 top_login.destroy()
                 entry_field.focus_set()
             elif "/history" in msg:
-                history = eval(msg[9:])
+                history = msg[9:]
                 if not history == [""]:
-                    for msg in history:
-                        onAdd(msg, True)
+                    history = eval(history)
+                    onAdd('1.0', history, True)
             elif "/login_user_error" == msg:
                 login_user_error()
             elif "/login_password_error" == msg:
@@ -316,7 +327,7 @@ def receive():
                 top.quit()
             else:
                 msg = eval(msg)
-                onAdd(msg)
+                onAdd(END, msg)
 
         except OSError:
             print(OSError)
@@ -330,7 +341,8 @@ def msg_send(event=None):
     my_msg.set("")
     date = datetime.now().strftime("%H:%M")
     msg_ = {"date": date, "type": "broadcast", "name": username, "msg": msg}
-    onAdd(msg_, True)
+    onAdd(END, msg_, True, True)
+    msg = encrypt(msg)
     try:
         client_socket.send(msg.encode("utf8"))
     except OSError:
@@ -346,7 +358,25 @@ def on_closing(event=None):
     exit()
 
 
+def encrypt(raw):
+    if not raw == "":
+        raw = pad(raw.encode(), 16)
+        cipher = AES.new(KEY, AES.MODE_ECB)
+        return base64.b64encode(cipher.encrypt(raw)).decode("utf-8", "ignore")
+    else:
+        return ""
+
+
+def decrypt(enc):
+    if not enc == "":
+        enc = base64.b64decode(enc)
+        cipher = AES.new(KEY, AES.MODE_ECB)
+        return unpad(cipher.decrypt(enc), 16).decode("utf-8", "ignore")
+    else:
+        return ""
+
 # ==========>> MAIN CODE <<========== #
+
 
 if __name__ == "__main__":
     client_socket = socket(AF_INET, SOCK_STREAM)
@@ -354,6 +384,9 @@ if __name__ == "__main__":
     PORT = 33000
     ADDR = (HOST, PORT)
     BUFSIZ = 1024
+
+    KEY = 'Hola como estas macarra a mi me gusta matar a niños pequeños perque me lo paso mejor'
+    KEY = hashlib.sha256(KEY.encode()).digest()
 
     popen("title ClientSocket")
 
