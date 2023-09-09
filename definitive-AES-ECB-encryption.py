@@ -3,10 +3,8 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 import hashlib
 
-# AES ECB mode without IV
 
-data = input('input: ')
-# Must Be 16 char for AES128
+data = input('input: ')  # Must Be 16 char for AES128
 key = 'Hola como estas macarra a mi me gusta matar a niños pequeños perque me lo paso mejor'
 key = hashlib.sha256(key.encode()).digest()
 
@@ -23,12 +21,8 @@ def decrypt(enc):
     return unpad(cipher.decrypt(enc), 16).decode("utf-8", "ignore")
 
 
-try:
-    encrypted = encrypt(data)
-    print('Encrypted: ', encrypted)
-except ValueError:
-    print(ValueError)
-
+encrypted = encrypt(data)
+print('Encrypted: ', encrypted)
 
 try:
     decrypted = decrypt(data)
