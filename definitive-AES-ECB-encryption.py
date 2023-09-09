@@ -5,7 +5,7 @@ import hashlib
 
 # AES ECB mode without IV
 
-data = "{'date': '11:46', 'type': 'join', 'name': 'GzXL1O/7pZ1jDgPdf0mk1g==', 'msg': ''}"
+data = input('input: ')
 # Must Be 16 char for AES128
 key = 'Hola como estas macarra a mi me gusta matar a niños pequeños perque me lo paso mejor'
 key = hashlib.sha256(key.encode()).digest()
@@ -23,8 +23,15 @@ def decrypt(enc):
     return unpad(cipher.decrypt(enc), 16).decode("utf-8", "ignore")
 
 
-encrypted = encrypt(data)
-print('encrypted ECB Base64:', encrypted)
+try:
+    encrypted = encrypt(data)
+    print('Encrypted: ', encrypted)
+except ValueError:
+    print(ValueError)
 
-decrypted = decrypt(encrypted)
-print('data: ', decrypted)
+
+try:
+    decrypted = decrypt(data)
+    print('Decrypted: ', decrypted)
+except ValueError:
+    print('Decrypted: Impossible to decrypt message')
