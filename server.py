@@ -136,8 +136,8 @@ def handle_client(client):
             try:
                 del clients[client]
                 broadcast(name, "leave")
-                msg = f"%s se ha ido del chat. {client_address}" % name
-                print(msg)
+                # msg = f"%s se ha ido del chat. {client_address}" % name
+                # print(msg)
                 break
             except KeyError:
                 print(KeyError)
@@ -178,7 +178,7 @@ SERVER.bind(ADDR)
 
 if __name__ == "__main__":
     SERVER.listen(5)
-    print("---- Server online! ----\n")
+    print("         ---- Server online! ----\n")
     ACCEPT_THREAD = Thread(target=accept_incoming_connections)
     ACCEPT_THREAD.start()
     ACCEPT_THREAD.join()
