@@ -26,16 +26,16 @@
 # ==========>> MODULE IMPORT <<========== #
 
 
+import tkinter.font as tkFont
+import base64
+import hashlib
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 from tkinter import *
-import tkinter.font as tkFont
 from os import popen
 from datetime import datetime
-import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
-import hashlib
 from win10toast import ToastNotifier
 
 
@@ -314,7 +314,6 @@ def receive():
     while True:
         try:
             msg = client_socket.recv(BUFSIZ).decode("utf8")
-            print(msg)
             if "/login" == msg:
                 root.title(f"Chatt app - Logged as {username}")
                 top_login.destroy()

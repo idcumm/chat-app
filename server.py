@@ -14,9 +14,10 @@ from time import sleep
 
 def accept_incoming_connections():
     global client_address
+    global date
     while True:
         client, client_address = SERVER.accept()
-        print(f"{client_address} se ha conectado.")
+        print(f"({date}) {client_address} se ha conectado.")
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).start()
 
@@ -33,19 +34,18 @@ def handle_client(client):
             try:
                 del clients[client]
                 broadcast(name, "leave")
-                # msg = f"%s se ha ido del chat. {client_address}" % name
-                # print(msg)
+                print(f"({date}) {client_address} se ha ido.")
                 break
             except KeyError:
                 print(KeyError)
                 break
 
-        try:
-            # print(name + ": " + msg)
-            pass
-        except UnboundLocalError:
-            # print(f"{client_address}: {msg}")
-            pass
+        # try:
+        #     # print(name + ": " + msg)
+        #     pass
+        # except UnboundLocalError:
+        #     # print(f"{client_address}: {msg}")
+        #     pass
 
         if "/login" in msg:
             username, password = eval(msg[7:])
@@ -92,9 +92,6 @@ def handle_client(client):
                     elif login_state == 3:
                         client.send("/login_user_error".encode("utf8"))
 
-                    else:
-                        print("Unknown error")
-
             except FileNotFoundError:
                 print(FileNotFoundError)
                 client.send("/login_user_error".encode("utf8"))
@@ -104,7 +101,7 @@ def handle_client(client):
             try:
                 x = open("data.csv", "x")
                 x.close()
-                print(FileExistsError)
+                print(not FileExistsError)
 
             except FileExistsError:
                 pass
@@ -136,8 +133,7 @@ def handle_client(client):
             try:
                 del clients[client]
                 broadcast(name, "leave")
-                # msg = f"%s se ha ido del chat. {client_address}" % name
-                # print(msg)
+                print(f"({date}) {client_address} se ha ido.")
                 break
             except KeyError:
                 print(KeyError)
