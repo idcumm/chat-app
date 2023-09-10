@@ -9,6 +9,7 @@
 # TODO Quan la aplicció no tingui focus i revi un misatge, faigi ping i ficar l'icono tronja
 # TODO Que detecti el nom del ultim misatge i si es el mateix que no escrigui el nom.
 # TODO fer funcio tot allo que es repeteix molt
+# TODO millorar notification
 # TODO fer separacio de misatges per persona (2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
 # -=-=-=- devesaguillem@gmail.com se ha unido! -=-=-=-
 
@@ -35,13 +36,14 @@ import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 import hashlib
+from win10toast import ToastNotifier
 
 
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
 
 
 class App:
-    def __init__(self, top):
+    def __init__(self, root):
         global my_msg
         global msg_list
         global scrollbar
@@ -52,21 +54,23 @@ class App:
         global verifica_clave
 
         # window
-        top.title("Chatt app")
+        root.title("Chatt app")
         width = 1250
         height = 700
-        screenwidth = top.winfo_screenwidth()
-        screenheight = top.winfo_screenheight()
+        screenwidth = root.winfo_screenwidth()
+        screenheight = root.winfo_screenheight()
         alignstr = "%dx%d+%d+%d" % (
             width,
             height,
             (screenwidth - width) / 2,
             (screenheight - height) / 2,
         )
-        top.geometry(alignstr)
-        top.resizable(width=False, height=False)
-        top.configure(bg="#282424")
-        top.protocol("WM_DELETE_WINDOW", on_closing)
+        root.geometry(alignstr)
+        root.resizable(width=False, height=False)
+        root.configure(bg="#282424")
+        root.protocol("WM_DELETE_WINDOW", on_closing)
+        root.bind('<FocusOut>', focus_out)
+        root.bind('<FocusIn>', focus_in)
 
         # my_msg
         my_msg = StringVar()
@@ -74,7 +78,7 @@ class App:
 
         # scrollbar
         scrollbar = Scrollbar(
-            top,
+            root,
             activebackground="#282424",
             bg="#282424",
             highlightbackground="#282424",
@@ -84,7 +88,7 @@ class App:
         scrollbar.place(x=1220, y=10, width=20, height=640)
 
         # entry_field
-        entry_field = Entry(top, textvariable=my_msg)
+        entry_field = Entry(root, textvariable=my_msg)
         entry_field.bind("<Return>", msg_send)
         entry_field.focus_set()
         entry_field["borderwidth"] = "1px"
@@ -96,7 +100,7 @@ class App:
         entry_field["relief"] = "sunken"
         entry_field.place(x=380, y=660, width=800, height=30)
 
-        msg_list = Text(top, yscrollcommand=scrollbar.set)
+        msg_list = Text(root, yscrollcommand=scrollbar.set)
         scrollbar.config(command=msg_list.yview)
         msg_list["bg"] = "#282424"
         msg_list["borderwidth"] = "1px"
@@ -108,7 +112,7 @@ class App:
         msg_list.tag_config("center", justify="center")
 
         # send_button
-        send_button = Button(top, text="Enviar", command=msg_send)
+        send_button = Button(root, text="Enviar", command=msg_send)
         send_button["anchor"] = "se"
         send_button["bg"] = "#282424"
         ft = tkFont.Font(family="Times", size=10)
@@ -117,7 +121,7 @@ class App:
         send_button["justify"] = "center"
         send_button.place(x=1190, y=660, width=50, height=30)
 
-        top_login = Frame(top)
+        top_login = Frame(root)
         verifica_usuario = StringVar()
         verifica_clave = StringVar()
 
@@ -274,10 +278,16 @@ def register_error():
 
 
 def onAdd(position, x, self_messages=False, local=False):
+    global last_name
+    global last_message
     msg_list.configure(state="normal")
     if local == False:
         x['name'] = decrypt(x['name'])
         x['msg'] = decrypt(x['msg'])
+
+        last_name = x['name']
+        last_message = x['msg']
+
     if x["type"] == "broadcast":
         if x["name"] == username:
             if self_messages == True:
@@ -306,7 +316,7 @@ def receive():
             msg = client_socket.recv(BUFSIZ).decode("utf8")
             print(msg)
             if "/login" == msg:
-                top.title(f"Chatt app - Logged as {username}")
+                root.title(f"Chatt app - Logged as {username}")
                 top_login.destroy()
                 entry_field.focus_set()
             elif "/history" in msg:
@@ -324,15 +334,16 @@ def receive():
                 register_error()
             elif "/quit" == msg:
                 client_socket.close()
-                top.quit()
+                root.quit()
             else:
                 msg = eval(msg)
                 onAdd(END, msg)
+                notification()
 
         except OSError:
             print(OSError)
             client_socket.close()
-            top.quit()
+            root.quit()
             exit()
 
 
@@ -375,16 +386,38 @@ def decrypt(enc):
     else:
         return ""
 
+
+def focus_out(*args):
+    global focus
+    focus = False
+
+
+def focus_in(*args):
+    global focus
+    focus = True
+
+
+def notification():
+    global focus
+    if NOTIFICATIONS == True:
+        if focus == False:
+            n.show_toast("Chat app",
+                         f"{last_name}: {last_message}",
+                         duration=5,
+                         threaded=True)
+
 # ==========>> MAIN CODE <<========== #
 
 
 if __name__ == "__main__":
     client_socket = socket(AF_INET, SOCK_STREAM)
+    n = ToastNotifier()
     HOST = "127.0.0.1"  # "127.0.0.1"
     PORT = 33000
     ADDR = (HOST, PORT)
     BUFSIZ = 1024
 
+    NOTIFICATIONS = True
     KEY = 'Hola como estas macarra a mi me gusta matar a niños pequeños perque me lo paso mejor'
     KEY = hashlib.sha256(KEY.encode()).digest()
 
@@ -394,6 +427,6 @@ if __name__ == "__main__":
     receive_thread = Thread(target=receive)
     receive_thread.start()
 
-    top = Tk()
-    app = App(top)
-    top.mainloop()
+    root = Tk()
+    app = App(root)
+    root.mainloop()
