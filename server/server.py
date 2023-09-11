@@ -14,9 +14,9 @@ from time import sleep
 
 def accept_incoming_connections():
     global client_address
-    date = datetime.now().strftime("%H:%M")
     while True:
         client, client_address = SERVER.accept()
+        date = datetime.now().strftime("%H:%M")
         print(f"({date}) {client_address} se ha conectado.")
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).start()
@@ -34,6 +34,7 @@ def handle_client(client):
             try:
                 del clients[client]
                 broadcast(name, "leave")
+                date = datetime.now().strftime("%H:%M")
                 print(f"({date}) {client_address} se ha ido.")
                 break
             except KeyError:
@@ -133,6 +134,7 @@ def handle_client(client):
             try:
                 del clients[client]
                 broadcast(name, "leave")
+                date = datetime.now().strftime("%H:%M")
                 print(f"({date}) {client_address} se ha ido.")
                 break
             except KeyError:
@@ -145,9 +147,10 @@ def handle_client(client):
 
 def broadcast(prefix, type, msg=""):
     global history
-    date = datetime.now().strftime("%H:%M")
+
     for sock in clients:
         try:
+            date = datetime.now().strftime("%H:%M")
             sock.send(
                 str({"date": date, "type": type, "name": prefix, "msg": msg}).encode(
                     "utf8"
