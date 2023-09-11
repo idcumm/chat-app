@@ -14,7 +14,7 @@ from time import sleep
 
 def accept_incoming_connections():
     global client_address
-    global date
+    date = datetime.now().strftime("%H:%M")
     while True:
         client, client_address = SERVER.accept()
         print(f"({date}) {client_address} se ha conectado.")
