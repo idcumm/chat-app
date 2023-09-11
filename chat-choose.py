@@ -29,6 +29,8 @@ class App:
 
         for i in people:
             self.people_list.insert(END, i)
+        else:
+            self.people_list.activate(1)
 
     def select_person(self, event=None):
         person_selected = self.people_list.curselection()[0]
