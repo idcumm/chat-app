@@ -1,5 +1,6 @@
 # # # # TODO fer que el chat tingui missatges privats
 # # # # TODO simular un atac informatic al servidor
+# TODO treure "tots" els globals i posar self.
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
 # TODO fer tot en un sol idioma
 # TODO posar dia i hora en missatges
