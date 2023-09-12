@@ -345,15 +345,16 @@ def receive():
 
 def msg_send(event=None):
     msg = my_msg.get()
-    my_msg.set("")
-    date = datetime.now().strftime("%H:%M")
-    msg_ = {"date": date, "type": "broadcast", "name": username, "msg": msg}
-    onAdd(END, msg_, True, True)
-    msg = encrypt(msg)
-    try:
-        client_socket.send(msg.encode("utf8"))
-    except OSError:
-        print(OSError)
+    if not msg == "":
+        my_msg.set("")
+        date = datetime.now().strftime("%H:%M")
+        msg_ = {"date": date, "type": "broadcast", "name": username, "msg": msg}
+        onAdd(END, msg_, True, True)
+        msg = encrypt(msg)
+        try:
+            client_socket.send(msg.encode("utf8"))
+        except OSError:
+            print(OSError)
 
 
 def command_send(msg, event=None):
@@ -414,7 +415,7 @@ if __name__ == "__main__":
     BUFSIZ = 1024
 
     NOTIFICATIONS = True
-    KEY = 'Hola como estas macarra a mi me gusta matar a niños pequeños perque me lo paso mejor'
+    KEY = 'password'
     KEY = hashlib.sha256(KEY.encode()).digest()
 
     popen("title ClientSocket")

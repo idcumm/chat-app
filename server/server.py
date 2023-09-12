@@ -158,6 +158,7 @@ def broadcast(prefix, type, msg=""):
             )
         except ConnectionResetError:
             print(ConnectionResetError)
+    date = datetime.now().strftime("%H:%M")
     history.append({"date": date, "type": type, "name": prefix, "msg": msg})
 
 
