@@ -1,0 +1,15 @@
+# .gitignore
+.venv
+.vscode
+
+tests/*
+!tests/.gitkeep 
+
+logs/*
+!logs/.gitkeep
+
+server/logs/*
+!server/logs/.gitkeep
+
+server/database/*
+!server/database/.gitkeep
