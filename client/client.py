@@ -179,6 +179,13 @@ class App:
             ),
             font=("Calibri", 13),
         ).pack()
+        
+        self.Error_label = Label(
+            self.login_root,
+            text="\n",
+            font=("Calibri", 13),
+        )
+        self.Error_label.pack()
 
         self.login_root.pack(side=LEFT, fill=BOTH)
 
@@ -196,13 +203,13 @@ class App:
                         self.history = eval(self.history)
                         self.onAdd("1.0", self.history, True)
                 elif "/login_user_error" == msg:
-                    self.login_user_error()
+                    self.login_error(2)
                 elif "/login_password_error" == msg:
-                    self.login_password_error()
+                    self.login_error(3)
                 elif "/register" == msg:
                     self.login(self.user_entry_var.get(), self.key_entry_var.get())
                 elif "/register_error" == msg:
-                    self.register_error()
+                    self.login_error(4)
                 elif "/quit" == msg:
                     client_socket.close()
                     root.quit()
@@ -268,7 +275,9 @@ class App:
     def login(self, user, key, event=None):
         self.username = user
         if len(user) > 20 or len(key) > 20:
-            self.login_lenght_error()
+            self.login_error(1)
+        elif len(user) == 0 or len(key) == 0:
+            self.login_error(0)
         else:
             user = self.encrypt(user)
             key = self.encrypt(key)
@@ -277,60 +286,26 @@ class App:
 
     def register(self, user, key, event=None):
         if len(user) > 20 or len(key) > 20:
-            self.login_lenght_error()
+            self.login_error(1)
+        elif len(user) == 0 or len(key) == 0:
+            self.login_error(0)
         else:
             user = self.encrypt(user)
             key = self.encrypt(key)
             msg = f'"{user}", "{key}"'
             self.command_send(f"/register {msg}")
 
-    def login_lenght_error(self):
-        try:
-            self.Error_label.destroy()
-        except NameError:
-            print(NameError)
-        self.Error_label = Label(
-            self.login_root,
-            text="\nEl usuario y la contraseña deben ser inferiores a 20 carácteres.",
-            font=("Calibri", 13),
-        )
-        self.Error_label.pack()
-
-    def login_user_error(self):
-        try:
-            self.Error_label.destroy()
-        except NameError:
-            print(NameError)
-        self.Error_label = Label(
-            self.login_root,
-            text="\nUsuario no encontrado.",
-            font=("Calibri", 13),
-        )
-        self.Error_label.pack()
-
-    def login_password_error(self):
-        try:
-            self.Error_label.destroy()
-        except NameError:
-            print(NameError)
-        self.Error_label = Label(
-            self.login_root,
-            text="\nContraseña incorrecta.",
-            font=("Calibri", 13),
-        )
-        self.Error_label.pack()
-
-    def register_error(self):
-        try:
-            self.Error_label.destroy()
-        except NameError:
-            print(NameError)
-        self.Error_label = Label(
-            self.login_root,
-            text="\nEste nombre de usuario y/o contraseña no están disponibles",
-            font=("Calibri", 13),
-        )
-        self.Error_label.pack()
+    def login_error(self, x):
+        if x == 0:
+            self.Error_label.config(text='\nEl usuario y/o la contraseña no pueden estar en blanco.')
+        elif x == 1:
+            self.Error_label.config(text='\nEl usuario y la contraseña deben ser inferiores a 20 carácteres.')
+        elif x == 2:
+            self.Error_label.config(text='\nUsuario no encontrado.')
+        elif x == 3:
+            self.Error_label.config(text='\nContraseña incorrecta.')
+        elif x == 4:
+            self.Error_label.config(text='\nEste nombre de usuario y/o contraseña no están disponibles')
 
     def command_send(self, msg, event=None):
         client_socket.send(msg.encode("utf8"))

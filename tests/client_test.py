@@ -55,7 +55,7 @@ class App:
             for j in everyone:
                 if i < j:
                     try:
-                        open(f'logs\{i}_{j}.log',
+                        open(f'tests\logs\{i}_{j}.log',
                              "x", encoding="utf8", newline="")
                     except FileExistsError:
                         print(f"{i}_{j}.log already exists")
@@ -79,14 +79,14 @@ class App:
         self.msg_text_list.insert(END, msg + "\n")
         self.msg_text_list.yview(END)
         self.msg_text_list.configure(state="disabled")
-        with open(f'logs\{self.person1}_{self.person2}.log', "a", encoding="utf8", newline="") as file:
+        with open(f'tests\logs\{self.person1}_{self.person2}.log', "a", encoding="utf8", newline="") as file:
             file.write(msg + "\n")
 
     def serv_recvv(self, x):
         print(x)
         self.person1, self.person2 = eval(x[9:])
         self.msg_text_list.place(x=380, y=10, width=830, height=640)
-        with open(f'logs\{self.person1}_{self.person2}.log', "r", encoding="utf8", newline="") as file:
+        with open(f'tests\logs\{self.person1}_{self.person2}.log', "r", encoding="utf8", newline="") as file:
             f = file.readlines()
             self.msg_text_list.configure(state="normal")
             self.msg_text_list.delete('1.0', END)
@@ -95,8 +95,8 @@ class App:
             self.msg_text_list.configure(state="disabled")
 
 
-people = "aa", "ac", "ba", "bb", "bc"
-username = "DRsMRhg69GMeTiUJcs3ZDg=="
+people = "pere", "eva", "ian", "jaon", "hola"
+username = "Guillem"
 if __name__ == "__main__":
     root = Tk()
     app = App(root)
