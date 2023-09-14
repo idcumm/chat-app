@@ -7,9 +7,8 @@ tests/*
 !tests/client_test.py
 !tests/encryption_test.py
 !tests/focus_test.py
-
-logs/*
-!logs/.gitkeep
+!tests/logs
+!tests/logs/.gitkeep
 
 server/logs/*
 !server/logs/.gitkeep
