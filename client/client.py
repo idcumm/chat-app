@@ -348,7 +348,8 @@ def msg_send(event=None):
     if not msg == "":
         my_msg.set("")
         date = datetime.now().strftime("%H:%M")
-        msg_ = {"date": date, "type": "broadcast", "name": username, "msg": msg}
+        msg_ = {"date": date, "type": "broadcast",
+                "name": username, "msg": msg}
         onAdd(END, msg_, True, True)
         msg = encrypt(msg)
         try:
