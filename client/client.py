@@ -1,8 +1,6 @@
 # # # # TODO fer que el chat tingui missatges privats
 # # # # TODO simular un atac informatic al servidor
-# TODO treure "tots" els globals i posar self.
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
-# TODO fer tot en un sol idioma
 # TODO posar dia i hora en missatges
 # TODO que no surti la consola al obrir client.pyw
 # TODO millorar el print de la consola
@@ -10,6 +8,7 @@
 # TODO Que detecti el nom del ultim misatge i si es el mateix que no escrigui el nom.
 # TODO fer funcio tot allo que es repeteix molt
 # TODO millorar notification
+# TODO en comptes que els errors s'eliminin i es crein, que nomes es cambii el text i ya
 # TODO fer separacio de misatges per persona (2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
 # -=-=-=- devesaguillem@gmail.com se ha unido! -=-=-=-
 
@@ -44,14 +43,6 @@ from win10toast import ToastNotifier
 
 class App:
     def __init__(self, root):
-        global my_msg
-        global msg_list
-        global scrollbar
-        global entry_field
-        global send_button
-        global top_login
-        global verifica_usuario
-        global verifica_clave
 
         # window
         root.title("Chatt app")
@@ -68,16 +59,16 @@ class App:
         root.geometry(alignstr)
         root.resizable(width=False, height=False)
         root.configure(bg="#282424")
-        root.protocol("WM_DELETE_WINDOW", on_closing)
-        root.bind('<FocusOut>', focus_out)
-        root.bind('<FocusIn>', focus_in)
+        root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        root.bind('<FocusOut>', self.focus_out)
+        root.bind('<FocusIn>', self.focus_in)
 
-        # my_msg
-        my_msg = StringVar()
-        my_msg.set("")
+        # msg_entry_var
+        self.msg_entry_var = StringVar()
+        self.msg_entry_var.set("")
 
-        # scrollbar
-        scrollbar = Scrollbar(
+        # msg_scrollbar
+        self.msg_scrollbar = Scrollbar(
             root,
             activebackground="#282424",
             bg="#282424",
@@ -85,324 +76,298 @@ class App:
             highlightcolor="#282424",
             troughcolor="#282424",
         )
-        scrollbar.place(x=1220, y=10, width=20, height=640)
+        self.msg_scrollbar.place(x=1220, y=10, width=20, height=640)
 
-        # entry_field
-        entry_field = Entry(root, textvariable=my_msg)
-        entry_field.bind("<Return>", msg_send)
-        entry_field.focus_set()
-        entry_field["borderwidth"] = "1px"
-        entry_field["bg"] = "#282424"
-        entry_field["font"] = tkFont.Font(family="Sitka Small", size=15)
-        entry_field["fg"] = "#ffffff"
-        entry_field["justify"] = "left"
-        entry_field["relief"] = "sunken"
-        entry_field.place(x=380, y=660, width=800, height=30)
+        # msg_entry
+        self.msg_entry = Entry(root, textvariable=self.msg_entry_var)
+        self.msg_entry.bind("<Return>", self.msg_send)
+        self.msg_entry.focus_set()
+        self.msg_entry["borderwidth"] = "1px"
+        self.msg_entry["bg"] = "#282424"
+        self.msg_entry["font"] = tkFont.Font(family="Sitka Small", size=15)
+        self.msg_entry["fg"] = "#ffffff"
+        self.msg_entry["justify"] = "left"
+        self.msg_entry["relief"] = "sunken"
+        self.msg_entry.place(x=380, y=660, width=800, height=30)
 
-        msg_list = Text(root, yscrollcommand=scrollbar.set)
-        scrollbar.config(command=msg_list.yview)
-        msg_list["bg"] = "#282424"
-        msg_list["borderwidth"] = "1px"
-        msg_list["font"] = tkFont.Font(family="Sitka Small", size=15)
-        msg_list["fg"] = "#ffffff"
-        msg_list.place(x=380, y=10, width=830, height=640)
-        msg_list.tag_config("right", justify="right")
-        msg_list.tag_config("center", justify="center")
+        self.msg_list = Text(root, yscrollcommand=self.msg_scrollbar.set)
+        self.msg_scrollbar.config(command=self.msg_list.yview)
+        self.msg_list["bg"] = "#282424"
+        self.msg_list["borderwidth"] = "1px"
+        self.msg_list["font"] = tkFont.Font(family="Sitka Small", size=15)
+        self.msg_list["fg"] = "#ffffff"
+        self.msg_list.place(x=380, y=10, width=830, height=640)
+        self.msg_list.tag_config("right", justify="right")
+        self.msg_list.tag_config("center", justify="center")
 
-        # send_button
-        send_button = Button(root, text="Enviar", command=msg_send)
-        send_button["anchor"] = "se"
-        send_button["bg"] = "#282424"
-        send_button["font"] = tkFont.Font(family="Sitka Small", size=10)
-        send_button["fg"] = "#ffffff"
-        send_button["justify"] = "center"
-        send_button.place(x=1190, y=660, width=50, height=30)
+        # msg_send_button
+        self.msg_send_button = Button(
+            root, text="Enviar", command=self.msg_send)
+        self.msg_send_button["anchor"] = "se"
+        self.msg_send_button["bg"] = "#282424"
+        self.msg_send_button["font"] = tkFont.Font(
+            family="Sitka Small", size=10)
+        self.msg_send_button["fg"] = "#ffffff"
+        self.msg_send_button["justify"] = "center"
+        self.msg_send_button.place(x=1190, y=660, width=50, height=30)
 
-        top_login = Frame(root)
-        verifica_usuario = StringVar()
-        verifica_clave = StringVar()
+        self.login_root = Frame(root)
+        self.user_entry_var = StringVar()
+        self.key_entry_var = StringVar()
 
         Label(
-            top_login,
+            self.login_root,
             text="\n\n\n\n\n\n\n\n",
             width="300",
         ).pack()
 
         Label(
-            top_login,
+            self.login_root,
             text="Introduzca el nombre de usuario y la contraseña\n",
             font=("Calibri", 13),
         ).pack()
 
-        Label(top_login, text="Nombre de usuario *",
+        Label(self.login_root, text="Nombre de usuario *",
               font=("Calibri", 13)).pack()
 
-        entry_usuario = Entry(
-            top_login,
+        self.user_entry = Entry(
+            self.login_root,
             width="30",
             font=("Calibri", 13),
-            textvariable=verifica_usuario,
+            textvariable=self.user_entry_var,
         )
-        entry_usuario.focus_set()
-        entry_usuario.bind(
+        self.user_entry.focus_set()
+        self.user_entry.bind(
             "<Return>",
-            lambda event: login(verifica_usuario.get(), verifica_clave.get()),
+            lambda event: self.login(
+                self.user_entry_var.get(), self.key_entry_var.get()),
         )
-        entry_usuario.pack()
+        self.user_entry.pack()
 
-        Label(top_login, text="Contraseña *", font=("Calibri", 13)).pack()
+        Label(self.login_root, text="Contraseña *", font=("Calibri", 13)).pack()
 
-        entry_contrasena = Entry(
-            top_login,
+        self.key_entry = Entry(
+            self.login_root,
             width="30",
             font=("Calibri", 13),
-            textvariable=verifica_clave,
+            textvariable=self.key_entry_var,
             show="*",
         )
-        entry_contrasena.bind(
+        self.key_entry.bind(
             "<Return>",
-            lambda event: login(verifica_usuario.get(), verifica_clave.get()),
+            lambda event: self.login(
+                self.user_entry_var.get(), self.key_entry_var.get()),
         )
-        entry_contrasena.pack()
+        self.key_entry.pack()
 
-        Label(top_login, text="").pack()
+        Label(self.login_root, text="").pack()
 
         Button(
-            top_login,
+            self.login_root,
             text="Login",
             width="20",
             bg="DarkGrey",
-            command=lambda: login(verifica_usuario.get(),
-                                  verifica_clave.get()),
+            command=lambda: self.login(self.user_entry_var.get(),
+                                       self.key_entry_var.get()),
             font=("Calibri", 13),
         ).pack()
 
-        Label(top_login, text="").pack()
+        Label(self.login_root, text="").pack()
 
         Button(
-            top_login,
+            self.login_root,
             text="Register",
             width="20",
             bg="DarkGrey",
-            command=lambda: register(
-                verifica_usuario.get(), verifica_clave.get()),
+            command=lambda: self.register(
+                self.user_entry_var.get(), self.key_entry_var.get()),
             font=("Calibri", 13),
         ).pack()
 
-        top_login.pack(side=LEFT, fill=BOTH)
+        self.login_root.pack(side=LEFT, fill=BOTH)
 
+    def receive(self):
+        while True:
+            try:
+                msg = client_socket.recv(BUFSIZ).decode("utf8")
+                if "/login" == msg:
+                    root.title(f"Chatt app - Logged as {self.username}")
+                    self.login_root.destroy()
+                    self.msg_entry.focus_set()
+                elif "/history" in msg:
+                    self.history = msg[9:]
+                    if not self.history == [""]:
+                        self.history = eval(self.history)
+                        self.onAdd('1.0', self.history, True)
+                elif "/login_user_error" == msg:
+                    self.login_user_error()
+                elif "/login_password_error" == msg:
+                    self.login_password_error()
+                elif "/register" == msg:
+                    self.login(self.user_entry_var.get(),
+                               self.key_entry_var.get())
+                elif "/register_error" == msg:
+                    self.register_error()
+                elif "/quit" == msg:
+                    client_socket.close()
+                    root.quit()
+                else:
+                    msg = eval(msg)
+                    self.onAdd(END, msg)
+                    self.notification()
 
-def login(usuario, clave, event=None):
-    global username
-    username = usuario
-    if len(usuario) > 20 or len(clave) > 20:
-        login_lenght_error()
-    else:
-        usuario = encrypt(usuario)
-        clave = encrypt(clave)
-        msg = f'"{usuario}", "{clave}"'
-        command_send(f"/login {msg}")
-
-
-def register(usuario, clave, event=None):
-    if len(usuario) > 20 or len(clave) > 20:
-        login_lenght_error()
-    else:
-        usuario = encrypt(usuario)
-        clave = encrypt(clave)
-        msg = f'"{usuario}", "{clave}"'
-        command_send(f"/register {msg}")
-
-
-def login_lenght_error():
-    global top_login
-    global Error
-    try:
-        Error.destroy()
-    except NameError:
-        print(NameError)
-    Error = Label(
-        top_login,
-        text="\nEl usuario y la contraseña deben ser inferiores a 20 carácteres.",
-        font=("Calibri", 13),
-    )
-    Error.pack()
-
-
-def login_user_error():
-    global top_login
-    global Error
-    try:
-        Error.destroy()
-    except NameError:
-        print(NameError)
-    Error = Label(
-        top_login,
-        text="\nUsuario no encontrado.",
-        font=("Calibri", 13),
-    )
-    Error.pack()
-
-
-def login_password_error():
-    global top_login
-    global Error
-    try:
-        Error.destroy()
-    except NameError:
-        print(NameError)
-    Error = Label(
-        top_login,
-        text="\nContraseña incorrecta.",
-        font=("Calibri", 13),
-    )
-    Error.pack()
-
-
-def register_error():
-    global top_login
-    global Error
-    try:
-        Error.destroy()
-    except NameError:
-        print(NameError)
-    Error = Label(
-        top_login,
-        text="\nEste nombre de usuario y/o contraseña no están disponibles",
-        font=("Calibri", 13),
-    )
-    Error.pack()
-
-
-def onAdd(position, x, self_messages=False, local=False):
-    global last_name
-    global last_message
-    msg_list.configure(state="normal")
-    if local == False:
-        x['name'] = decrypt(x['name'])
-        x['msg'] = decrypt(x['msg'])
-
-        last_name = x['name']
-        last_message = x['msg']
-
-    if x["type"] == "broadcast":
-        if x["name"] == username:
-            if self_messages == True:
-                msg_list.insert(
-                    position,
-                    f'{x["name"]}: {x["msg"]} ({x["date"]})\n\n',
-                    "right",
-                )
-        else:
-            msg_list.insert(
-                position, f'({x["date"]}) {x["name"]}: {x["msg"]}\n\n')
-    # elif x["type"] == "join":
-    #     msg_list.insert(
-    #         position, f'{x["name"]} se ha unido al chat!\n\n', "center")
-    # elif x["type"] == "leave":
-    #     msg_list.insert(
-    #         position, f'{x["name"]} se ha ido del chat!\n\n', "center")
-    msg_list.configure(state="disabled")
-    msg_list.yview(END)
-
-
-def receive():
-    global history
-    while True:
-        try:
-            msg = client_socket.recv(BUFSIZ).decode("utf8")
-            if "/login" == msg:
-                root.title(f"Chatt app - Logged as {username}")
-                top_login.destroy()
-                entry_field.focus_set()
-            elif "/history" in msg:
-                history = msg[9:]
-                if not history == [""]:
-                    history = eval(history)
-                    onAdd('1.0', history, True)
-            elif "/login_user_error" == msg:
-                login_user_error()
-            elif "/login_password_error" == msg:
-                login_password_error()
-            elif "/register" == msg:
-                login(verifica_usuario.get(), verifica_clave.get())
-            elif "/register_error" == msg:
-                register_error()
-            elif "/quit" == msg:
+            except OSError:
+                print(OSError)
                 client_socket.close()
                 root.quit()
+                exit()
+
+    def msg_send(self, event=None):
+        msg = self.msg_entry_var.get()
+        if not msg == "":
+            self.msg_entry_var.set("")
+            date = datetime.now().strftime("%H:%M")
+            msg_ = {"date": date, "type": "broadcast",
+                    "name": self.username, "msg": msg}
+            self.onAdd(END, msg_, True, True)
+            msg = self.encrypt(msg)
+            try:
+                client_socket.send(msg.encode("utf8"))
+            except OSError:
+                print(OSError)
+
+    def onAdd(self, position, x, self_messages=False, local=False):
+        self.msg_list.configure(state="normal")
+        if local == False:
+            x['name'] = self.decrypt(x['name'])
+            x['msg'] = self.decrypt(x['msg'])
+
+            self.last_name = x['name']
+            self.last_message = x['msg']
+
+        if x["type"] == "broadcast":
+            if x["name"] == self.username:
+                if self_messages == True:
+                    self.msg_list.insert(
+                        position,
+                        f'{x["name"]}: {x["msg"]} ({x["date"]})\n\n',
+                        "right",
+                    )
             else:
-                msg = eval(msg)
-                onAdd(END, msg)
-                notification()
+                self.msg_list.insert(
+                    position, f'({x["date"]}) {x["name"]}: {x["msg"]}\n\n')
+        # elif x["type"] == "join":
+        #     self.msg_list.insert(
+        #         position, f'{x["name"]} se ha unido al chat!\n\n', "center")
+        # elif x["type"] == "leave":
+        #     self.msg_list.insert(
+        #         position, f'{x["name"]} se ha ido del chat!\n\n', "center")
+        self.msg_list.configure(state="disabled")
+        self.msg_list.yview(END)
 
-        except OSError:
-            print(OSError)
-            client_socket.close()
-            root.quit()
-            exit()
+    def login(self, user, key, event=None):
+        self.username = user
+        if len(user) > 20 or len(key) > 20:
+            self.login_lenght_error()
+        else:
+            user = self.encrypt(user)
+            key = self.encrypt(key)
+            msg = f'"{user}", "{key}"'
+            self.command_send(f"/login {msg}")
 
+    def register(self, user, key, event=None):
+        if len(user) > 20 or len(key) > 20:
+            self.login_lenght_error()
+        else:
+            user = self.encrypt(user)
+            key = self.encrypt(key)
+            msg = f'"{user}", "{key}"'
+            self.command_send(f"/register {msg}")
 
-def msg_send(event=None):
-    msg = my_msg.get()
-    if not msg == "":
-        my_msg.set("")
-        date = datetime.now().strftime("%H:%M")
-        msg_ = {"date": date, "type": "broadcast",
-                "name": username, "msg": msg}
-        onAdd(END, msg_, True, True)
-        msg = encrypt(msg)
+    def login_lenght_error(self):
         try:
-            client_socket.send(msg.encode("utf8"))
-        except OSError:
-            print(OSError)
+            self.Error_label.destroy()
+        except NameError:
+            print(NameError)
+        self.Error_label = Label(
+            self.login_root,
+            text="\nEl usuario y la contraseña deben ser inferiores a 20 carácteres.",
+            font=("Calibri", 13),
+        )
+        self.Error_label.pack()
 
+    def login_user_error(self):
+        try:
+            self.Error_label.destroy()
+        except NameError:
+            print(NameError)
+        self.Error_label = Label(
+            self.login_root,
+            text="\nUsuario no encontrado.",
+            font=("Calibri", 13),
+        )
+        self.Error_label.pack()
 
-def command_send(msg, event=None):
-    client_socket.send(msg.encode("utf8"))
+    def login_password_error(self):
+        try:
+            self.Error_label.destroy()
+        except NameError:
+            print(NameError)
+        self.Error_label = Label(
+            self.login_root,
+            text="\nContraseña incorrecta.",
+            font=("Calibri", 13),
+        )
+        self.Error_label.pack()
 
+    def register_error(self):
+        try:
+            self.Error_label.destroy()
+        except NameError:
+            print(NameError)
+        self.Error_label = Label(
+            self.login_root,
+            text="\nEste nombre de usuario y/o contraseña no están disponibles",
+            font=("Calibri", 13),
+        )
+        self.Error_label.pack()
 
-def on_closing(event=None):
-    command_send("/quit")
-    exit()
+    def command_send(self, msg, event=None):
+        client_socket.send(msg.encode("utf8"))
 
+    def on_closing(self, event=None):
+        self.command_send("/quit")
+        exit()
 
-def encrypt(raw):
-    if not raw == "":
-        raw = pad(raw.encode(), 16)
-        cipher = AES.new(KEY, AES.MODE_ECB)
-        return base64.b64encode(cipher.encrypt(raw)).decode("utf-8", "ignore")
-    else:
-        return ""
+    def encrypt(self, raw):
+        if not raw == "":
+            raw = pad(raw.encode(), 16)
+            cipher = AES.new(KEY, AES.MODE_ECB)
+            return base64.b64encode(cipher.encrypt(raw)).decode("utf-8", "ignore")
+        else:
+            return ""
 
+    def decrypt(self, enc):
+        if not enc == "":
+            enc = base64.b64decode(enc)
+            cipher = AES.new(KEY, AES.MODE_ECB)
+            return unpad(cipher.decrypt(enc), 16).decode("utf-8", "ignore")
+        else:
+            return ""
 
-def decrypt(enc):
-    if not enc == "":
-        enc = base64.b64decode(enc)
-        cipher = AES.new(KEY, AES.MODE_ECB)
-        return unpad(cipher.decrypt(enc), 16).decode("utf-8", "ignore")
-    else:
-        return ""
+    def focus_out(self, event=None):
+        self.focus = False
 
+    def focus_in(self, event=None):
+        self.focus = True
 
-def focus_out(*args):
-    global focus
-    focus = False
-
-
-def focus_in(*args):
-    global focus
-    focus = True
-
-
-def notification():
-    global focus
-    if NOTIFICATIONS == True:
-        if focus == False:
-            n.show_toast("Chat app",
-                         f"{last_name}: {last_message}",
-                         duration=5,
-                         threaded=True)
+    def notification(self):
+        if NOTIFICATIONS == True:
+            if self.focus == False:
+                n.show_toast("Chat app",
+                             f"{self.last_name}: {self.last_message}",
+                             duration=5,
+                             threaded=True)
 
 # ==========>> MAIN CODE <<========== #
 
@@ -422,9 +387,9 @@ if __name__ == "__main__":
     popen("title ClientSocket")
 
     client_socket.connect(ADDR)
-    receive_thread = Thread(target=receive)
-    receive_thread.start()
 
     root = Tk()
     app = App(root)
+    receive_thread = Thread(target=app.receive)
+    receive_thread.start()
     root.mainloop()
