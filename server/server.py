@@ -51,7 +51,7 @@ def handle_client(client):
         if "/login" in msg:
             username, password = eval(msg[7:])
             try:
-                with open("data.csv", "r+", encoding="utf8", newline="") as file:
+                with open("database\data.csv", "r+", encoding="utf8", newline="") as file:
                     data = []
                     r = csv.reader(file)
                     login_state = 0
@@ -100,14 +100,14 @@ def handle_client(client):
         elif "/register" in msg:
             username, password = eval(msg[10:])
             try:
-                x = open("data.csv", "x")
+                x = open("database\data.csv", "x")
                 x.close()
                 print(not FileExistsError)
 
             except FileExistsError:
                 pass
 
-            with open("data.csv", "r+", encoding="utf8", newline="") as file:
+            with open("database\data.csv", "r+", encoding="utf8", newline="") as file:
                 data = []
                 w = csv.writer(file)
                 r = csv.reader(file)
