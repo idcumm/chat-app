@@ -93,7 +93,7 @@ class App:
         entry_field.focus_set()
         entry_field["borderwidth"] = "1px"
         entry_field["bg"] = "#282424"
-        entry_field["font"] = tkFont.Font(family="Times", size=15)
+        entry_field["font"] = tkFont.Font(family="Sitka Small", size=15)
         entry_field["fg"] = "#ffffff"
         entry_field["justify"] = "left"
         entry_field["relief"] = "sunken"
@@ -103,7 +103,7 @@ class App:
         scrollbar.config(command=msg_list.yview)
         msg_list["bg"] = "#282424"
         msg_list["borderwidth"] = "1px"
-        msg_list["font"] = tkFont.Font(family="Times", size=15)
+        msg_list["font"] = tkFont.Font(family="Sitka Small", size=15)
         msg_list["fg"] = "#ffffff"
         msg_list.place(x=380, y=10, width=830, height=640)
         msg_list.tag_config("right", justify="right")
@@ -113,7 +113,7 @@ class App:
         send_button = Button(root, text="Enviar", command=msg_send)
         send_button["anchor"] = "se"
         send_button["bg"] = "#282424"
-        send_button["font"] = tkFont.Font(family="Times", size=10)
+        send_button["font"] = tkFont.Font(family="Sitka Small", size=10)
         send_button["fg"] = "#ffffff"
         send_button["justify"] = "center"
         send_button.place(x=1190, y=660, width=50, height=30)
@@ -296,12 +296,12 @@ def onAdd(position, x, self_messages=False, local=False):
         else:
             msg_list.insert(
                 position, f'({x["date"]}) {x["name"]}: {x["msg"]}\n\n')
-    elif x["type"] == "join":
-        msg_list.insert(
-            position, f'{x["name"]} se ha unido al chat!\n\n', "center")
-    elif x["type"] == "leave":
-        msg_list.insert(
-            position, f'{x["name"]} se ha ido del chat!\n\n', "center")
+    # elif x["type"] == "join":
+    #     msg_list.insert(
+    #         position, f'{x["name"]} se ha unido al chat!\n\n', "center")
+    # elif x["type"] == "leave":
+    #     msg_list.insert(
+    #         position, f'{x["name"]} se ha ido del chat!\n\n', "center")
     msg_list.configure(state="disabled")
     msg_list.yview(END)
 
