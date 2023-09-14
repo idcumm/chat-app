@@ -43,7 +43,6 @@ from win10toast import ToastNotifier
 
 class App:
     def __init__(self, root):
-
         # window
         root.title("Chatt app")
         width = 1250
@@ -60,8 +59,8 @@ class App:
         root.resizable(width=False, height=False)
         root.configure(bg="#282424")
         root.protocol("WM_DELETE_WINDOW", self.on_closing)
-        root.bind('<FocusOut>', self.focus_out)
-        root.bind('<FocusIn>', self.focus_in)
+        root.bind("<FocusOut>", self.focus_out)
+        root.bind("<FocusIn>", self.focus_in)
 
         # msg_entry_var
         self.msg_entry_var = StringVar()
@@ -101,12 +100,10 @@ class App:
         self.msg_list.tag_config("center", justify="center")
 
         # msg_send_button
-        self.msg_send_button = Button(
-            root, text="Enviar", command=self.msg_send)
+        self.msg_send_button = Button(root, text="Enviar", command=self.msg_send)
         self.msg_send_button["anchor"] = "se"
         self.msg_send_button["bg"] = "#282424"
-        self.msg_send_button["font"] = tkFont.Font(
-            family="Sitka Small", size=10)
+        self.msg_send_button["font"] = tkFont.Font(family="Sitka Small", size=10)
         self.msg_send_button["fg"] = "#ffffff"
         self.msg_send_button["justify"] = "center"
         self.msg_send_button.place(x=1190, y=660, width=50, height=30)
@@ -121,14 +118,9 @@ class App:
             width="300",
         ).pack()
 
-        Label(
-            self.login_root,
-            text="Introduzca el nombre de usuario y la contraseña\n",
-            font=("Calibri", 13),
-        ).pack()
+        Label(self.login_root, text="Introduzca el nombre de usuario y la contraseña\n", font=("Calibri", 13)).pack()
 
-        Label(self.login_root, text="Nombre de usuario *",
-              font=("Calibri", 13)).pack()
+        Label(self.login_root, text="Nombre de usuario *", font=("Calibri", 13)).pack()
 
         self.user_entry = Entry(
             self.login_root,
@@ -140,7 +132,8 @@ class App:
         self.user_entry.bind(
             "<Return>",
             lambda event: self.login(
-                self.user_entry_var.get(), self.key_entry_var.get()),
+                self.user_entry_var.get(), self.key_entry_var.get()
+            ),
         )
         self.user_entry.pack()
 
@@ -156,7 +149,8 @@ class App:
         self.key_entry.bind(
             "<Return>",
             lambda event: self.login(
-                self.user_entry_var.get(), self.key_entry_var.get()),
+                self.user_entry_var.get(), self.key_entry_var.get()
+            ),
         )
         self.key_entry.pack()
 
@@ -167,8 +161,9 @@ class App:
             text="Login",
             width="20",
             bg="DarkGrey",
-            command=lambda: self.login(self.user_entry_var.get(),
-                                       self.key_entry_var.get()),
+            command=lambda: self.login(
+                self.user_entry_var.get(), self.key_entry_var.get()
+            ),
             font=("Calibri", 13),
         ).pack()
 
@@ -180,7 +175,8 @@ class App:
             width="20",
             bg="DarkGrey",
             command=lambda: self.register(
-                self.user_entry_var.get(), self.key_entry_var.get()),
+                self.user_entry_var.get(), self.key_entry_var.get()
+            ),
             font=("Calibri", 13),
         ).pack()
 
@@ -198,14 +194,13 @@ class App:
                     self.history = msg[9:]
                     if not self.history == [""]:
                         self.history = eval(self.history)
-                        self.onAdd('1.0', self.history, True)
+                        self.onAdd("1.0", self.history, True)
                 elif "/login_user_error" == msg:
                     self.login_user_error()
                 elif "/login_password_error" == msg:
                     self.login_password_error()
                 elif "/register" == msg:
-                    self.login(self.user_entry_var.get(),
-                               self.key_entry_var.get())
+                    self.login(self.user_entry_var.get(), self.key_entry_var.get())
                 elif "/register_error" == msg:
                     self.register_error()
                 elif "/quit" == msg:
@@ -227,8 +222,12 @@ class App:
         if not msg == "":
             self.msg_entry_var.set("")
             date = datetime.now().strftime("%H:%M")
-            msg_ = {"date": date, "type": "broadcast",
-                    "name": self.username, "msg": msg}
+            msg_ = {
+                "date": date,
+                "type": "broadcast",
+                "name": self.username,
+                "msg": msg,
+            }
             self.onAdd(END, msg_, True, True)
             msg = self.encrypt(msg)
             try:
@@ -239,11 +238,11 @@ class App:
     def onAdd(self, position, x, self_messages=False, local=False):
         self.msg_list.configure(state="normal")
         if local == False:
-            x['name'] = self.decrypt(x['name'])
-            x['msg'] = self.decrypt(x['msg'])
+            x["name"] = self.decrypt(x["name"])
+            x["msg"] = self.decrypt(x["msg"])
 
-            self.last_name = x['name']
-            self.last_message = x['msg']
+            self.last_name = x["name"]
+            self.last_message = x["msg"]
 
         if x["type"] == "broadcast":
             if x["name"] == self.username:
@@ -255,7 +254,8 @@ class App:
                     )
             else:
                 self.msg_list.insert(
-                    position, f'({x["date"]}) {x["name"]}: {x["msg"]}\n\n')
+                    position, f'({x["date"]}) {x["name"]}: {x["msg"]}\n\n'
+                )
         # elif x["type"] == "join":
         #     self.msg_list.insert(
         #         position, f'{x["name"]} se ha unido al chat!\n\n', "center")
@@ -364,10 +364,13 @@ class App:
     def notification(self):
         if NOTIFICATIONS == True:
             if self.focus == False:
-                n.show_toast("Chat app",
-                             f"{self.last_name}: {self.last_message}",
-                             duration=5,
-                             threaded=True)
+                n.show_toast(
+                    "Chat app",
+                    f"{self.last_name}: {self.last_message}",
+                    duration=5,
+                    threaded=True,
+                )
+
 
 # ==========>> MAIN CODE <<========== #
 
@@ -381,7 +384,7 @@ if __name__ == "__main__":
     BUFSIZ = 1024
 
     NOTIFICATIONS = True
-    KEY = 'password'
+    KEY = "password"
     KEY = hashlib.sha256(KEY.encode()).digest()
 
     popen("title ClientSocket")

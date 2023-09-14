@@ -1,6 +1,7 @@
 # .gitignore
 .venv
 .vscode
+pyproject.toml
 
 tests/*
 !tests/.gitkeep 
