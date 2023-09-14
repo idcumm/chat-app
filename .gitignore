@@ -8,6 +8,8 @@ tests/*
 !tests/encryption_test.py
 !tests/focus_test.py
 !tests/logs
+
+tests/logs/*
 !tests/logs/.gitkeep
 
 server/logs/*
