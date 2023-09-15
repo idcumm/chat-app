@@ -78,4 +78,5 @@ enc_button.grid(column=0, row=4, padx=50, pady=50)
 dec_button.grid(column=1, row=4, padx=50, pady=50)
 text_label.grid(column=1, row=5, padx=50, pady=50)
 
-root.mainloop()
+if __name__ == "__main__":
+    root.mainloop()
