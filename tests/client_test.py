@@ -91,6 +91,7 @@ class App:
             self.msg_text_list.delete('1.0', END)
             for line in f:
                 self.msg_text_list.insert(END, line)
+            self.msg_text_list.yview(END)
             self.msg_text_list.configure(state="disabled")
 
 
