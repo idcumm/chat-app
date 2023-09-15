@@ -118,7 +118,11 @@ class App:
             width="300",
         ).pack()
 
-        Label(self.login_root, text="Introduzca el nombre de usuario y la contraseña\n", font=("Calibri", 13)).pack()
+        Label(
+            self.login_root,
+            text="Introduzca el nombre de usuario y la contraseña\n",
+            font=("Calibri", 13),
+        ).pack()
 
         Label(self.login_root, text="Nombre de usuario *", font=("Calibri", 13)).pack()
 
@@ -179,7 +183,7 @@ class App:
             ),
             font=("Calibri", 13),
         ).pack()
-        
+
         self.Error_label = Label(
             self.login_root,
             text="\n",
@@ -297,15 +301,21 @@ class App:
 
     def login_error(self, x):
         if x == 0:
-            self.Error_label.config(text='\nEl usuario y/o la contraseña no pueden estar en blanco.')
+            self.Error_label.config(
+                text="\nEl usuario y/o la contraseña no pueden estar en blanco."
+            )
         elif x == 1:
-            self.Error_label.config(text='\nEl usuario y la contraseña deben ser inferiores a 20 carácteres.')
+            self.Error_label.config(
+                text="\nEl usuario y la contraseña deben ser inferiores a 20 carácteres."
+            )
         elif x == 2:
-            self.Error_label.config(text='\nUsuario no encontrado.')
+            self.Error_label.config(text="\nUsuario no encontrado.")
         elif x == 3:
-            self.Error_label.config(text='\nContraseña incorrecta.')
+            self.Error_label.config(text="\nContraseña incorrecta.")
         elif x == 4:
-            self.Error_label.config(text='\nEste nombre de usuario y/o contraseña no están disponibles')
+            self.Error_label.config(
+                text="\nEste nombre de usuario y/o contraseña no están disponibles"
+            )
 
     def command_send(self, msg, event=None):
         client_socket.send(msg.encode("utf8"))
