@@ -51,7 +51,9 @@ def handle_client(client):
         if "/login" in msg:
             username, password = eval(msg[7:])
             try:
-                with open("database\data.csv", "r+", encoding="utf8", newline="") as file:
+                with open(
+                    "database\data.csv", "r+", encoding="utf8", newline=""
+                ) as file:
                     data = []
                     r = csv.reader(file)
                     login_state = 0
@@ -80,8 +82,7 @@ def handle_client(client):
                         clients[client] = name
                         client.send("/login".encode("utf8"))
                         for i in reversed(history):
-                            client.send(
-                                ("/history " + str(i)).encode("utf8"))
+                            client.send(("/history " + str(i)).encode("utf8"))
                             sleep(0.05)
                         broadcast(name, "join")
                         # msg = f"%s se ha unido al chat! {client_address}" % name
@@ -151,15 +152,13 @@ def broadcast(prefix, type, msg=""):
     for sock in clients:
         try:
             date = datetime.now().strftime("%H:%M")
-            sock.send(
-                str({"date": date, "type": type, "name": prefix, "msg": msg}).encode(
-                    "utf8"
-                )
-            )
+            dict = {"date": date, "type": type, "name": prefix, "msg": msg}
+            sock.send(str(dict).encode("utf8"))
         except ConnectionResetError:
             print(ConnectionResetError)
     date = datetime.now().strftime("%H:%M")
-    history.append({"date": date, "type": type, "name": prefix, "msg": msg})
+    dict = {"date": date, "type": type, "name": prefix, "msg": msg}
+    history.append(dict)
 
 
 clients = {}

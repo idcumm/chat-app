@@ -233,13 +233,13 @@ class App:
         if not msg == "":
             self.msg_entry_var.set("")
             date = datetime.now().strftime("%H:%M")
-            msg_ = {
+            dict = {
                 "date": date,
                 "type": "broadcast",
                 "name": self.username,
                 "msg": msg,
             }
-            self.onAdd(END, msg_, True, True)
+            self.onAdd(END, dict, True, True)
             msg = self.encrypt(msg)
             try:
                 client_socket.send(msg.encode("utf8"))
@@ -369,7 +369,7 @@ if __name__ == "__main__":
     BUFSIZ = 1024
 
     NOTIFICATIONS = True
-    KEY = "password"
+    KEY = "pswrd"
     KEY = hashlib.sha256(KEY.encode()).digest()
 
     popen("title ClientSocket")
