@@ -6,6 +6,14 @@ from tkinter import *
 
 
 def encrypt(raw):
+    """Returns an AES-Base 64 encrypted version of the input
+
+    Args:
+        raw (str): String to be encrypted
+
+    Returns:
+        str: Encrypted version of the string
+    """
     KEY = hashlib.sha256(enc_key_entry.get().encode()).digest()
     raw = pad(raw.encode(), 16)
     cipher = AES.new(KEY, AES.MODE_ECB)
@@ -13,6 +21,14 @@ def encrypt(raw):
 
 
 def decrypt(enc):
+    """Returns an AES-Base 64 decrypted version of the encrypted input
+
+    Args:
+        enc (str): Encrypted string to be decrypted
+
+    Returns:
+        str: Decrypted version of the encrypted string
+    """
     KEY = hashlib.sha256(dec_key_entry.get().encode()).digest()
     enc = base64.b64decode(enc)
     cipher = AES.new(KEY, AES.MODE_ECB)
@@ -78,4 +94,5 @@ enc_button.grid(column=0, row=4, padx=50, pady=50)
 dec_button.grid(column=1, row=4, padx=50, pady=50)
 text_label.grid(column=1, row=5, padx=50, pady=50)
 
-root.mainloop()
+if __name__ == "__main__":
+    root.mainloop()

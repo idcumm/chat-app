@@ -25,9 +25,9 @@ class App:
         self.my_msg = StringVar()
         self.entry_field = Entry(
             root, textvariable=self.my_msg, font=Font(size=15))
-        self.entry_field_scrollbar = Scrollbar(root)
+        self.msg_text_list_scrollbar = Scrollbar(root)
         self.msg_text_list = Text(
-            root, yscrollcommand=self.entry_field_scrollbar.set)
+            root, yscrollcommand=self.msg_text_list_scrollbar.set)
 
         self.people_list.bind("<<ListboxSelect>>", self.select_person)
         self.people_list_scrollbar.config(command=self.people_list.yview)
@@ -43,8 +43,7 @@ class App:
 
         self.people_list.place(x=20, y=20, width=300, height=660)
         self.people_list_scrollbar.place(x=330, y=20, width=20, height=660)
-        self.entry_field.place(x=380, y=660, width=800, height=30)
-        self.entry_field_scrollbar.place(x=1220, y=10, width=20, height=640)
+        self.msg_text_list_scrollbar.place(x=1220, y=10, width=20, height=640)
 
         everyone = list()
         for i in people:
@@ -69,7 +68,6 @@ class App:
         else:
             command = f'/setchat "{people[self.person_selected]}", "{username}"'
         sleep(0.1)
-        self.entry_field.focus_set()
         self.serv_recvv(command)
 
     def msg_send(self, event=None):
@@ -86,17 +84,19 @@ class App:
         print(x)
         self.person1, self.person2 = eval(x[9:])
         self.msg_text_list.place(x=380, y=10, width=830, height=640)
+        self.entry_field.place(x=380, y=660, width=800, height=30)
         with open(f'tests\logs\{self.person1}_{self.person2}.log', "r", encoding="utf8", newline="") as file:
             f = file.readlines()
             self.msg_text_list.configure(state="normal")
             self.msg_text_list.delete('1.0', END)
             for line in f:
                 self.msg_text_list.insert(END, line)
+            self.msg_text_list.yview(END)
             self.msg_text_list.configure(state="disabled")
 
 
-people = "pere", "eva", "ian", "jaon", "hola"
-username = "Guillem"
+people = "persona1", "persona2"
+username = "persona0"
 if __name__ == "__main__":
     root = Tk()
     app = App(root)
