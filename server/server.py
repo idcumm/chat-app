@@ -17,8 +17,7 @@ def accept_incoming_connections():
     global client_address
     while True:
         client, client_address = SERVER.accept()
-        date = datetime.now().strftime("%H:%M")
-        print(f"({date}) {client_address} se ha conectado.")
+        logger.info(f"{client_address} se ha conectado.")
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).start()
 
@@ -35,22 +34,21 @@ def handle_client(client):
             try:
                 del clients[client]
                 broadcast(name, "leave")
-                date = datetime.now().strftime("%H:%M")
-                print(f"({date}) {client_address} se ha ido.")
+                logger.info(f"{client_address} se ha ido.")
                 break
             except KeyError:
-                print(KeyError)
+                logger.error(KeyError)
                 break
 
-        # try:
-        #     # print(name + ": " + msg)
-        #     pass
-        # except UnboundLocalError:
-        #     # print(f"{client_address}: {msg}")
-        #     pass
+        try:
+            logger.info(name + ": " + msg)
+        except UnboundLocalError:
+            logger.info(f"{client_address}: {msg}")
 
         if "/login" in msg:
             username, password = eval(msg[7:])
+            logger.debug("username: " + username)
+            logger.debug("password: " + password)
             try:
                 with open(
                     "database\data.csv", "r+", encoding="utf8", newline=""
@@ -64,7 +62,6 @@ def handle_client(client):
 
                     if not data:
                         login_state = 3
-
                     else:
                         for i in data:
                             if i[0] == username:
@@ -74,6 +71,7 @@ def handle_client(client):
 
                                 else:
                                     login_state = 2
+                                    break
 
                             else:
                                 login_state = 3
@@ -96,7 +94,7 @@ def handle_client(client):
                         client.send("/login_user_error".encode("utf8"))
 
             except FileNotFoundError:
-                print(FileNotFoundError)
+                logger.error(FileNotFoundError)
                 client.send("/login_user_error".encode("utf8"))
 
         elif "/register" in msg:
@@ -104,7 +102,7 @@ def handle_client(client):
             try:
                 x = open("database\data.csv", "x")
                 x.close()
-                print(not FileExistsError)
+                logger.error(FileExistsError)
 
             except FileExistsError:
                 pass
@@ -136,11 +134,10 @@ def handle_client(client):
             try:
                 del clients[client]
                 broadcast(name, "leave")
-                date = datetime.now().strftime("%H:%M")
-                print(f"({date}) {client_address} se ha ido.")
+                logger.info(f"{client_address} se ha ido.")
                 break
             except KeyError:
-                print(KeyError)
+                logger.error(KeyError)
                 break
 
         else:
@@ -156,29 +153,34 @@ def broadcast(prefix, type, msg=""):
             dict = {"date": date, "type": type, "name": prefix, "msg": msg}
             sock.send(str(dict).encode("utf8"))
         except ConnectionResetError:
-            print(ConnectionResetError)
+            logger.error(ConnectionResetError)
     date = datetime.now().strftime("%H:%M")
     dict = {"date": date, "type": type, "name": prefix, "msg": msg}
     history.append(dict)
 
 
-clients = {}
-addresses = {}
-history = []
-
-system("title ServerSocket")
-
-HOST = ""
-PORT = 33000
-BUFSIZ = 1024
-ADDR = (HOST, PORT)
-
-SERVER = socket(AF_INET, SOCK_STREAM)
-SERVER.bind(ADDR)
-
 if __name__ == "__main__":
+    logger = logging.getLogger()
+    clients = {}
+    addresses = {}
+    history = []
+
+    logging.basicConfig(format="[%(levelname)s] > %(message)s")
+
+    logger.setLevel(logging.NOTSET)
+
+    HOST = ""
+    PORT = 33000
+    BUFSIZ = 1024
+    ADDR = (HOST, PORT)
+
+    system("title ServerSocket")
+
+    SERVER = socket(AF_INET, SOCK_STREAM)
+    SERVER.bind(ADDR)
     SERVER.listen(5)
     print("         ---- Server online! ----\n")
+
     ACCEPT_THREAD = Thread(target=accept_incoming_connections)
     ACCEPT_THREAD.start()
     ACCEPT_THREAD.join()

@@ -13,6 +13,7 @@
 
 import base64
 import hashlib
+import logging
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 from tkinter import (
@@ -374,27 +375,28 @@ class App:
 # ==========>> MAIN CODE <<========== #
 
 
+LOGGING_LEVEL = logging.NOTSET
+NOTIFICATIONS = True
+KEY = "pswrd"
+HOST = "127.0.0.1"
+
+
 if __name__ == "__main__":
+    logger = logging.getLogger()
     client_socket = socket(AF_INET, SOCK_STREAM)
     n = ToastNotifier()
-    if True:
-        HOST = "127.0.0.1"
-    else:
-        HOST = "192.168.1.151"
-    PORT = 33000
-    ADDR = (HOST, PORT)
-    BUFSIZ = 1024
-
-    NOTIFICATIONS = True
-    KEY = "pswrd"
-    KEY = hashlib.sha256(KEY.encode()).digest()
-
-    popen("title ClientSocket")
-
-    client_socket.connect(ADDR)
-
     root = Tk()
     app = App(root)
     receive_thread = Thread(target=app.receive)
+
+    PORT = 33000
+    ADDR = (HOST, PORT)
+    BUFSIZ = 1024
+    KEY = hashlib.sha256(KEY.encode()).digest()
+
+    logger.setLevel(LOGGING_LEVEL)
+    popen("title ClientSocket")
+    logging.basicConfig(format="[%(levelname)s] > %(message)s")
+    client_socket.connect(ADDR)
     receive_thread.start()
     root.mainloop()
