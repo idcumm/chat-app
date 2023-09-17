@@ -37,22 +37,22 @@ def decrypt(enc):
 
 def encrypt_(event=None):
     x = enc_data_entry.get()
-    enc_data.set('')
+    enc_data.set("")
     text = encrypt(x)
     print(text)
     text_label.configure(state="normal")
-    text_label.insert(END, f'+ {text}\n')
+    text_label.insert(END, f"+ {text}\n")
     text_label.configure(state="disabled")
     text_label.yview(END)
 
 
 def decrypt_(event=None):
     x = dec_data_entry.get()
-    dec_data.set('')
+    dec_data.set("")
     text = decrypt(x)
     print(text)
     text_label.configure(state="normal")
-    text_label.insert(END, f'- {text}\n')
+    text_label.insert(END, f"- {text}\n")
     text_label.configure(state="disabled")
     text_label.yview(END)
 
@@ -69,18 +69,20 @@ enc_key = StringVar()
 enc_key.set("1234")
 dec_key = StringVar()
 dec_key.set("1234")
-enc_key_entry = Entry(root, textvariable=enc_key, show='*')
+enc_key_entry = Entry(root, textvariable=enc_key, show="*")
 enc_key_entry.bind("<Return>", encrypt_)
-dec_key_entry = Entry(root, textvariable=dec_key, show='*')
+dec_key_entry = Entry(root, textvariable=dec_key, show="*")
 dec_key_entry.bind("<Return>", decrypt_)
-enc_button = Button(root, command=encrypt_, text='encrypt')
-dec_button = Button(root, command=decrypt_, text='decrypt')
-enc_label = Label(root, text='Escriba el texto que desea cifrar')
-dec_label = Label(root, text='Escriba el texto que desea descifrar')
+enc_button = Button(root, command=encrypt_, text="encrypt")
+dec_button = Button(root, command=decrypt_, text="decrypt")
+enc_label = Label(root, text="Escriba el texto que desea cifrar")
+dec_label = Label(root, text="Escriba el texto que desea descifrar")
 enc_key_label = Label(
-    root, text="\nEscriba la contraseña que desea usar para cifrar el mensaje")
+    root, text="\nEscriba la contraseña que desea usar para cifrar el mensaje"
+)
 dec_key_label = Label(
-    root, text="\nEscriba la contraseña que desea usar para descifrar el mensaje")
+    root, text="\nEscriba la contraseña que desea usar para descifrar el mensaje"
+)
 text_label = Text(root, state="disabled", width=50, height=10)
 enc_label.grid(column=0, row=0)
 dec_label.grid(column=1, row=0)

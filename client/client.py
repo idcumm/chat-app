@@ -5,23 +5,9 @@
 # TODO que no surti la consola al obrir client.pyw
 # TODO millorar el print de la consola
 # TODO Quan la aplicció no tingui focus i revi un misatge, faigi ping i ficar l'icono tronja
-# TODO Que detecti el nom del ultim misatge i si es el mateix que no escrigui el nom.
 # TODO fer funcio tot allo que es repeteix molt
 # TODO millorar notification
-# TODO en comptes que els errors s'eliminin i es crein, que nomes es cambii el text i ya
-# TODO fer separacio de misatges per persona (2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
-# -=-=-=- devesaguillem@gmail.com se ha unido! -=-=-=-
-
-#                                              - - - - devesaguillem@gmail.com - - - -
-#                                              (00:00) Hola chicos!
-#                                              (00:00) Como estan? Espero que Muy Bien
-#
-# - - - - devesapere@gmail.com - - - -
-# (00:01) Mal
-#
-#                                              - - - - devesaguillem@gmail.com - - - -
-#                                              (00:02) Por?
-#
+# TODO fer separacio de misatges per persona (nom a dalt, 2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
 # ==========>> MODULE IMPORT <<========== #
 
 
@@ -58,7 +44,7 @@ class App:
         root.geometry(alignstr)
         root.resizable(width=False, height=False)
         root.configure(bg="#282424")
-        root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        root.protocol("WM_DELETE_WINDOW", lambda event: self.command_send("/quit"))
         root.bind("<FocusOut>", self.focus_out)
         root.bind("<FocusIn>", self.focus_in)
 
@@ -218,8 +204,8 @@ class App:
                     client_socket.close()
                     root.quit()
                 else:
-                    msg = eval(msg)
-                    self.onAdd(END, msg)
+                    dict = eval(msg)
+                    self.onAdd(END, dict)
                     self.notification()
 
             except OSError:
@@ -228,7 +214,7 @@ class App:
                 root.quit()
                 exit()
 
-    def msg_send(self, event=None):
+    def msg_send(self, *args):
         msg = self.msg_entry_var.get()
         if not msg == "":
             self.msg_entry_var.set("")
@@ -246,7 +232,10 @@ class App:
             except OSError:
                 print(OSError)
 
-    def onAdd(self, position, x, self_messages=False, local=False):
+    def command_send(self, msg: str):
+        client_socket.send(msg.encode("utf8"))
+
+    def onAdd(self, pos: str, x: dict, self_msg: bool = False, local: bool = False):
         self.msg_list.configure(state="normal")
         if local == False:
             x["name"] = self.decrypt(x["name"])
@@ -257,26 +246,24 @@ class App:
 
         if x["type"] == "broadcast":
             if x["name"] == self.username:
-                if self_messages == True:
+                if self_msg == True:
                     self.msg_list.insert(
-                        position,
+                        pos,
                         f'{x["name"]}: {x["msg"]} ({x["date"]})\n\n',
                         "right",
                     )
             else:
-                self.msg_list.insert(
-                    position, f'({x["date"]}) {x["name"]}: {x["msg"]}\n\n'
-                )
+                self.msg_list.insert(pos, f'({x["date"]}) {x["name"]}: {x["msg"]}\n\n')
         # elif x["type"] == "join":
         #     self.msg_list.insert(
-        #         position, f'{x["name"]} se ha unido al chat!\n\n', "center")
+        #         pos, f'{x["name"]} se ha unido al chat!\n\n', "center")
         # elif x["type"] == "leave":
         #     self.msg_list.insert(
-        #         position, f'{x["name"]} se ha ido del chat!\n\n', "center")
+        #         pos, f'{x["name"]} se ha ido del chat!\n\n', "center")
         self.msg_list.configure(state="disabled")
         self.msg_list.yview(END)
 
-    def login(self, user, key, event=None):
+    def login(self, user: str, key: str, *args):
         self.username = user
         if len(user) > 20 or len(key) > 20:
             self.login_error(1)
@@ -288,7 +275,7 @@ class App:
             msg = f'"{user}", "{key}"'
             self.command_send(f"/login {msg}")
 
-    def register(self, user, key, event=None):
+    def register(self, user: str, key: str):
         if len(user) > 20 or len(key) > 20:
             self.login_error(1)
         elif len(user) == 0 or len(key) == 0:
@@ -299,7 +286,7 @@ class App:
             msg = f'"{user}", "{key}"'
             self.command_send(f"/register {msg}")
 
-    def login_error(self, x):
+    def login_error(self, x: int):
         if x == 0:
             self.Error_label.config(
                 text="\nEl usuario y/o la contraseña no pueden estar en blanco."
@@ -317,33 +304,42 @@ class App:
                 text="\nEste nombre de usuario y/o contraseña no están disponibles"
             )
 
-    def command_send(self, msg, event=None):
-        client_socket.send(msg.encode("utf8"))
+    def encrypt(self, str: str) -> str:
+        """Returns an AES-Base 64 encrypted version of the input.
 
-    def on_closing(self, event=None):
-        self.command_send("/quit")
-        exit()
+        Args:
+            str (str): String to be encrypted.
 
-    def encrypt(self, raw):
-        if not raw == "":
-            raw = pad(raw.encode(), 16)
+        Returns:
+            str: Encrypted version of the string.
+        """
+        if str:
+            str = pad(str.encode(), 16)
             cipher = AES.new(KEY, AES.MODE_ECB)
-            return base64.b64encode(cipher.encrypt(raw)).decode("utf-8", "ignore")
+            return base64.b64encode(cipher.encrypt(str)).decode("utf-8", "ignore")
         else:
             return ""
 
-    def decrypt(self, enc):
-        if not enc == "":
-            enc = base64.b64decode(enc)
+    def decrypt(self, str: str) -> str:
+        """Returns an AES-Base 64 decrypted version of the encrypted input.
+
+        Args:
+            str (str): Encrypted string to be decrypted.
+
+        Returns:
+            str: Decrypted version of the encrypted string.
+        """
+        if str:
+            str = base64.b64decode(str)
             cipher = AES.new(KEY, AES.MODE_ECB)
-            return unpad(cipher.decrypt(enc), 16).decode("utf-8", "ignore")
+            return unpad(cipher.decrypt(str), 16).decode("utf-8", "ignore")
         else:
             return ""
 
-    def focus_out(self, event=None):
+    def focus_out(self, *args):
         self.focus = False
 
-    def focus_in(self, event=None):
+    def focus_in(self, *args):
         self.focus = True
 
     def notification(self):
@@ -363,7 +359,10 @@ class App:
 if __name__ == "__main__":
     client_socket = socket(AF_INET, SOCK_STREAM)
     n = ToastNotifier()
-    HOST = "127.0.0.1"  # "127.0.0.1"
+    if True:
+        HOST = "127.0.0.1"
+    else:
+        HOST = "192.168.1.151"
     PORT = 33000
     ADDR = (HOST, PORT)
     BUFSIZ = 1024
