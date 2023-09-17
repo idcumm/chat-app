@@ -11,12 +11,24 @@
 # ==========>> MODULE IMPORT <<========== #
 
 
-import tkinter.font as tkFont
 import base64
 import hashlib
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
-from tkinter import *
+from tkinter import (
+    Tk,
+    StringVar,
+    Scrollbar,
+    Entry,
+    Text,
+    Button,
+    Frame,
+    Label,
+    LEFT,
+    BOTH,
+    END,
+    font,
+)
 from os import popen
 from datetime import datetime
 from Crypto.Cipher import AES
@@ -46,7 +58,7 @@ class App:
         root.geometry(alignstr)
         root.resizable(width=False, height=False)
         root.configure(bg="#282424")
-        root.protocol("WM_DELETE_WINDOW", lambda event: self.command_send("/quit"))
+        root.protocol("WM_DELETE_WINDOW", self.on_closing)
         root.bind("<FocusOut>", self.focus_out)
         root.bind("<FocusIn>", self.focus_in)
 
@@ -71,7 +83,7 @@ class App:
         self.msg_entry.focus_set()
         self.msg_entry["borderwidth"] = "1px"
         self.msg_entry["bg"] = "#282424"
-        self.msg_entry["font"] = tkFont.Font(family="Sitka Small", size=15)
+        self.msg_entry["font"] = font.Font(family="Sitka Small", size=15)
         self.msg_entry["fg"] = "#ffffff"
         self.msg_entry["justify"] = "left"
         self.msg_entry["relief"] = "sunken"
@@ -81,7 +93,7 @@ class App:
         self.msg_scrollbar.config(command=self.msg_list.yview)
         self.msg_list["bg"] = "#282424"
         self.msg_list["borderwidth"] = "1px"
-        self.msg_list["font"] = tkFont.Font(family="Sitka Small", size=15)
+        self.msg_list["font"] = font.Font(family="Sitka Small", size=15)
         self.msg_list["fg"] = "#ffffff"
         self.msg_list.place(x=380, y=10, width=830, height=640)
         self.msg_list.tag_config("right", justify="right")
@@ -91,7 +103,7 @@ class App:
         self.msg_send_button = Button(root, text="Enviar", command=self.msg_send)
         self.msg_send_button["anchor"] = "se"
         self.msg_send_button["bg"] = "#282424"
-        self.msg_send_button["font"] = tkFont.Font(family="Sitka Small", size=10)
+        self.msg_send_button["font"] = font.Font(family="Sitka Small", size=10)
         self.msg_send_button["fg"] = "#ffffff"
         self.msg_send_button["justify"] = "center"
         self.msg_send_button.place(x=1190, y=660, width=50, height=30)
@@ -185,24 +197,24 @@ class App:
         while True:
             try:
                 msg = client_socket.recv(BUFSIZ).decode("utf8")
-                if "/login" == msg:
+                if msg == "/login":
                     root.title(f"Chatt app - Logged as {self.username}")
                     self.login_root.destroy()
                     self.msg_entry.focus_set()
-                elif "/history" in msg:
+                elif msg[:8] == "/history":
                     self.history = msg[9:]
-                    if not self.history == [""]:
+                    if self.history:
                         self.history = eval(self.history)
                         self.onAdd("1.0", self.history, True)
-                elif "/login_user_error" == msg:
+                elif msg == "/login_user_error":
                     self.login_error(2)
-                elif "/login_password_error" == msg:
+                elif msg == "/login_password_error":
                     self.login_error(3)
-                elif "/register" == msg:
+                elif msg == "/register":
                     self.login(self.user_entry_var.get(), self.key_entry_var.get())
-                elif "/register_error" == msg:
+                elif msg == "/register_error":
                     self.login_error(4)
-                elif "/quit" == msg:
+                elif msg == "/quit":
                     client_socket.close()
                     root.quit()
                 else:
@@ -216,9 +228,13 @@ class App:
                 root.quit()
                 exit()
 
+    def on_closing(self, *args):
+        root.quit()
+        client_socket.close()
+
     def msg_send(self, *args):
         msg = self.msg_entry_var.get()
-        if not msg == "":
+        if msg:
             self.msg_entry_var.set("")
             date = datetime.now().strftime("%H:%M")
             dict = {
@@ -239,7 +255,7 @@ class App:
 
     def onAdd(self, pos: str, x: dict, self_msg: bool = False, local: bool = False):
         self.msg_list.configure(state="normal")
-        if local == False:
+        if not local:
             x["name"] = self.decrypt(x["name"])
             x["msg"] = self.decrypt(x["msg"])
 
@@ -248,7 +264,7 @@ class App:
 
         if x["type"] == "broadcast":
             if x["name"] == self.username:
-                if self_msg == True:
+                if self_msg:
                     self.msg_list.insert(
                         pos,
                         f'{x["name"]}: {x["msg"]} ({x["date"]})\n\n',
@@ -267,9 +283,9 @@ class App:
 
     def login(self, user: str, key: str, *args):
         self.username = user
-        if len(user) > 20 or len(key) > 20:
+        if (len(user) or len(key)) > 20:
             self.login_error(1)
-        elif len(user) == 0 or len(key) == 0:
+        elif not user or not key:
             self.login_error(0)
         else:
             user = self.encrypt(user)
@@ -278,9 +294,9 @@ class App:
             self.command_send(f"/login {msg}")
 
     def register(self, user: str, key: str):
-        if len(user) > 20 or len(key) > 20:
+        if (len(user) or len(key)) > 20:
             self.login_error(1)
-        elif len(user) == 0 or len(key) == 0:
+        elif not user or not key:
             self.login_error(0)
         else:
             user = self.encrypt(user)
@@ -345,8 +361,8 @@ class App:
         self.focus = True
 
     def notification(self):
-        if NOTIFICATIONS == True:
-            if self.focus == False:
+        if NOTIFICATIONS:
+            if not self.focus:
                 n.show_toast(
                     "Chat app",
                     f"{self.last_name}: {self.last_message}",

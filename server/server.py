@@ -5,6 +5,7 @@ from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 from os import system
 import csv
+import logging
 from datetime import datetime
 from time import sleep
 
