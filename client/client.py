@@ -28,6 +28,8 @@ from win10toast import ToastNotifier
 
 
 class App:
+    """Used to initialize the main chatting application"""
+
     def __init__(self, root):
         # window
         root.title("Chatt app")
