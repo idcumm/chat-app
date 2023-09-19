@@ -16,25 +16,14 @@ import hashlib
 import logging
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
-from tkinter import (
-    Tk,
-    StringVar,
-    Scrollbar,
-    Entry,
-    Text,
-    Button,
-    Frame,
-    Label,
-    LEFT,
-    BOTH,
-    END,
-    font,
-)
+from tkinter import *
+from tkinter import font
 from os import popen
 from datetime import datetime
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from win10toast import ToastNotifier
+from time import sleep
 
 
 # ==========>> DEFINITION OF FUNCTIONS <<========== #
@@ -90,15 +79,42 @@ class App:
         self.msg_entry["relief"] = "sunken"
         self.msg_entry.place(x=380, y=660, width=800, height=30)
 
-        self.msg_list = Text(root, yscrollcommand=self.msg_scrollbar.set)
+        # msg_list
+        self.msg_list = Text(
+            root,
+            yscrollcommand=self.msg_scrollbar.set,
+            bg="#282424",
+            borderwidth="1px",
+            font=font.Font(family="Sitka Small", size=15),
+            fg="#ffffff",
+        )
         self.msg_scrollbar.config(command=self.msg_list.yview)
-        self.msg_list["bg"] = "#282424"
-        self.msg_list["borderwidth"] = "1px"
-        self.msg_list["font"] = font.Font(family="Sitka Small", size=15)
-        self.msg_list["fg"] = "#ffffff"
         self.msg_list.place(x=380, y=10, width=830, height=640)
         self.msg_list.tag_config("right", justify="right")
         self.msg_list.tag_config("center", justify="center")
+
+        # people_list
+        self.people_scrollbar = Scrollbar(
+            activebackground="#282424",
+            bg="#282424",
+            highlightbackground="#282424",
+            highlightcolor="#282424",
+            troughcolor="#282424",
+        )
+        self.people_list = Listbox(
+            root,
+            yscrollcommand=self.people_scrollbar.set,
+            selectmode=SINGLE,
+            font=font.Font(size=20),
+            justify=CENTER,
+            bg="#282424",
+            borderwidth="1px",
+            fg="#ffffff",
+        )
+        self.people_list.bind("<<ListboxSelect>>", self.select_person)
+        self.people_scrollbar.config(command=self.people_list.yview)
+        self.people_list.place(x=10, y=10, width=330, height=680)
+        self.people_scrollbar.place(x=350, y=10, width=20, height=680)
 
         # msg_send_button
         self.msg_send_button = Button(root, text="Enviar", command=self.msg_send)
@@ -193,6 +209,21 @@ class App:
         self.Error_label.pack()
 
         self.login_root.pack(side=LEFT, fill=BOTH)
+
+    def connect(self):
+        while True:
+            try:
+                ADDR = (HOST, PORT)
+                client_socket.connect(ADDR)
+                receive_thread.start()
+                break
+            except ConnectionRefusedError:
+                for i in reversed(range(5)):
+                    logger.debug(f"Trying to connect: {i+1} seconds remaining")
+                    sleep(1)
+
+    def select_person(self, *args):
+        pass
 
     def receive(self):
         while True:
@@ -375,10 +406,11 @@ class App:
 # ==========>> MAIN CODE <<========== #
 
 
-LOGGING_LEVEL = logging.NOTSET
+LOGGING_LEVEL = logging.DEBUG
 NOTIFICATIONS = True
 KEY = "pswrd"
 HOST = "127.0.0.1"
+PORT = 33000
 
 
 if __name__ == "__main__":
@@ -388,15 +420,13 @@ if __name__ == "__main__":
     root = Tk()
     app = App(root)
     receive_thread = Thread(target=app.receive)
+    connect = Thread(target=app.connect)
 
-    PORT = 33000
-    ADDR = (HOST, PORT)
     BUFSIZ = 1024
     KEY = hashlib.sha256(KEY.encode()).digest()
 
     logger.setLevel(LOGGING_LEVEL)
     popen("title ClientSocket")
     logging.basicConfig(format="[%(levelname)s] > %(message)s")
-    client_socket.connect(ADDR)
-    receive_thread.start()
+    connect.start()
     root.mainloop()
