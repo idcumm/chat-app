@@ -21,13 +21,16 @@ class App:
 
         self.people_list_scrollbar = Scrollbar()
         self.people_list = Listbox(
-            root, yscrollcommand=self.people_list_scrollbar.set, selectmode=SINGLE, font=Font(size=20), justify=CENTER)
+            root,
+            yscrollcommand=self.people_list_scrollbar.set,
+            selectmode=SINGLE,
+            font=Font(size=20),
+            justify=CENTER,
+        )
         self.my_msg = StringVar()
-        self.entry_field = Entry(
-            root, textvariable=self.my_msg, font=Font(size=15))
+        self.entry_field = Entry(root, textvariable=self.my_msg, font=Font(size=15))
         self.msg_text_list_scrollbar = Scrollbar(root)
-        self.msg_text_list = Text(
-            root, yscrollcommand=self.msg_text_list_scrollbar.set)
+        self.msg_text_list = Text(root, yscrollcommand=self.msg_text_list_scrollbar.set)
 
         self.people_list.bind("<<ListboxSelect>>", self.select_person)
         self.people_list_scrollbar.config(command=self.people_list.yview)
@@ -54,8 +57,9 @@ class App:
             for j in everyone:
                 if i < j:
                     try:
-                        open(f'tests\logs\{i}_{j}.log',
-                             "x", encoding="utf8", newline="")
+                        open(
+                            f"tests\logs\{i}_{j}.log", "x", encoding="utf8", newline=""
+                        )
                     except FileExistsError:
                         print(f"{i}_{j}.log already exists")
         for i in people:
@@ -77,7 +81,12 @@ class App:
         self.msg_text_list.insert(END, msg + "\n")
         self.msg_text_list.yview(END)
         self.msg_text_list.configure(state="disabled")
-        with open(f'tests\logs\{self.person1}_{self.person2}.log', "a", encoding="utf8", newline="") as file:
+        with open(
+            f"tests\logs\{self.person1}_{self.person2}.log",
+            "a",
+            encoding="utf8",
+            newline="",
+        ) as file:
             file.write(msg + "\n")
 
     def serv_recvv(self, x):
@@ -85,10 +94,15 @@ class App:
         self.person1, self.person2 = eval(x[9:])
         self.msg_text_list.place(x=380, y=10, width=830, height=640)
         self.entry_field.place(x=380, y=660, width=800, height=30)
-        with open(f'tests\logs\{self.person1}_{self.person2}.log', "r", encoding="utf8", newline="") as file:
+        with open(
+            f"tests\logs\{self.person1}_{self.person2}.log",
+            "r",
+            encoding="utf8",
+            newline="",
+        ) as file:
             f = file.readlines()
             self.msg_text_list.configure(state="normal")
-            self.msg_text_list.delete('1.0', END)
+            self.msg_text_list.delete("1.0", END)
             for line in f:
                 self.msg_text_list.insert(END, line)
             self.msg_text_list.yview(END)
