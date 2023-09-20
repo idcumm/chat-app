@@ -109,7 +109,7 @@ class App:
             self.msg_text_list.configure(state="disabled")
 
 
-people = "persona1", "persona2"
+people = "persona1", "persona2", "guillem", "jan"
 username = "persona0"
 if __name__ == "__main__":
     root = Tk()

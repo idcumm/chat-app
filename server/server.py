@@ -167,7 +167,7 @@ if __name__ == "__main__":
 
     logging.basicConfig(format="[%(levelname)s] > %(message)s")
 
-    logger.setLevel(logging.NOTSET)
+    logger.setLevel(logging.DEBUG)
 
     HOST = ""
     PORT = 33000

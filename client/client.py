@@ -1,6 +1,7 @@
 # # # # TODO fer que el chat tingui missatges privats
 # # # # TODO simular un atac informatic al servidor
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
+# bubbl.us
 # TODO posar dia i hora en missatges
 # TODO que no surti la consola al obrir client.pyw
 # TODO millorar el print de la consola
