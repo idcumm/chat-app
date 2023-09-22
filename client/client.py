@@ -158,7 +158,6 @@ class App:
         self.people_list.place(x=10, y=10, width=330, height=680)
         self.people_scrollbar.place(x=350, y=10, width=20, height=680)
         self.msg_send_button.place(x=1190, y=660, width=50, height=30)
-
         Label(self.login_root, text="\n\n\n\n\n\n\n\n", width="300").pack()
         Label(self.login_root, text="Introduzca el nombre de usuario y la contraseña\n", font=("Calibri", 13)).pack()
         Label(self.login_root, text="Nombre de usuario *", font=("Calibri", 13)).pack()
@@ -186,6 +185,7 @@ class App:
         self.Error_label.pack()
         self.login_root.pack(side=LEFT, fill=BOTH)
 
+        # other
         self.must_close = False
 
     def connect(self):
@@ -207,8 +207,6 @@ class App:
     def receive(self):
         while True:
             try:
-                if self.must_close:
-                    break
                 msg = client_socket.recv(BUFSIZ).decode("utf8")
                 if msg == "/login":
                     root.title(f"Chatt app - Logged as {self.username}")
@@ -237,6 +235,8 @@ class App:
             except OSError:
                 print(OSError)
                 self.on_closing()
+            if self.must_close:
+                break
 
     def select_person(self, *args):
         pass
