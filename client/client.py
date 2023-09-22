@@ -4,12 +4,12 @@
 # bubbl.us
 # TODO posar dia i hora en missatges
 # TODO que no surti la consola al obrir client.pyw
-# TODO millorar el print de la consola
-# TODO Quan la aplicció no tingui focus i revi un misatge, faigi ping i ficar l'icono tronja
 # TODO fer funcio tot allo que es repeteix molt
 # TODO millorar notification
 # --line-length=119
 # TODO fer separacio de misatges per persona (nom a dalt, 2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
+
+
 # ==========>> MODULE IMPORT <<========== #
 
 
@@ -55,6 +55,9 @@ class App:
         root.bind("<FocusIn>", self.focus_in)
 
         # initialize
+        font_1 = font.Font(family="Helvetica", size=15)
+        font_2 = font.Font(family="Calibri", size=15)
+
         self.msg_entry_var = StringVar()
         self.msg_scrollbar = Scrollbar(
             root,
@@ -69,7 +72,7 @@ class App:
             textvariable=self.msg_entry_var,
             borderwidth="1px",
             bg="#282424",
-            font=font.Font(family="Sitka Small", size=15),
+            font=font_1,
             fg="#ffffff",
             justify="left",
             relief="sunken",
@@ -79,7 +82,7 @@ class App:
             yscrollcommand=self.msg_scrollbar.set,
             bg="#282424",
             borderwidth="1px",
-            font=font.Font(family="Sitka Small", size=15),
+            font=font_1,
             fg="#ffffff",
         )
         self.people_scrollbar = Scrollbar(
@@ -103,9 +106,8 @@ class App:
             root,
             text="Enviar",
             command=self.msg_send,
-            anchor="se",
             bg="#282424",
-            font=font.Font(family="Sitka Small", size=10),
+            font=font.Font(family="Helvetica", size=10),
             fg="#ffffff",
             justify="center",
         )
@@ -115,21 +117,17 @@ class App:
         self.user_entry = Entry(
             self.login_root,
             width="30",
-            font=("Calibri", 13),
+            font=font_2,
             textvariable=self.user_entry_var,
         )
         self.key_entry = Entry(
             self.login_root,
             width="30",
-            font=("Calibri", 13),
+            font=font_2,
             textvariable=self.key_entry_var,
             show="*",
         )
-        self.Error_label = Label(
-            self.login_root,
-            text="\n",
-            font=("Calibri", 13),
-        )
+        self.Error_label = Label(self.login_root, text="\n", font=font_2, width="300")
 
         # config
         self.msg_entry_var.set("")
@@ -158,11 +156,11 @@ class App:
         self.people_list.place(x=10, y=10, width=330, height=680)
         self.people_scrollbar.place(x=350, y=10, width=20, height=680)
         self.msg_send_button.place(x=1190, y=660, width=50, height=30)
-        Label(self.login_root, text="\n\n\n\n\n\n\n\n", width="300").pack()
-        Label(self.login_root, text="Introduzca el nombre de usuario y la contraseña\n", font=("Calibri", 13)).pack()
-        Label(self.login_root, text="Nombre de usuario *", font=("Calibri", 13)).pack()
+        Label(self.login_root, text="\n\n\n\n\n\n\n\n").pack()
+        Label(self.login_root, text="Introduzca el nombre de usuario y la contraseña\n", font=font_2).pack()
+        Label(self.login_root, text="Nombre de usuario *", font=font_2).pack()
         self.user_entry.pack()
-        Label(self.login_root, text="Contraseña *", font=("Calibri", 13)).pack()
+        Label(self.login_root, text="Contraseña *", font=font_2).pack()
         self.key_entry.pack()
         Label(self.login_root, text="").pack()
         Button(
@@ -171,7 +169,7 @@ class App:
             width="20",
             bg="DarkGrey",
             command=lambda: self.login(self.user_entry_var.get(), self.key_entry_var.get()),
-            font=("Calibri", 13),
+            font=font_2,
         ).pack()
         Label(self.login_root, text="").pack()
         Button(
@@ -180,13 +178,13 @@ class App:
             width="20",
             bg="DarkGrey",
             command=lambda: self.register(self.user_entry_var.get(), self.key_entry_var.get()),
-            font=("Calibri", 13),
+            font=font_2,
         ).pack()
         self.Error_label.pack()
         self.login_root.pack(side=LEFT, fill=BOTH)
 
         # other
-        self.must_close = False
+        self.must_close = bool()
 
     def connect(self):
         while True:
@@ -234,7 +232,7 @@ class App:
                     self.onAdd(END, dict)
                     self.notification()
             except OSError:
-                print(OSError)
+                logger.error(OSError)
                 self.on_closing()
             if self.must_close:
                 break
@@ -263,7 +261,7 @@ class App:
             try:
                 client_socket.send(msg.encode("utf8"))
             except OSError:
-                print(OSError + 1)
+                logger.error(OSError)
 
     def command_send(self, msg: str):
         client_socket.send(msg.encode("utf8"))
