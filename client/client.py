@@ -228,6 +228,7 @@ class App:
                     client_socket.close()
                     root.quit()
                 else:
+                    print(msg)
                     dict = eval(msg)
                     self.onAdd(END, dict)
                     self.notification()
