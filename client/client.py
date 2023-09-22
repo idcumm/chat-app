@@ -194,6 +194,7 @@ class App:
                 ADDR = (HOST, PORT)
                 client_socket.connect(ADDR)
                 receive_thread.start()
+                logger.debug(f"Connected succesfully")
                 break
             except (ConnectionRefusedError, OSError):
                 for i in reversed(range(5)):
@@ -299,7 +300,7 @@ class App:
         self.username = user
         if (len(user) or len(key)) > 20:
             self.login_error(1)
-        elif not user or not key:
+        elif not (user and key):
             self.login_error(0)
         else:
             user = self.encrypt(user)
@@ -310,7 +311,7 @@ class App:
     def register(self, user: str, key: str):
         if (len(user) or len(key)) > 20:
             self.login_error(1)
-        elif not user or not key:
+        elif not (user and key):
             self.login_error(0)
         else:
             user = self.encrypt(user)
@@ -321,14 +322,19 @@ class App:
     def login_error(self, x: int):
         if x == 0:
             self.Error_label.config(text="\nEl usuario y/o la contraseña no pueden estar en blanco.")
+            logger.debug("login_blank_error")
         elif x == 1:
             self.Error_label.config(text="\nEl usuario y la contraseña deben ser inferiores a 20 carácteres.")
+            logger.debug("login_length_error")
         elif x == 2:
             self.Error_label.config(text="\nUsuario no encontrado.")
+            logger.debug("login_user_error")
         elif x == 3:
             self.Error_label.config(text="\nContraseña incorrecta.")
+            logger.debug("login_password_error")
         elif x == 4:
             self.Error_label.config(text="\nEste nombre de usuario y/o contraseña no están disponibles")
+            logger.debug("register_error")
 
     def encrypt(self, str: str) -> str:
         """Returns an AES-Base 64 encrypted version of the input.
@@ -364,9 +370,11 @@ class App:
 
     def focus_out(self, *args):
         self.focus = False
+        logger.debug("Focus out")
 
     def focus_in(self, *args):
         self.focus = True
+        logger.debug("Focus in")
 
     def notification(self):
         if NOTIFICATIONS:
