@@ -8,6 +8,7 @@
 # TODO Quan la aplicció no tingui focus i revi un misatge, faigi ping i ficar l'icono tronja
 # TODO fer funcio tot allo que es repeteix molt
 # TODO millorar notification
+# --line-length=119
 # TODO fer separacio de misatges per persona (nom a dalt, 2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
 # ==========>> MODULE IMPORT <<========== #
 
@@ -34,7 +35,7 @@ class App:
     """Used to initialize the main chatting application"""
 
     def __init__(self, root):
-        # window
+        # root
         root.title("Chatt app")
         width = 1250
         height = 700
@@ -53,11 +54,8 @@ class App:
         root.bind("<FocusOut>", self.focus_out)
         root.bind("<FocusIn>", self.focus_in)
 
-        # msg_entry_var
+        # initialize
         self.msg_entry_var = StringVar()
-        self.msg_entry_var.set("")
-
-        # msg_scrollbar
         self.msg_scrollbar = Scrollbar(
             root,
             activebackground="#282424",
@@ -66,21 +64,16 @@ class App:
             highlightcolor="#282424",
             troughcolor="#282424",
         )
-        self.msg_scrollbar.place(x=1220, y=10, width=20, height=640)
-
-        # msg_entry
-        self.msg_entry = Entry(root, textvariable=self.msg_entry_var)
-        self.msg_entry.bind("<Return>", self.msg_send)
-        self.msg_entry.focus_set()
-        self.msg_entry["borderwidth"] = "1px"
-        self.msg_entry["bg"] = "#282424"
-        self.msg_entry["font"] = font.Font(family="Sitka Small", size=15)
-        self.msg_entry["fg"] = "#ffffff"
-        self.msg_entry["justify"] = "left"
-        self.msg_entry["relief"] = "sunken"
-        self.msg_entry.place(x=380, y=660, width=800, height=30)
-
-        # msg_list
+        self.msg_entry = Entry(
+            root,
+            textvariable=self.msg_entry_var,
+            borderwidth="1px",
+            bg="#282424",
+            font=font.Font(family="Sitka Small", size=15),
+            fg="#ffffff",
+            justify="left",
+            relief="sunken",
+        )
         self.msg_list = Text(
             root,
             yscrollcommand=self.msg_scrollbar.set,
@@ -89,12 +82,6 @@ class App:
             font=font.Font(family="Sitka Small", size=15),
             fg="#ffffff",
         )
-        self.msg_scrollbar.config(command=self.msg_list.yview)
-        self.msg_list.place(x=380, y=10, width=830, height=640)
-        self.msg_list.tag_config("right", justify="right")
-        self.msg_list.tag_config("center", justify="center")
-
-        # people_list
         self.people_scrollbar = Scrollbar(
             activebackground="#282424",
             bg="#282424",
@@ -112,55 +99,25 @@ class App:
             borderwidth="1px",
             fg="#ffffff",
         )
-        self.people_list.bind("<<ListboxSelect>>", self.select_person)
-        self.people_scrollbar.config(command=self.people_list.yview)
-        self.people_list.place(x=10, y=10, width=330, height=680)
-        self.people_scrollbar.place(x=350, y=10, width=20, height=680)
-
-        # msg_send_button
-        self.msg_send_button = Button(root, text="Enviar", command=self.msg_send)
-        self.msg_send_button["anchor"] = "se"
-        self.msg_send_button["bg"] = "#282424"
-        self.msg_send_button["font"] = font.Font(family="Sitka Small", size=10)
-        self.msg_send_button["fg"] = "#ffffff"
-        self.msg_send_button["justify"] = "center"
-        self.msg_send_button.place(x=1190, y=660, width=50, height=30)
-
+        self.msg_send_button = Button(
+            root,
+            text="Enviar",
+            command=self.msg_send,
+            anchor="se",
+            bg="#282424",
+            font=font.Font(family="Sitka Small", size=10),
+            fg="#ffffff",
+            justify="center",
+        )
         self.login_root = Frame(root)
         self.user_entry_var = StringVar()
         self.key_entry_var = StringVar()
-
-        Label(
-            self.login_root,
-            text="\n\n\n\n\n\n\n\n",
-            width="300",
-        ).pack()
-
-        Label(
-            self.login_root,
-            text="Introduzca el nombre de usuario y la contraseña\n",
-            font=("Calibri", 13),
-        ).pack()
-
-        Label(self.login_root, text="Nombre de usuario *", font=("Calibri", 13)).pack()
-
         self.user_entry = Entry(
             self.login_root,
             width="30",
             font=("Calibri", 13),
             textvariable=self.user_entry_var,
         )
-        self.user_entry.focus_set()
-        self.user_entry.bind(
-            "<Return>",
-            lambda event: self.login(
-                self.user_entry_var.get(), self.key_entry_var.get()
-            ),
-        )
-        self.user_entry.pack()
-
-        Label(self.login_root, text="Contraseña *", font=("Calibri", 13)).pack()
-
         self.key_entry = Entry(
             self.login_root,
             width="30",
@@ -168,48 +125,68 @@ class App:
             textvariable=self.key_entry_var,
             show="*",
         )
-        self.key_entry.bind(
-            "<Return>",
-            lambda event: self.login(
-                self.user_entry_var.get(), self.key_entry_var.get()
-            ),
-        )
-        self.key_entry.pack()
-
-        Label(self.login_root, text="").pack()
-
-        Button(
-            self.login_root,
-            text="Login",
-            width="20",
-            bg="DarkGrey",
-            command=lambda: self.login(
-                self.user_entry_var.get(), self.key_entry_var.get()
-            ),
-            font=("Calibri", 13),
-        ).pack()
-
-        Label(self.login_root, text="").pack()
-
-        Button(
-            self.login_root,
-            text="Register",
-            width="20",
-            bg="DarkGrey",
-            command=lambda: self.register(
-                self.user_entry_var.get(), self.key_entry_var.get()
-            ),
-            font=("Calibri", 13),
-        ).pack()
-
         self.Error_label = Label(
             self.login_root,
             text="\n",
             font=("Calibri", 13),
         )
-        self.Error_label.pack()
 
+        # config
+        self.msg_entry_var.set("")
+        self.msg_scrollbar.config(command=self.msg_list.yview)
+        self.msg_list.tag_config("right", justify="right")
+        self.msg_list.tag_config("center", justify="center")
+        self.people_scrollbar.config(command=self.people_list.yview)
+        self.user_entry.focus_set()
+
+        # binds
+        self.msg_entry.bind("<Return>", self.msg_send)
+        self.people_list.bind("<<ListboxSelect>>", self.select_person)
+        self.user_entry.bind(
+            "<Return>",
+            lambda event: self.login(self.user_entry_var.get(), self.key_entry_var.get()),
+        )
+        self.key_entry.bind(
+            "<Return>",
+            lambda event: self.login(self.user_entry_var.get(), self.key_entry_var.get()),
+        )
+
+        # place and pack
+        self.msg_scrollbar.place(x=1220, y=10, width=20, height=640)
+        self.msg_entry.place(x=380, y=660, width=800, height=30)
+        self.msg_list.place(x=380, y=10, width=830, height=640)
+        self.people_list.place(x=10, y=10, width=330, height=680)
+        self.people_scrollbar.place(x=350, y=10, width=20, height=680)
+        self.msg_send_button.place(x=1190, y=660, width=50, height=30)
+
+        Label(self.login_root, text="\n\n\n\n\n\n\n\n", width="300").pack()
+        Label(self.login_root, text="Introduzca el nombre de usuario y la contraseña\n", font=("Calibri", 13)).pack()
+        Label(self.login_root, text="Nombre de usuario *", font=("Calibri", 13)).pack()
+        self.user_entry.pack()
+        Label(self.login_root, text="Contraseña *", font=("Calibri", 13)).pack()
+        self.key_entry.pack()
+        Label(self.login_root, text="").pack()
+        Button(
+            self.login_root,
+            text="Login",
+            width="20",
+            bg="DarkGrey",
+            command=lambda: self.login(self.user_entry_var.get(), self.key_entry_var.get()),
+            font=("Calibri", 13),
+        ).pack()
+        Label(self.login_root, text="").pack()
+        Button(
+            self.login_root,
+            text="Register",
+            width="20",
+            bg="DarkGrey",
+            command=lambda: self.register(self.user_entry_var.get(), self.key_entry_var.get()),
+            font=("Calibri", 13),
+        ).pack()
+        self.Error_label.pack()
         self.login_root.pack(side=LEFT, fill=BOTH)
+
+        self.must_close = False
 
     def connect(self):
         while True:
@@ -218,17 +195,20 @@ class App:
                 client_socket.connect(ADDR)
                 receive_thread.start()
                 break
-            except ConnectionRefusedError:
+            except (ConnectionRefusedError, OSError):
                 for i in reversed(range(5)):
                     logger.debug(f"Trying to connect: {i+1} seconds remaining")
                     sleep(1)
-
-    def select_person(self, *args):
-        pass
+                    if self.must_close:
+                        break
+            if self.must_close:
+                break
 
     def receive(self):
         while True:
             try:
+                if self.must_close:
+                    break
                 msg = client_socket.recv(BUFSIZ).decode("utf8")
                 if msg == "/login":
                     root.title(f"Chatt app - Logged as {self.username}")
@@ -254,16 +234,17 @@ class App:
                     dict = eval(msg)
                     self.onAdd(END, dict)
                     self.notification()
-
             except OSError:
                 print(OSError)
-                client_socket.close()
-                root.quit()
-                exit()
+                self.on_closing()
+
+    def select_person(self, *args):
+        pass
 
     def on_closing(self, *args):
         root.quit()
         client_socket.close()
+        self.must_close = True
 
     def msg_send(self, *args):
         msg = self.msg_entry_var.get()
@@ -281,7 +262,7 @@ class App:
             try:
                 client_socket.send(msg.encode("utf8"))
             except OSError:
-                print(OSError)
+                print(OSError + 1)
 
     def command_send(self, msg: str):
         client_socket.send(msg.encode("utf8"))
@@ -339,21 +320,15 @@ class App:
 
     def login_error(self, x: int):
         if x == 0:
-            self.Error_label.config(
-                text="\nEl usuario y/o la contraseña no pueden estar en blanco."
-            )
+            self.Error_label.config(text="\nEl usuario y/o la contraseña no pueden estar en blanco.")
         elif x == 1:
-            self.Error_label.config(
-                text="\nEl usuario y la contraseña deben ser inferiores a 20 carácteres."
-            )
+            self.Error_label.config(text="\nEl usuario y la contraseña deben ser inferiores a 20 carácteres.")
         elif x == 2:
             self.Error_label.config(text="\nUsuario no encontrado.")
         elif x == 3:
             self.Error_label.config(text="\nContraseña incorrecta.")
         elif x == 4:
-            self.Error_label.config(
-                text="\nEste nombre de usuario y/o contraseña no están disponibles"
-            )
+            self.Error_label.config(text="\nEste nombre de usuario y/o contraseña no están disponibles")
 
     def encrypt(self, str: str) -> str:
         """Returns an AES-Base 64 encrypted version of the input.
@@ -396,7 +371,7 @@ class App:
     def notification(self):
         if NOTIFICATIONS:
             if not self.focus:
-                n.show_toast(
+                notification.show_toast(
                     "Chat app",
                     f"{self.last_name}: {self.last_message}",
                     duration=5,
@@ -417,7 +392,7 @@ PORT = 33000
 if __name__ == "__main__":
     logger = logging.getLogger()
     client_socket = socket(AF_INET, SOCK_STREAM)
-    n = ToastNotifier()
+    notification = ToastNotifier()
     root = Tk()
     app = App(root)
     receive_thread = Thread(target=app.receive)
