@@ -23,10 +23,10 @@ class Server:
         self.history = []
         self.BUFSIZ = 1024
         ADDR = (HOST, PORT)
-        self.SERVER = socket(AF_INET, SOCK_STREAM)
+        self.socket = socket(AF_INET, SOCK_STREAM)
 
-        self.SERVER.bind(ADDR)
-        self.SERVER.listen(5)
+        self.socket.bind(ADDR)
+        self.socket.listen(5)
         logging.basicConfig(format="[%(levelname)s] > %(message)s")
         logger.setLevel(logging.DEBUG)
         system("title ServerSocket")
@@ -37,7 +37,7 @@ class Server:
 
     def accept_incoming_connections(self):
         while True:
-            self.client, self.client_address = self.SERVER.accept()
+            self.client, self.client_address = self.socket.accept()
             logger.info(f"{self.client_address} se ha conectado.")
             self.addresses[self.client] = self.client_address
             Thread(target=self.handle_client, args=(self.client,)).start()
@@ -53,8 +53,8 @@ class Server:
                     self.broadcast(name, "leave")
                     logger.info(f"{self.client_address} se ha ido.")
                     break
-                except KeyError:
-                    logger.error(KeyError)
+                except KeyError as e:
+                    logger.error(e)
                     break
 
             try:
@@ -103,15 +103,14 @@ class Server:
                             client.send("/login_password_error".encode("utf8"))
                         elif login_state == 3:
                             client.send("/login_user_error".encode("utf8"))
-                except FileNotFoundError:
-                    logger.error(FileNotFoundError)
+                except FileNotFoundError as e:
+                    logger.error(e)
                     client.send("/login_user_error".encode("utf8"))
             elif "/register" in msg:
                 self.username, self.password = eval(msg[10:])
                 try:
                     x = open(self.file_path, "x")
                     x.close()
-                    logger.error(FileExistsError)
                 except FileExistsError:
                     pass
 
@@ -144,8 +143,8 @@ class Server:
                     self.broadcast(name, "leave")
                     logger.info(f"{self.client_address} se ha ido.")
                     break
-                except KeyError:
-                    logger.error(KeyError)
+                except KeyError as e:
+                    logger.error(e)
                     break
             else:
                 self.broadcast(name, "broadcast", msg=msg)
@@ -156,8 +155,8 @@ class Server:
             try:
                 dict = {"date": date, "type": type, "name": prefix, "msg": msg}
                 sock.send(str(dict).encode("utf8"))
-            except ConnectionResetError:
-                logger.error(ConnectionResetError)
+            except ConnectionResetError as e:
+                logger.error(e)
         dict = {"date": date, "type": type, "name": prefix, "msg": msg}
         self.history.append(dict)
 
@@ -172,4 +171,4 @@ if __name__ == "__main__":
     logger = logging.getLogger()
     server = Server()
 
-    server.SERVER.close()
+    server.socket.close()

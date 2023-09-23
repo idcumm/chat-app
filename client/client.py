@@ -1,13 +1,12 @@
 # # # # TODO fer que el chat tingui missatges privats
 # # # # TODO simular un atac informatic al servidor
 # TODO fer log.log de history chat i cargarlo cada cop que sobra
-# bubbl.us
 # TODO posar dia i hora en missatges
-# TODO que no surti la consola al obrir client.pyw
 # TODO fer funcio tot allo que es repeteix molt
 # TODO millorar notification
-# --line-length=119
-# TODO fer separacio de misatges per persona (nom a dalt, 2 misatges duna persona seguits, sense doble espai, i altres ab doble espai)
+# TODO evitar que es tanqui el client al tancar el servidor
+# TODO que no es repeteixi el nom mes dun missatge seguit
+# bubbl.us
 
 
 # ==========>> MODULE IMPORT <<========== #
@@ -20,7 +19,6 @@ from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 from tkinter import *
 from tkinter import font
-from os import popen
 from datetime import datetime
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
@@ -184,13 +182,20 @@ class App:
         self.login_root.pack(side=LEFT, fill=BOTH)
 
         # other
-        self.must_close = bool()
+        logger.setLevel(LOGGING_LEVEL)
+        logging.basicConfig(format="[%(levelname)s] > %(message)s")
+
+        connect = Thread(target=self.connect)
+        connect.start()
 
     def connect(self):
+        self.must_close = False
         while True:
             try:
                 ADDR = (HOST, PORT)
-                client_socket.connect(ADDR)
+                self.socket = socket(AF_INET, SOCK_STREAM)
+                self.socket.connect(ADDR)
+                receive_thread = Thread(target=self.receive)
                 receive_thread.start()
                 logger.debug(f"Connected succesfully")
                 break
@@ -206,7 +211,7 @@ class App:
     def receive(self):
         while True:
             try:
-                msg = client_socket.recv(BUFSIZ).decode("utf8")
+                msg = self.socket.recv(BUFSIZ).decode("utf8")
                 if msg == "/login":
                     root.title(f"Chatt app - Logged as {self.username}")
                     self.login_root.destroy()
@@ -225,16 +230,19 @@ class App:
                 elif msg == "/register_error":
                     self.login_error(4)
                 elif msg == "/quit":
-                    client_socket.close()
+                    self.socket.close()
                     root.quit()
                 else:
                     print(msg)
                     dict = eval(msg)
                     self.onAdd(END, dict)
                     self.notification()
-            except OSError:
-                logger.error(OSError)
-                self.on_closing()
+            except OSError as e:
+                logger.error(e)
+                self.socket.close()
+                connect = Thread(target=self.connect)
+                connect.start()
+                break
             if self.must_close:
                 break
 
@@ -242,8 +250,8 @@ class App:
         pass
 
     def on_closing(self, *args):
+        self.socket.close()
         root.quit()
-        client_socket.close()
         self.must_close = True
 
     def msg_send(self, *args):
@@ -260,12 +268,12 @@ class App:
             self.onAdd(END, dict, True, True)
             msg = self.encrypt(msg)
             try:
-                client_socket.send(msg.encode("utf8"))
-            except OSError:
-                logger.error(OSError)
+                self.socket.send(msg.encode("utf8"))
+            except OSError as e:
+                logger.error(e)
 
     def command_send(self, msg: str):
-        client_socket.send(msg.encode("utf8"))
+        self.socket.send(msg.encode("utf8"))
 
     def onAdd(self, pos: str, x: dict, self_msg: bool = False, local: bool = False):
         self.msg_list.configure(state="normal")
@@ -398,18 +406,11 @@ PORT = 33000
 
 if __name__ == "__main__":
     logger = logging.getLogger()
-    client_socket = socket(AF_INET, SOCK_STREAM)
     notification = ToastNotifier()
     root = Tk()
     app = App(root)
-    receive_thread = Thread(target=app.receive)
-    connect = Thread(target=app.connect)
 
     BUFSIZ = 1024
     KEY = hashlib.sha256(KEY.encode()).digest()
 
-    logger.setLevel(LOGGING_LEVEL)
-    popen("title ClientSocket")
-    logging.basicConfig(format="[%(levelname)s] > %(message)s")
-    connect.start()
     root.mainloop()
