@@ -11,6 +11,7 @@ tests/*
 !tests/notification_test.py
 !tests/python_console_test.py
 !tests/tkinter_fonts_test.py
+!tests/logging
 !tests/logs
 
 tests/logs/*
