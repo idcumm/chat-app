@@ -6,6 +6,7 @@
 # TODO millorar notification
 # TODO evitar que es tanqui el client al tancar el servidor
 # TODO que no es repeteixi el nom mes dun missatge seguit
+# TODO arreglar reconectar client al servidor
 # bubbl.us
 
 
