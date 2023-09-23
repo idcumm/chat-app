@@ -8,6 +8,9 @@ tests/*
 !tests/client_test.py
 !tests/encryption_test.py
 !tests/focus_test.py
+!tests/notification_test.py
+!tests/python_console_test.py
+!tests/tkinter_fonts_test.py
 !tests/logs
 
 tests/logs/*
