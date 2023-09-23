@@ -3,7 +3,7 @@
 
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
-from os import system
+from os import system, path
 import csv
 import logging
 from datetime import datetime
@@ -15,23 +15,23 @@ from time import sleep
 
 class Server:
     def __init__(self):
-        self.BUFSIZ = 1024
-        ADDR = (HOST, PORT)
-
-        self.SERVER = socket(AF_INET, SOCK_STREAM)
-        self.SERVER.bind(ADDR)
-        self.SERVER.listen(5)
-        print("         ---- Server online! ----\n")
-
+        self.absolute_path = path.dirname(path.abspath(__file__))
+        self.file_path = self.absolute_path + "/database/data.csv"
+        thread = Thread(target=self.accept_incoming_connections)
         self.clients = {}
         self.addresses = {}
         self.history = []
+        self.BUFSIZ = 1024
+        ADDR = (HOST, PORT)
+        self.SERVER = socket(AF_INET, SOCK_STREAM)
 
+        self.SERVER.bind(ADDR)
+        self.SERVER.listen(5)
         logging.basicConfig(format="[%(levelname)s] > %(message)s")
         logger.setLevel(logging.DEBUG)
         system("title ServerSocket")
-
-        thread = Thread(target=self.accept_incoming_connections)
+        logger.info("---- Server online! ----")
+        logger.info(f"Server directory: '{self.absolute_path}'")
         thread.start()
         thread.join()
 
@@ -67,7 +67,7 @@ class Server:
                 logger.debug("username: " + self.username)
                 logger.debug("password: " + self.password)
                 try:
-                    with open("database\data.csv", "r+", encoding="utf8", newline="") as file:
+                    with open(self.file_path, "r+", encoding="utf8", newline="") as file:
                         self.data = []
                         r = csv.reader(file)
                         login_state = 0
@@ -109,13 +109,13 @@ class Server:
             elif "/register" in msg:
                 self.username, self.password = eval(msg[10:])
                 try:
-                    x = open("database\data.csv", "x")
+                    x = open(self.file_path, "x")
                     x.close()
                     logger.error(FileExistsError)
                 except FileExistsError:
                     pass
 
-                with open("database\data.csv", "r+", encoding="utf8", newline="") as file:
+                with open(self.file_path, "r+", encoding="utf8", newline="") as file:
                     self.data = []
                     w = csv.writer(file)
                     r = csv.reader(file)
