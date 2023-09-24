@@ -5,6 +5,7 @@
 # TODO fer funcio tot allo que es repeteix molt
 # TODO millorar notification
 # TODO que no es repeteixi el nom mes dun missatge seguit
+# TODO poder tancar la aplicacio amb "x"
 # bubbl.us
 
 
