@@ -1,11 +1,10 @@
-# # # # TODO fer que el chat tingui missatges privats
-# # # # TODO simular un atac informatic al servidor
-# TODO fer log.log de history chat i cargarlo cada cop que sobra
+# # TODO fusionar el client_test.py
 # TODO posar dia i hora en missatges
 # TODO fer funcio tot allo que es repeteix molt
 # TODO millorar notification
 # TODO que no es repeteixi el nom mes dun missatge seguit
-# TODO poder tancar la aplicacio amb "x"
+# # TODO fer autologin
+# TODO fer que es pugui fer resize
 # bubbl.us
 
 
@@ -203,11 +202,9 @@ class App:
                     logger.debug(f"Trying to connect: {i+1} seconds remaining")
                     sleep(1)
                     if self.must_close:
-                        print("closed 1")
                         break
             finally:
                 if self.must_close:
-                    print("closed 2")
                     break
 
     def receive(self):
@@ -223,7 +220,6 @@ class App:
                         self.history = dictionary["history"]
                         if self.history:
                             self.history = eval(self.history)
-                            # print(self.history)
                             self.onAdd("1.0", self.history, True)
                     elif dictionary["command"] == "login_user_error":
                         self.login_error(2)
@@ -241,7 +237,6 @@ class App:
                     self.notification()
             except OSError as e:
                 if self.must_close:
-                    print("closed appart 1")
                     break
                 logger.error(e)
                 self.socket.close()
@@ -249,7 +244,6 @@ class App:
                 connect.start()
                 break
             if self.must_close:
-                print("closed appart 2")
                 break
 
     def select_person(self, *args):
@@ -304,7 +298,7 @@ class App:
             dictionary["name"] = self.decrypt(dictionary["name"])
             dictionary["msg"] = self.decrypt(dictionary["msg"])
             dictionary["date"] = self.decrypt(dictionary["date"])
-            print(dictionary)
+            logger.info(dictionary)
 
             self.last_name = dictionary["name"]
             self.last_message = dictionary["msg"]
