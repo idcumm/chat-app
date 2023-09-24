@@ -4,9 +4,7 @@
 # TODO posar dia i hora en missatges
 # TODO fer funcio tot allo que es repeteix molt
 # TODO millorar notification
-# TODO evitar que es tanqui el client al tancar el servidor
 # TODO que no es repeteixi el nom mes dun missatge seguit
-# TODO arreglar reconectar client al servidor
 # bubbl.us
 
 
@@ -96,7 +94,7 @@ class App:
             yscrollcommand=self.people_scrollbar.set,
             selectmode=SINGLE,
             font=font.Font(size=20),
-            justify=CENTER,
+            justify="center",
             bg="#282424",
             borderwidth="1px",
             fg="#ffffff",
@@ -132,7 +130,6 @@ class App:
         self.msg_entry_var.set("")
         self.msg_scrollbar.config(command=self.msg_list.yview)
         self.msg_list.tag_config("right", justify="right")
-        self.msg_list.tag_config("center", justify="center")
         self.people_scrollbar.config(command=self.people_list.yview)
         self.user_entry.focus_set()
 
@@ -212,31 +209,31 @@ class App:
     def receive(self):
         while True:
             try:
-                msg = self.socket.recv(BUFSIZ).decode("utf8")
-                if msg == "/login":
-                    root.title(f"Chatt app - Logged as {self.username}")
-                    self.login_root.destroy()
-                    self.msg_entry.focus_set()
-                elif msg[:8] == "/history":
-                    self.history = msg[9:]
-                    if self.history:
-                        self.history = eval(self.history)
-                        self.onAdd("1.0", self.history, True)
-                elif msg == "/login_user_error":
-                    self.login_error(2)
-                elif msg == "/login_password_error":
-                    self.login_error(3)
-                elif msg == "/register":
-                    self.login(self.user_entry_var.get(), self.key_entry_var.get())
-                elif msg == "/register_error":
-                    self.login_error(4)
-                elif msg == "/quit":
-                    self.socket.close()
-                    root.quit()
-                else:
-                    print(msg)
-                    dict = eval(msg)
-                    self.onAdd(END, dict)
+                dictionary = eval(self.socket.recv(BUFSIZ).decode("utf8"))
+                if dictionary["type"] == "command":
+                    if dictionary["command"] == "login":
+                        root.title(f"Chatt app - Logged as {self.username}")
+                        self.login_root.destroy()
+                        self.msg_entry.focus_set()
+                    elif dictionary["command"] == "history":
+                        self.history = dictionary["history"]
+                        if self.history:
+                            self.history = eval(self.history)
+                            # print(self.history)
+                            self.onAdd("1.0", self.history, True)
+                    elif dictionary["command"] == "login_user_error":
+                        self.login_error(2)
+                    elif dictionary["command"] == "login_password_error":
+                        self.login_error(3)
+                    elif dictionary["command"] == "register":
+                        self.login(self.user_entry_var.get(), self.key_entry_var.get())
+                    elif dictionary["command"] == "register_error":
+                        self.login_error(4)
+                    # elif dictionary["command"] == "quit":
+                    #     self.socket.close()
+                    #     root.quit()
+                if dictionary["type"] == "broadcast":
+                    self.onAdd(END, dictionary)
                     self.notification()
             except OSError as e:
                 logger.error(e)
@@ -251,56 +248,68 @@ class App:
         pass
 
     def on_closing(self, *args):
-        self.socket.close()
         root.quit()
+        self.socket.close()
         self.must_close = True
 
     def msg_send(self, *args):
         msg = self.msg_entry_var.get()
+        self.msg_entry_var.set("")
         if msg:
-            self.msg_entry_var.set("")
-            date = datetime.now().strftime("%H:%M")
-            dict = {
-                "date": date,
-                "type": "broadcast",
+            dictionary = {
+                "date": datetime.now().strftime("%H:%M"),
                 "name": self.username,
+                "type": "broadcast",
                 "msg": msg,
             }
-            self.onAdd(END, dict, True, True)
-            msg = self.encrypt(msg)
+            self.onAdd(END, dictionary, True, True)
+
+            dictionary["date"] = self.encrypt(dictionary["date"])
+            dictionary["name"] = self.encrypt(dictionary["name"])
+            dictionary["msg"] = self.encrypt(dictionary["msg"])
+
             try:
-                self.socket.send(msg.encode("utf8"))
+                self.socket.send(str(dictionary).encode("utf8"))
+                logger.debug(dictionary)
             except OSError as e:
                 logger.error(e)
 
-    def command_send(self, msg: str):
-        self.socket.send(msg.encode("utf8"))
+    def command_send(self, command: str, user: str, key: str):
+        dictionary = {
+            "date": datetime.now().strftime("%H:%M"),
+            "name": self.username,
+            "type": "command",
+            "command": command,
+            "user": user,
+            "key": key,
+        }
 
-    def onAdd(self, pos: str, x: dict, self_msg: bool = False, local: bool = False):
+        dictionary["date"] = self.encrypt(dictionary["date"])
+        dictionary["name"] = self.encrypt(dictionary["name"])
+
+        self.socket.send(str(dictionary).encode("utf8"))
+        logger.debug(dictionary)
+
+    def onAdd(self, pos: str, dictionary: dict, self_msg: bool = False, local: bool = False):
         self.msg_list.configure(state="normal")
         if not local:
-            x["name"] = self.decrypt(x["name"])
-            x["msg"] = self.decrypt(x["msg"])
+            dictionary["name"] = self.decrypt(dictionary["name"])
+            dictionary["msg"] = self.decrypt(dictionary["msg"])
+            dictionary["date"] = self.decrypt(dictionary["date"])
+            print(dictionary)
 
-            self.last_name = x["name"]
-            self.last_message = x["msg"]
+            self.last_name = dictionary["name"]
+            self.last_message = dictionary["msg"]
 
-        if x["type"] == "broadcast":
-            if x["name"] == self.username:
-                if self_msg:
-                    self.msg_list.insert(
-                        pos,
-                        f'{x["name"]}: {x["msg"]} ({x["date"]})\n\n',
-                        "right",
-                    )
-            else:
-                self.msg_list.insert(pos, f'({x["date"]}) {x["name"]}: {x["msg"]}\n\n')
-        # elif x["type"] == "join":
-        #     self.msg_list.insert(
-        #         pos, f'{x["name"]} se ha unido al chat!\n\n', "center")
-        # elif x["type"] == "leave":
-        #     self.msg_list.insert(
-        #         pos, f'{x["name"]} se ha ido del chat!\n\n', "center")
+        if dictionary["name"] == self.username:
+            if self_msg:
+                self.msg_list.insert(
+                    pos,
+                    f'{dictionary["name"]}: {dictionary["msg"]} ({dictionary["date"]})\n\n',
+                    "right",
+                )
+        else:
+            self.msg_list.insert(pos, f'({dictionary["date"]}) {dictionary["name"]}: {dictionary["msg"]}\n\n')
         self.msg_list.configure(state="disabled")
         self.msg_list.yview(END)
 
@@ -313,10 +322,10 @@ class App:
         else:
             user = self.encrypt(user)
             key = self.encrypt(key)
-            msg = f'"{user}", "{key}"'
-            self.command_send(f"/login {msg}")
+            self.command_send("login", user, key)
 
     def register(self, user: str, key: str):
+        self.username = user
         if (len(user) or len(key)) > 20:
             self.login_error(1)
         elif not (user and key):
@@ -324,8 +333,7 @@ class App:
         else:
             user = self.encrypt(user)
             key = self.encrypt(key)
-            msg = f'"{user}", "{key}"'
-            self.command_send(f"/register {msg}")
+            self.command_send("register", user, key)
 
     def login_error(self, x: int):
         if x == 0:
