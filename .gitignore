@@ -10,4 +10,4 @@ tests/include/logs/*
 !tests/include/logs/.gitkeep
 
 src/server/database/*
-!server/database/.gitkeep
+!src/server/database/.gitkeep
