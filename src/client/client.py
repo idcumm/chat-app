@@ -203,9 +203,12 @@ class App:
                     logger.debug(f"Trying to connect: {i+1} seconds remaining")
                     sleep(1)
                     if self.must_close:
+                        print("closed 1")
                         break
-            if self.must_close:
-                break
+            finally:
+                if self.must_close:
+                    print("closed 2")
+                    break
 
     def receive(self):
         while True:
@@ -237,12 +240,16 @@ class App:
                     self.onAdd(END, dictionary)
                     self.notification()
             except OSError as e:
+                if self.must_close:
+                    print("closed appart 1")
+                    break
                 logger.error(e)
                 self.socket.close()
                 connect = Thread(target=self.connect)
                 connect.start()
                 break
             if self.must_close:
+                print("closed appart 2")
                 break
 
     def select_person(self, *args):
@@ -250,8 +257,8 @@ class App:
 
     def on_closing(self, *args):
         root.quit()
-        self.socket.close()
         self.must_close = True
+        self.socket.close()
 
     def msg_send(self, *args):
         msg = self.msg_entry_var.get()
