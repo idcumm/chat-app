@@ -2,6 +2,7 @@ from tkinter import *
 from threading import Thread
 from tkinter.font import *
 from time import sleep
+from os import path
 
 
 class App:
@@ -57,9 +58,7 @@ class App:
             for j in everyone:
                 if i < j:
                     try:
-                        open(
-                            f"tests\logs\{i}_{j}.log", "x", encoding="utf8", newline=""
-                        )
+                        open(f"{file_path}\{i}_{j}.log", "x", encoding="utf8", newline="")
                     except FileExistsError:
                         print(f"{i}_{j}.log already exists")
         for i in people:
@@ -82,7 +81,7 @@ class App:
         self.msg_text_list.yview(END)
         self.msg_text_list.configure(state="disabled")
         with open(
-            f"tests\logs\{self.person1}_{self.person2}.log",
+            f"{file_path}\{self.person1}_{self.person2}.log",
             "a",
             encoding="utf8",
             newline="",
@@ -95,7 +94,7 @@ class App:
         self.msg_text_list.place(x=380, y=10, width=830, height=640)
         self.entry_field.place(x=380, y=660, width=800, height=30)
         with open(
-            f"tests\logs\{self.person1}_{self.person2}.log",
+            f"{file_path}\{self.person1}_{self.person2}.log",
             "r",
             encoding="utf8",
             newline="",
@@ -111,6 +110,9 @@ class App:
 
 people = "persona1", "persona2", "guillem", "jan"
 username = "persona0"
+absolute_path = path.dirname(path.abspath(__file__))
+file_path = absolute_path + "/logs"
+
 if __name__ == "__main__":
     root = Tk()
     app = App(root)

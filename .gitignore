@@ -1,24 +1,12 @@
 # .gitignore
 .venv
 .vscode
-pyproject.toml
 
 tests/*
-!tests/.gitkeep 
-!tests/client_test.py
-!tests/encryption_test.py
-!tests/focus_test.py
-!tests/notification_test.py
-!tests/python_console_test.py
-!tests/tkinter_fonts_test.py
-!tests/logging
-!tests/logs
+!tests/.gitkeep
+!tests/include
+tests/include/logs/*
+!tests/include/logs/.gitkeep
 
-tests/logs/*
-!tests/logs/.gitkeep
-
-server/logs/*
-!server/logs/.gitkeep
-
-server/database/*
+src/server/database/*
 !server/database/.gitkeep
