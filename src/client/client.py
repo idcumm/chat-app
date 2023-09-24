@@ -53,10 +53,7 @@ class App:
         font_1 = font.Font(family="Helvetica", size=15)
         font_2 = font.Font(family="Calibri", size=15)
 
-        self.login_root = Frame(root)
         self.msg_entry_var = StringVar()
-        self.user_entry_var = StringVar()
-        self.key_entry_var = StringVar()
         self.msg_scrollbar = Scrollbar(
             root,
             activebackground="#282424",
@@ -109,6 +106,9 @@ class App:
             fg="#ffffff",
             justify="center",
         )
+        self.login_root = Frame(root)
+        self.user_entry_var = StringVar()
+        self.key_entry_var = StringVar()
         self.user_entry = Entry(
             self.login_root,
             width="30",

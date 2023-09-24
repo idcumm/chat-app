@@ -133,12 +133,11 @@ class Server:
                             if not user_in_use:
                                 w.writerow([self.username, self.password])
                                 self.command_send(client, "register")
-                # elif "/quit" in msg:
+                # elif self.dictionary["command"] == "quit":
                 #     client.send("/quit".encode("utf8"))
                 #     client.close()
                 #     try:
                 #         del self.clients[client]
-                #         self.msg_send(name, "leave")
                 #         logger.info(f"{self.client_address} se ha ido.")
                 #         break
                 #     except KeyError as e:
