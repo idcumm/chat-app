@@ -5,6 +5,7 @@
 tests/*
 !tests/.gitkeep
 !tests/include
+
 tests/include/logs/*
 !tests/include/logs/.gitkeep
 
