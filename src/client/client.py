@@ -48,14 +48,15 @@ class App:
         root.resizable(width=False, height=False)
         root.configure(bg="#282424")
         root.protocol("WM_DELETE_WINDOW", self.on_closing)
-        root.bind("<FocusOut>", self.focus_out)
-        root.bind("<FocusIn>", self.focus_in)
 
         # initialize
         font_1 = font.Font(family="Helvetica", size=15)
         font_2 = font.Font(family="Calibri", size=15)
 
+        self.login_root = Frame(root)
         self.msg_entry_var = StringVar()
+        self.user_entry_var = StringVar()
+        self.key_entry_var = StringVar()
         self.msg_scrollbar = Scrollbar(
             root,
             activebackground="#282424",
@@ -108,9 +109,6 @@ class App:
             fg="#ffffff",
             justify="center",
         )
-        self.login_root = Frame(root)
-        self.user_entry_var = StringVar()
-        self.key_entry_var = StringVar()
         self.user_entry = Entry(
             self.login_root,
             width="30",
@@ -144,6 +142,8 @@ class App:
             "<Return>",
             lambda event: self.login(self.user_entry_var.get(), self.key_entry_var.get()),
         )
+        root.bind("<FocusOut>", self.focus_out)
+        root.bind("<FocusIn>", self.focus_in)
 
         # place and pack
         self.msg_scrollbar.place(x=1220, y=10, width=20, height=640)
