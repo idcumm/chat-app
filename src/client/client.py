@@ -388,11 +388,11 @@ class App:
 
     def focus_out(self, *args):
         self.focus = False
-        logger.debug("Focus out")
+        # logger.debug("Focus out")
 
     def focus_in(self, *args):
         self.focus = True
-        logger.debug("Focus in")
+        # logger.debug("Focus in")
 
     def notification(self):
         if NOTIFICATIONS:

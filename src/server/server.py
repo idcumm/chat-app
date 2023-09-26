@@ -54,7 +54,7 @@ class Server:
                     logger.info(f"{self.client_address} se ha ido.")
                     break
                 except KeyError as e:
-                    logger.error(e)
+                    logger.error(f"{KeyError}: {e}")
                     break
 
             if self.dictionary["type"] == "command":
@@ -100,7 +100,7 @@ class Server:
                             elif login_state == 3:
                                 self.command_send(client, "login_user_error")
                     except FileNotFoundError as e:
-                        logger.error(e)
+                        logger.error(f"{FileNotFoundError}: {e}")
                         self.command_send(client, "login_user_error")
 
                 elif self.dictionary["command"] == "register":
@@ -152,7 +152,7 @@ class Server:
             try:
                 sock.send(str(dictionary).encode("utf8"))
             except ConnectionResetError as e:
-                logger.error(e)
+                logger.error(f"{ConnectionResetError}: {e}")
         self.history.append(dictionary)
 
     def command_send(self, client: socket, command: str, history: str = ""):
