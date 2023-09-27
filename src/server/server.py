@@ -14,8 +14,9 @@ from time import sleep
 
 class Server:
     def __init__(self):
-        self.absolute_path = path.dirname(path.abspath(__file__))
-        self.file_path = self.absolute_path + "/database/data.csv"
+        absolute_path = path.dirname(path.abspath(__file__))
+        self.file_path = absolute_path + "/database/"
+        self.file_path2 = absolute_path + "/database/"
         thread = Thread(target=self.accept_incoming_connections)
         self.clients = {}
         self.addresses = {}
@@ -30,9 +31,9 @@ class Server:
         logger.setLevel(logging.DEBUG)
         system("title ServerSocket")
         logger.info("---- Server online! ----")
-        logger.info(f"Server directory: '{self.absolute_path}'")
+        logger.info(f"Server directory: '{absolute_path}'")
 
-        with open(self.file_path, "r", encoding="utf8") as file:
+        with open(self.file_path + "data.csv", "r", encoding="utf8") as file:
             self.data = []
             r = csv.reader(file)
             self.users = []
@@ -43,9 +44,19 @@ class Server:
         for i in self.data:
             if not (i[0] in self.users):
                 self.users.append(i[0])
-
+        #!######################3
+        for i in self.users:
+            for j in self.users:
+                if i < j:
+                    try:
+                        open(self.file_path2 + f"{i}_{j}.db", "x", encoding="utf8", newline="")
+                    except (FileExistsError, FileNotFoundError):
+                        logger.debug(f"{i}_{j}.log already exists")
+        #!######################3
+        #!######################3
         thread.start()
         thread.join()
+        #!##################3
 
     def accept_incoming_connections(self):
         while True:
@@ -78,7 +89,7 @@ class Server:
                     logger.debug("username: " + self.username)
                     logger.debug("password: " + self.password)
                     try:
-                        with open(self.file_path, "r+", encoding="utf8", newline="") as file:
+                        with open(self.file_path + "data.csv", "r+", encoding="utf8", newline="") as file:
                             self.data = []
                             r = csv.reader(file)
                             login_state = 0
@@ -125,12 +136,12 @@ class Server:
                     self.username = self.dictionary["user"]
                     self.password = self.dictionary["key"]
                     try:
-                        x = open(self.file_path, "x")
+                        x = open(self.file_path + "data.csv", "x")
                         x.close()
                     except FileExistsError:
                         pass
 
-                    with open(self.file_path, "r+", encoding="utf8", newline="") as file:
+                    with open(self.file_path + "data.csv", "r+", encoding="utf8", newline="") as file:
                         self.data = []
                         w = csv.writer(file)
                         r = csv.reader(file)
@@ -153,11 +164,15 @@ class Server:
                                 self.command_send(client, "register")
 
                 elif self.dictionary["command"] == "usersel":
-                    # CONTINUAR AQUI # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-                    with open():
+                    #!######################3
+                    data = [self.dictionary["name"], self.dictionary["destinatary"]]
+                    data.sort()
+                    with open(f"{self.file_path}{data[0]}_{data[1]}", "a") as file:
+                        f = file.readlines()
+                        print(f)
                         msg_list = []
                     self.command_send(client, "usersel", msg_list)
-                    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+                    #! # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
             elif self.dictionary["type"] == "broadcast":
                 self.msg_send(self.dictionary["name"], self.dictionary["msg"])
 

@@ -1,6 +1,7 @@
 # bubbl.us
 # * fusionar el client_test.py
 # * fer autologin
+# * cargar el history al iniciar
 # TODO posar dia i hora en missatges
 # TODO fer funcio tot allo que es repeteix molt
 # TODO millorar notification
@@ -241,11 +242,11 @@ class App:
                             i = self.decrypt(i)
                             self.users.append(i)
                     elif dictionary["command"] == "usersel":
-                        # CONTINUAR AQUI # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+                        #  ! CONTINUAR AQUI # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
                         for i in eval(dictionary["msg_list"]):
                             i = self.decrypt(i)
                             self.onAdd(END, i, True)
-                        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+                        # !# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
                 if dictionary["type"] == "broadcast":
                     self.onAdd(END, dictionary)
                     self.notification()
@@ -261,10 +262,10 @@ class App:
                 break
 
     def select_person(self, *args):
-        # CONTINUAR AQUI # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        # !CONTINUAR AQUI # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
         self.person_selected = self.people_list.curselection()[0]
         self.command_send(self, "usersel", self.users[self.person_selected])
-        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        # !# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     def on_closing(self, *args):
         root.quit()
@@ -302,6 +303,7 @@ class App:
                 "command": command,
                 "destinatary": arg1,
             }
+            dictionary["destinatary"] = self.encrypt(dictionary["destinatary"])
         else:
             dictionary = {
                 "date": datetime.now().strftime("%H:%M"),
@@ -311,6 +313,8 @@ class App:
                 "user": arg1,
                 "key": arg2,
             }
+            dictionary["user"] = self.encrypt(dictionary["user"])
+            dictionary["key"] = self.encrypt(dictionary["key"])
 
         dictionary["date"] = self.encrypt(dictionary["date"])
         dictionary["name"] = self.encrypt(dictionary["name"])
@@ -348,8 +352,6 @@ class App:
         elif not (user and key):
             self.login_error(0)
         else:
-            user = self.encrypt(user)
-            key = self.encrypt(key)
             self.command_send("login", user, key)
 
     def register(self, user: str, key: str):
