@@ -240,6 +240,12 @@ class App:
                         for i in eval(dictionary["users"]):
                             i = self.decrypt(i)
                             self.users.append(i)
+                    elif dictionary["command"] == "usersel":
+                        # CONTINUAR AQUI # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+                        for i in eval(dictionary["msg_list"]):
+                            i = self.decrypt(i)
+                            self.onAdd(END, i, True)
+                        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
                 if dictionary["type"] == "broadcast":
                     self.onAdd(END, dictionary)
                     self.notification()
