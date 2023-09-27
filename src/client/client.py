@@ -1,11 +1,11 @@
-# # TODO fusionar el client_test.py
+# bubbl.us
+# * fusionar el client_test.py
+# * fer autologin
 # TODO posar dia i hora en missatges
 # TODO fer funcio tot allo que es repeteix molt
 # TODO millorar notification
 # TODO que no es repeteixi el nom mes dun missatge seguit
-# # TODO fer autologin
 # TODO fer que es pugui fer resize
-# bubbl.us
 
 
 # ==========>> MODULE IMPORT <<========== #
