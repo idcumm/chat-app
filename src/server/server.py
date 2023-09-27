@@ -66,6 +66,7 @@ class Server:
             Thread(target=self.handle_client, args=(self.client,)).start()
 
     def handle_client(self, client, *args):
+        print(self.users)
         self.command_send(client, "userlist", str(self.users))
         while True:
             try:
@@ -167,16 +168,16 @@ class Server:
                     #!######################3
                     data = [self.dictionary["name"], self.dictionary["destinatary"]]
                     data.sort()
-                    with open(f"{self.file_path}{data[0]}_{data[1]}", "a") as file:
-                        f = file.readlines()
-                        print(f)
-                        msg_list = []
-                    self.command_send(client, "usersel", msg_list)
+                    with open(
+                        f"{self.file_path}{data[0]}_{data[1]}.db", "r"
+                    ) as file:  # ? "a+" works for FileNotFoundError
+                        msg_list = file.readlines()
+                    self.command_send(client, "usersel", str(msg_list))
                     #! # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
             elif self.dictionary["type"] == "broadcast":
-                self.msg_send(self.dictionary["name"], self.dictionary["msg"])
+                self.msg_send(self.dictionary["name"], self.dictionary["msg"], self.dictionary["destinatary"])
 
-    def msg_send(self, name, msg):
+    def msg_send(self, name, msg, destinatary):
         dictionary = {"date": self.dictionary["date"], "name": name, "type": "broadcast", "msg": msg}
         for sock in self.clients:
             try:
@@ -184,6 +185,10 @@ class Server:
             except ConnectionResetError as e:
                 logger.error(f"{ConnectionResetError}: {e}")
         self.history.append(dictionary)
+        data = [name, destinatary]
+        data.sort()
+        with open(f"{self.file_path}{data[0]}_{data[1]}.db", "a") as file:
+            file.write(dictionary + "\n")
 
     def command_send(self, client: socket, command: str, arg: str = ""):
         if command == "history":

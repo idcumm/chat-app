@@ -7,6 +7,7 @@
 # TODO millorar notification
 # TODO que no es repeteixi el nom mes dun missatge seguit
 # TODO fer que es pugui fer resize
+# ! Solucionar FileNotFoundError en server.py
 
 
 # ==========>> MODULE IMPORT <<========== #
@@ -239,6 +240,7 @@ class App:
                     elif dictionary["command"] == "userlist":
                         self.users = []
                         for i in eval(dictionary["users"]):
+                            print(i)
                             i = self.decrypt(i)
                             self.users.append(i)
                     elif dictionary["command"] == "usersel":
@@ -264,7 +266,8 @@ class App:
     def select_person(self, *args):
         # !CONTINUAR AQUI # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
         self.person_selected = self.people_list.curselection()[0]
-        self.command_send(self, "usersel", self.users[self.person_selected])
+        print(self.person_selected)
+        self.command_send("usersel", self.users[self.person_selected])
         # !# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     def on_closing(self, *args):
@@ -361,8 +364,6 @@ class App:
         elif not (user and key):
             self.login_error(0)
         else:
-            user = self.encrypt(user)
-            key = self.encrypt(key)
             self.command_send("register", user, key)
 
     def login_error(self, x: int):
@@ -438,7 +439,7 @@ class App:
 
 LOGGING_LEVEL = logging.DEBUG
 NOTIFICATIONS = True
-KEY = "pswrd"
+KEY = "1234"
 HOST = "127.0.0.1"
 PORT = 33000
 
