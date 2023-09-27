@@ -215,6 +215,9 @@ class App:
                     if dictionary["command"] == "login":
                         root.title(f"Chatt app - Logged as {self.username}")
                         self.login_root.destroy()
+                        for i in self.users:
+                            if i != self.username:
+                                self.people_list.insert(END, i)
                         self.msg_entry.focus_set()
                     elif dictionary["command"] == "history":
                         self.history = dictionary["history"]
@@ -232,6 +235,11 @@ class App:
                     # elif dictionary["command"] == "quit":
                     #     self.socket.close()
                     #     root.quit()
+                    elif dictionary["command"] == "userlist":
+                        self.users = []
+                        for i in eval(dictionary["users"]):
+                            i = self.decrypt(i)
+                            self.users.append(i)
                 if dictionary["type"] == "broadcast":
                     self.onAdd(END, dictionary)
                     self.notification()
@@ -247,7 +255,8 @@ class App:
                 break
 
     def select_person(self, *args):
-        pass
+        self.person_selected = self.people_list.curselection()[0]
+        self.command_send(self, "usersel", self.users[self.person_selected])
 
     def on_closing(self, *args):
         root.quit()
@@ -276,15 +285,24 @@ class App:
             except OSError as e:
                 logger.error(e)
 
-    def command_send(self, command: str, user: str, key: str):
-        dictionary = {
-            "date": datetime.now().strftime("%H:%M"),
-            "name": self.username,
-            "type": "command",
-            "command": command,
-            "user": user,
-            "key": key,
-        }
+    def command_send(self, command: str, arg1: str = "", arg2: str = ""):
+        if command == "usersel":
+            dictionary = {
+                "date": datetime.now().strftime("%H:%M"),
+                "name": self.username,
+                "type": "command",
+                "command": command,
+                "destinatary": arg1,
+            }
+        else:
+            dictionary = {
+                "date": datetime.now().strftime("%H:%M"),
+                "name": self.username,
+                "type": "command",
+                "command": command,
+                "user": arg1,
+                "key": arg2,
+            }
 
         dictionary["date"] = self.encrypt(dictionary["date"])
         dictionary["name"] = self.encrypt(dictionary["name"])

@@ -31,6 +31,19 @@ class Server:
         system("title ServerSocket")
         logger.info("---- Server online! ----")
         logger.info(f"Server directory: '{self.absolute_path}'")
+
+        with open(self.file_path, "r", encoding="utf8") as file:
+            self.data = []
+            r = csv.reader(file)
+            self.users = []
+
+            for row in r:
+                self.data.append(row)
+
+        for i in self.data:
+            if not (i[0] in self.users):
+                self.users.append(i[0])
+
         thread.start()
         thread.join()
 
@@ -42,6 +55,7 @@ class Server:
             Thread(target=self.handle_client, args=(self.client,)).start()
 
     def handle_client(self, client, *args):
+        self.command_send(client, "userlist", str(self.users))
         while True:
             try:
                 self.dictionary = eval(client.recv(self.BUFSIZ).decode("utf8"))
@@ -71,6 +85,10 @@ class Server:
 
                             for row in r:
                                 self.data.append(row)
+
+                            for i in self.data:
+                                if not (i[0] in self.users):
+                                    self.users.append(i[0])
 
                             if not self.data:
                                 login_state = 3
@@ -133,16 +151,13 @@ class Server:
                             if not user_in_use:
                                 w.writerow([self.username, self.password])
                                 self.command_send(client, "register")
-                # elif self.dictionary["command"] == "quit":
-                #     client.send("/quit".encode("utf8"))
-                #     client.close()
-                #     try:
-                #         del self.clients[client]
-                #         logger.info(f"{self.client_address} se ha ido.")
-                #         break
-                #     except KeyError as e:
-                #         logger.error(e)
-                #         break
+
+                elif self.dictionary["command"] == "usersel":
+                    # CONTINUAR AQUI # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+                    with open():
+                        msg_list = []
+                    self.command_send(client, "usersel", msg_list)
+                    # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
             elif self.dictionary["type"] == "broadcast":
                 self.msg_send(self.dictionary["name"], self.dictionary["msg"])
 
@@ -155,11 +170,15 @@ class Server:
                 logger.error(f"{ConnectionResetError}: {e}")
         self.history.append(dictionary)
 
-    def command_send(self, client: socket, command: str, history: str = ""):
-        if command != "history":
-            dictionary = {"type": "command", "command": command}
+    def command_send(self, client: socket, command: str, arg: str = ""):
+        if command == "history":
+            dictionary = {"type": "command", "command": command, "history": arg}
+        elif command == "userlist":
+            dictionary = {"type": "command", "command": command, "users": arg}
+        elif command == "usersel":
+            dictionary = {"type": "command", "command": command, "msg_list": arg}
         else:
-            dictionary = {"type": "command", "command": command, "history": history}
+            dictionary = {"type": "command", "command": command}
         client.send(str(dictionary).encode("utf8"))
 
 
