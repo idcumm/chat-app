@@ -261,8 +261,10 @@ class App:
                 break
 
     def select_person(self, *args):
+        # CONTINUAR AQUI # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
         self.person_selected = self.people_list.curselection()[0]
         self.command_send(self, "usersel", self.users[self.person_selected])
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     def on_closing(self, *args):
         root.quit()
