@@ -1,13 +1,12 @@
 # bubbl.us
 # * fusionar el client_test.py
 # * fer autologin
-# * cargar el history al iniciar
+# * millorar tot el procediment
 # TODO posar dia i hora en missatges
 # TODO fer funcio tot allo que es repeteix molt
 # TODO millorar notification
 # TODO que no es repeteixi el nom mes dun missatge seguit
 # TODO fer que es pugui fer resize
-# ! Solucionar FileNotFoundError en server.py
 
 
 # ==========>> MODULE IMPORT <<========== #
@@ -149,8 +148,6 @@ class App:
 
         # place and pack
         self.msg_scrollbar.place(x=1220, y=10, width=20, height=640)
-        self.msg_entry.place(x=380, y=660, width=800, height=30)
-        self.msg_list.place(x=380, y=10, width=830, height=640)
         self.people_list.place(x=10, y=10, width=330, height=680)
         self.people_scrollbar.place(x=350, y=10, width=20, height=680)
         self.msg_send_button.place(x=1190, y=660, width=50, height=30)
@@ -197,7 +194,7 @@ class App:
                 self.socket.connect(ADDR)
                 receive_thread = Thread(target=self.receive)
                 receive_thread.start()
-                logger.debug(f"Connected succesfully")
+                logger.info(f"Connected succesfully")
                 break
             except (ConnectionRefusedError, OSError):
                 for i in reversed(range(5)):
@@ -213,10 +210,12 @@ class App:
         while True:
             try:
                 dictionary = eval(self.socket.recv(BUFSIZ).decode("utf8"))
+                logger.debug(f"Received: {dictionary}")
                 if dictionary["type"] == "command":
                     if dictionary["command"] == "login":
                         root.title(f"Chatt app - Logged as {self.username}")
                         self.login_root.destroy()
+                        self.users.remove(self.username)
                         for i in self.users:
                             if i != self.username:
                                 self.people_list.insert(END, i)
@@ -240,15 +239,12 @@ class App:
                     elif dictionary["command"] == "userlist":
                         self.users = []
                         for i in eval(dictionary["users"]):
-                            print(i)
                             i = self.decrypt(i)
                             self.users.append(i)
                     elif dictionary["command"] == "usersel":
-                        #  ! CONTINUAR AQUI # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-                        for i in eval(dictionary["msg_list"]):
-                            i = self.decrypt(i)
-                            self.onAdd(END, i, True)
-                        # !# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+                        dictionary["msg_list"] = self.decrypt(str(dictionary["msg_list"]))
+                        logger.debug(i)
+                        self.onAdd("1.0", eval(dictionary["msg_list"]), True)
                 if dictionary["type"] == "broadcast":
                     self.onAdd(END, dictionary)
                     self.notification()
@@ -264,11 +260,13 @@ class App:
                 break
 
     def select_person(self, *args):
-        # !CONTINUAR AQUI # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        self.msg_entry.place(x=380, y=660, width=800, height=30)
+        self.msg_list.place(x=380, y=10, width=830, height=640)
         self.person_selected = self.people_list.curselection()[0]
-        print(self.person_selected)
+        self.msg_list.configure(state="normal")
+        self.msg_list.delete("1.0", END)
+        self.msg_list.configure(state="disabled")
         self.command_send("usersel", self.users[self.person_selected])
-        # !# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
     def on_closing(self, *args):
         root.quit()
@@ -284,16 +282,18 @@ class App:
                 "name": self.username,
                 "type": "broadcast",
                 "msg": msg,
+                "destinatary": self.users[self.person_selected],
             }
             self.onAdd(END, dictionary, True, True)
 
             dictionary["date"] = self.encrypt(dictionary["date"])
             dictionary["name"] = self.encrypt(dictionary["name"])
             dictionary["msg"] = self.encrypt(dictionary["msg"])
+            dictionary["destinatary"] = self.encrypt(dictionary["destinatary"])
 
             try:
                 self.socket.send(str(dictionary).encode("utf8"))
-                logger.debug(dictionary)
+                logger.debug(f"Sent: {dictionary}")
             except OSError as e:
                 logger.error(e)
 
@@ -323,7 +323,7 @@ class App:
         dictionary["name"] = self.encrypt(dictionary["name"])
 
         self.socket.send(str(dictionary).encode("utf8"))
-        logger.debug(dictionary)
+        logger.debug(f"Sent: {dictionary}")
 
     def onAdd(self, pos: str, dictionary: dict, self_msg: bool = False, local: bool = False):
         self.msg_list.configure(state="normal")
@@ -383,7 +383,7 @@ class App:
             self.Error_label.config(text="\nEste nombre de usuario y/o contraseña no están disponibles")
             logger.debug("register_error")
 
-    def encrypt(self, str: str) -> str:
+    def encrypt(self, strg: str) -> str:
         """Returns an AES-Base 64 encrypted version of the input.
 
         Args:
@@ -392,14 +392,15 @@ class App:
         Returns:
             str: Encrypted version of the string.
         """
+        strg = str(strg)
         if str:
-            str = pad(str.encode(), 16)
+            str2 = pad(strg.encode(), 16)
             cipher = AES.new(KEY, AES.MODE_ECB)
-            return base64.b64encode(cipher.encrypt(str)).decode("utf-8", "ignore")
+            return base64.b64encode(cipher.encrypt(str2)).decode("utf-8", "ignore")
         else:
             return ""
 
-    def decrypt(self, str: str) -> str:
+    def decrypt(self, strg: str) -> str:
         """Returns an AES-Base 64 decrypted version of the encrypted input.
 
         Args:
@@ -408,20 +409,22 @@ class App:
         Returns:
             str: Decrypted version of the encrypted string.
         """
-        if str:
-            str = base64.b64decode(str)
+        strg = str(strg)
+        if strg:
+            str2 = base64.b64decode(strg)
             cipher = AES.new(KEY, AES.MODE_ECB)
-            return unpad(cipher.decrypt(str), 16).decode("utf-8", "ignore")
+            try:
+                return unpad(cipher.decrypt(str2), 16).decode("utf-8", "ignore")
+            except ValueError:
+                return strg
         else:
             return ""
 
     def focus_out(self, *args):
         self.focus = False
-        # logger.debug("Focus out")
 
     def focus_in(self, *args):
         self.focus = True
-        # logger.debug("Focus in")
 
     def notification(self):
         if NOTIFICATIONS:

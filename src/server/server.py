@@ -16,7 +16,6 @@ class Server:
     def __init__(self):
         absolute_path = path.dirname(path.abspath(__file__))
         self.file_path = absolute_path + "/database/"
-        self.file_path2 = absolute_path + "/database/"
         thread = Thread(target=self.accept_incoming_connections)
         self.clients = {}
         self.addresses = {}
@@ -44,16 +43,15 @@ class Server:
         for i in self.data:
             if not (i[0] in self.users):
                 self.users.append(i[0])
-        #!######################3
         for i in self.users:
+            i = i.replace("/", "%")
             for j in self.users:
+                j = j.replace("/", "%")
                 if i < j:
                     try:
-                        open(self.file_path2 + f"{i}_{j}.db", "x", encoding="utf8", newline="")
-                    except (FileExistsError, FileNotFoundError):
-                        logger.debug(f"{i}_{j}.log already exists")
-        #!######################3
-        #!######################3
+                        open(self.file_path + f"{i}-{j}.db", "x", encoding="utf8", newline="")
+                    except FileExistsError:
+                        pass
         thread.start()
         thread.join()
         #!##################3
@@ -71,7 +69,7 @@ class Server:
         while True:
             try:
                 self.dictionary = eval(client.recv(self.BUFSIZ).decode("utf8"))
-                logger.debug(self.dictionary)
+                logger.info(f"Received: {self.dictionary}")
             except ConnectionResetError:
                 client.close()
                 try:
@@ -119,12 +117,9 @@ class Server:
                             if login_state == 1:
                                 self.clients[client] = self.dictionary["name"]
                                 self.command_send(client, "login")
-                                for i in reversed(self.history):
-                                    self.command_send(client, "history", str(i))
-                                    sleep(0.05)
-                                # self.msg_send(self.dictionary["name"], "join")
-                                # msg = f"%s se ha unido al chat! {client_address}" % name
-                                # print(msg)
+                                # for i in reversed(self.history):
+                                #     self.command_send(client, "history", str(i))
+                                #     sleep(0.05)
                             elif login_state == 2:
                                 self.command_send(client, "login_password_error")
                             elif login_state == 3:
@@ -165,14 +160,16 @@ class Server:
                                 self.command_send(client, "register")
 
                 elif self.dictionary["command"] == "usersel":
-                    #!######################3
+                    #! # # # # # # # # # # # # # # # # # # # # # # 3
                     data = [self.dictionary["name"], self.dictionary["destinatary"]]
                     data.sort()
-                    with open(
-                        f"{self.file_path}{data[0]}_{data[1]}.db", "r"
-                    ) as file:  # ? "a+" works for FileNotFoundError
+                    data[0] = data[0].replace("/", "%")
+                    data[1] = data[1].replace("/", "%")
+                    with open(f"{self.file_path}{data[0]}-{data[1]}.db", "r") as file:
                         msg_list = file.readlines()
-                    self.command_send(client, "usersel", str(msg_list))
+                    for i in reversed(msg_list):
+                        self.command_send(client, "usersel", str(i))
+                        sleep(0.05)
                     #! # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
             elif self.dictionary["type"] == "broadcast":
                 self.msg_send(self.dictionary["name"], self.dictionary["msg"], self.dictionary["destinatary"])
@@ -182,13 +179,16 @@ class Server:
         for sock in self.clients:
             try:
                 sock.send(str(dictionary).encode("utf8"))
+                logger.info(f"Sent: {dictionary}")
             except ConnectionResetError as e:
                 logger.error(f"{ConnectionResetError}: {e}")
         self.history.append(dictionary)
         data = [name, destinatary]
         data.sort()
-        with open(f"{self.file_path}{data[0]}_{data[1]}.db", "a") as file:
-            file.write(dictionary + "\n")
+        data[0] = data[0].replace("/", "%")
+        data[1] = data[1].replace("/", "%")
+        with open(f"{self.file_path}{data[0]}-{data[1]}.db", "a") as file:
+            file.write(str(dictionary) + "\n")
 
     def command_send(self, client: socket, command: str, arg: str = ""):
         if command == "history":
@@ -200,6 +200,7 @@ class Server:
         else:
             dictionary = {"type": "command", "command": command}
         client.send(str(dictionary).encode("utf8"))
+        logger.info(f"Sent: {dictionary}")
 
 
 # ==========>> MAIN CODE <<========== #
