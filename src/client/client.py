@@ -7,6 +7,8 @@
 # TODO millorar notification
 # TODO que no es repeteixi el nom mes dun missatge seguit
 # TODO fer que es pugui fer resize
+# ! Crear data.csv al __init__
+# ! que es crei el b64.db al enviar missatge, no tots al principi
 
 
 # ==========>> MODULE IMPORT <<========== #
