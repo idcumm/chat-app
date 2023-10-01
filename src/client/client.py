@@ -7,7 +7,7 @@
 # TODO millorar notification
 # TODO que no es repeteixi el nom mes dun missatge seguit
 # TODO fer que es pugui fer resize
-
+# * Aplicar tcp method (enviar info per files)
 
 # ==========>> MODULE IMPORT <<========== #
 
