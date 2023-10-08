@@ -149,7 +149,10 @@ class App:
                     if dictionary["command"] == "login":
                         root.title(f"Chatt app - Logged as {self.username}")
                         self.login_root.destroy()
-                        self.users.remove(self.username)
+                        try:
+                            self.users.remove(self.username)
+                        except ValueError:
+                            pass
                         for i in self.users:
                             if i != self.username:
                                 self.people_list.insert(END, i)
@@ -376,7 +379,7 @@ class App:
 
 
 LOGGING_LEVEL = logging.DEBUG
-NOTIFICATIONS = True
+NOTIFICATIONS = False
 KEY = "1234"
 HOST = "127.0.0.1"
 PORT = 33000

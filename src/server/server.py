@@ -32,26 +32,22 @@ class Server:
         logger.info("---- Server online! ----")
         logger.info(f"Server directory: '{absolute_path}'")
 
-        with open(self.file_path + "data.csv", "r", encoding="utf8") as file:
-            self.data = []
-            r = csv.reader(file)
-            self.users = []
+        while True:
+            try:
+                with open(self.file_path + "data.csv", "r", encoding="utf8") as file:
+                    self.data = []
+                    r = csv.reader(file)
+                    self.users = []
 
-            for row in r:
-                self.data.append(row)
+                    for row in r:
+                        self.data.append(row)
+                break
+            except FileNotFoundError:
+                open(self.file_path + "data.csv", "x", encoding="utf8")
 
         for i in self.data:
             if not (i[0] in self.users):
                 self.users.append(i[0])
-        for i in self.users:
-            i = i.replace("/", "%")
-            for j in self.users:
-                j = j.replace("/", "%")
-                if i < j:
-                    try:
-                        open(self.file_path + f"{i}-{j}.db", "x", encoding="utf8", newline="")
-                    except FileExistsError:
-                        pass
         thread.start()
         thread.join()
         #!##################3
@@ -165,8 +161,13 @@ class Server:
                     data.sort()
                     data[0] = data[0].replace("/", "%")
                     data[1] = data[1].replace("/", "%")
-                    with open(f"{self.file_path}{data[0]}-{data[1]}.db", "r") as file:
-                        msg_list = file.readlines()
+                    while True:
+                        try:
+                            with open(f"{self.file_path}{data[0]}-{data[1]}.db", "r") as file:
+                                msg_list = file.readlines()
+                            break
+                        except FileNotFoundError:
+                            open(f"{self.file_path}{data[0]}-{data[1]}.db", "x")
                     for i in reversed(msg_list):
                         self.command_send(client, "usersel", str(i))
                         sleep(0.05)
@@ -187,8 +188,13 @@ class Server:
         data.sort()
         data[0] = data[0].replace("/", "%")
         data[1] = data[1].replace("/", "%")
-        with open(f"{self.file_path}{data[0]}-{data[1]}.db", "a") as file:
-            file.write(str(dictionary) + "\n")
+        while True:
+            try:
+                with open(f"{self.file_path}{data[0]}-{data[1]}.db", "a") as file:
+                    file.write(str(dictionary) + "\n")
+                break
+            except FileNotFoundError:
+                open(f"{self.file_path}{data[0]}-{data[1]}.db", "x")
 
     def command_send(self, client: socket, command: str, arg: str = ""):
         if command == "history":
