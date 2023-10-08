@@ -19,8 +19,8 @@ import hashlib
 import logging
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
-from tkinter import *
-from tkinter import font
+from customtkinter import *
+from CTkListbox import *
 from datetime import datetime
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
@@ -48,95 +48,36 @@ class App:
             (screenheight - height) / 2,
         )
         root.geometry(alignstr)
-        root.resizable(width=False, height=False)
+        # root.resizable(width=False, height=False)
         root.configure(bg="#282424")
         root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         # initialize
-        font_1 = font.Font(family="Helvetica", size=15)
-        font_2 = font.Font(family="Calibri", size=15)
 
         self.msg_entry_var = StringVar()
-        self.msg_scrollbar = Scrollbar(
-            root,
-            activebackground="#282424",
-            bg="#282424",
-            highlightbackground="#282424",
-            highlightcolor="#282424",
-            troughcolor="#282424",
+        self.msg_entry = CTkEntry(root, width=755, height=30, justify="left", textvariable=self.msg_entry_var)
+        self.msg_list = CTkTextbox(root, width=855, height=640, font=("default", 20))
+        self.people_list = CTkListbox(
+            root, width=340, height=665, justify="center", font=("default", 20), command=self.select_person
         )
-        self.msg_entry = Entry(
-            root,
-            textvariable=self.msg_entry_var,
-            borderwidth="1px",
-            bg="#282424",
-            font=font_1,
-            fg="#ffffff",
-            justify="left",
-            relief="sunken",
-        )
-        self.msg_list = Text(
-            root,
-            yscrollcommand=self.msg_scrollbar.set,
-            bg="#282424",
-            borderwidth="1px",
-            font=font_1,
-            fg="#ffffff",
-        )
-        self.people_scrollbar = Scrollbar(
-            activebackground="#282424",
-            bg="#282424",
-            highlightbackground="#282424",
-            highlightcolor="#282424",
-            troughcolor="#282424",
-        )
-        self.people_list = Listbox(
-            root,
-            yscrollcommand=self.people_scrollbar.set,
-            selectmode=SINGLE,
-            font=font.Font(size=20),
-            justify="center",
-            bg="#282424",
-            borderwidth="1px",
-            fg="#ffffff",
-        )
-        self.msg_send_button = Button(
-            root,
-            text="Enviar",
-            command=self.msg_send,
-            bg="#282424",
-            font=font.Font(family="Helvetica", size=10),
-            fg="#ffffff",
-            justify="center",
-        )
-        self.login_root = Frame(root)
+        self.msg_send_button = CTkButton(root, width=90, height=30, text="Enviar", command=self.msg_send)
+
+        self.login_root = CTkFrame(root)
         self.user_entry_var = StringVar()
         self.key_entry_var = StringVar()
-        self.user_entry = Entry(
-            self.login_root,
-            width="30",
-            font=font_2,
-            textvariable=self.user_entry_var,
-        )
-        self.key_entry = Entry(
-            self.login_root,
-            width="30",
-            font=font_2,
-            textvariable=self.key_entry_var,
-            show="*",
-        )
-        self.Error_label = Label(self.login_root, text="\n", font=font_2, width="300")
+        self.user_entry = CTkEntry(self.login_root, width=200, textvariable=self.user_entry_var)
+        self.key_entry = CTkEntry(self.login_root, width=200, textvariable=self.key_entry_var, show="*")
+        self.Error_label = CTkLabel(self.login_root, text="\n", width=2000)
 
         # config
         self.msg_entry_var.set("")
-        self.msg_scrollbar.config(command=self.msg_list.yview)
         self.msg_list.tag_config("right", justify="right")
-        self.people_scrollbar.config(command=self.people_list.yview)
+        self.msg_list.configure(state="disabled")
         self.user_entry.focus_set()
 
         # binds
         self.msg_entry.bind("<Return>", self.msg_send)
-        self.people_list.bind("<<ListboxSelect>>", self.select_person)
+
         self.user_entry.bind(
             "<Return>",
             lambda event: self.login(self.user_entry_var.get(), self.key_entry_var.get()),
@@ -149,36 +90,27 @@ class App:
         root.bind("<FocusIn>", self.focus_in)
 
         # place and pack
-        self.msg_scrollbar.place(x=1220, y=10, width=20, height=640)
-        self.people_list.place(x=10, y=10, width=330, height=680)
-        self.people_scrollbar.place(x=350, y=10, width=20, height=680)
-        self.msg_send_button.place(x=1190, y=660, width=50, height=30)
-        Label(self.login_root, text="\n\n\n\n\n\n\n\n").pack()
-        Label(self.login_root, text="Introduzca el nombre de usuario y la contraseña\n", font=font_2).pack()
-        Label(self.login_root, text="Nombre de usuario *", font=font_2).pack()
+        self.login_root.pack(side=LEFT, fill=BOTH)
+        self.people_list.pack(padx=10, pady=10, anchor="nw", side=LEFT)
+        CTkLabel(self.login_root, text="\n\n\n\n\n\n\n\n").pack()
+        CTkLabel(self.login_root, text="Introduzca el nombre de usuario y la contraseña\n", font=("Roboto", 24)).pack()
+        CTkLabel(self.login_root, text="Nombre de usuario *").pack()
         self.user_entry.pack()
-        Label(self.login_root, text="Contraseña *", font=font_2).pack()
+        CTkLabel(self.login_root, text="Contraseña *").pack()
         self.key_entry.pack()
-        Label(self.login_root, text="").pack()
-        Button(
+        CTkLabel(self.login_root, text="").pack()
+        CTkButton(
             self.login_root,
             text="Login",
-            width="20",
-            bg="DarkGrey",
             command=lambda: self.login(self.user_entry_var.get(), self.key_entry_var.get()),
-            font=font_2,
         ).pack()
-        Label(self.login_root, text="").pack()
-        Button(
+        CTkLabel(self.login_root, text="").pack()
+        CTkButton(
             self.login_root,
             text="Register",
-            width="20",
-            bg="DarkGrey",
             command=lambda: self.register(self.user_entry_var.get(), self.key_entry_var.get()),
-            font=font_2,
         ).pack()
         self.Error_label.pack()
-        self.login_root.pack(side=LEFT, fill=BOTH)
 
         # other
         logger.setLevel(LOGGING_LEVEL)
@@ -261,14 +193,15 @@ class App:
             if self.must_close:
                 break
 
-    def select_person(self, *args):
-        self.msg_entry.place(x=380, y=660, width=800, height=30)
-        self.msg_list.place(x=380, y=10, width=830, height=640)
-        self.person_selected = self.people_list.curselection()[0]
+    def select_person(self, person):
+        self.msg_list.pack(padx=0, pady=10, anchor="nw")
+        self.msg_entry.pack(padx=0, pady=0, anchor="nw", side=LEFT)
+        self.msg_send_button.pack(padx=10, pady=0, anchor="nw")
+        self.person_selected = person
         self.msg_list.configure(state="normal")
         self.msg_list.delete("1.0", END)
         self.msg_list.configure(state="disabled")
-        self.command_send("usersel", self.users[self.person_selected])
+        self.command_send("usersel", self.person_selected)
 
     def on_closing(self, *args):
         root.quit()
@@ -284,7 +217,7 @@ class App:
                 "name": self.username,
                 "type": "broadcast",
                 "msg": msg,
-                "destinatary": self.users[self.person_selected],
+                "destinatary": self.person_selected,
             }
             self.onAdd(END, dictionary, True, True)
 
@@ -370,19 +303,19 @@ class App:
 
     def login_error(self, x: int):
         if x == 0:
-            self.Error_label.config(text="\nEl usuario y/o la contraseña no pueden estar en blanco.")
+            self.Error_label.configure(text="\nEl usuario y/o la contraseña no pueden estar en blanco.")
             logger.debug("login_blank_error")
         elif x == 1:
-            self.Error_label.config(text="\nEl usuario y la contraseña deben ser inferiores a 20 carácteres.")
+            self.Error_label.configure(text="\nEl usuario y la contraseña deben ser inferiores a 20 carácteres.")
             logger.debug("login_length_error")
         elif x == 2:
-            self.Error_label.config(text="\nUsuario no encontrado.")
+            self.Error_label.configure(text="\nUsuario no encontrado.")
             logger.debug("login_user_error")
         elif x == 3:
-            self.Error_label.config(text="\nContraseña incorrecta.")
+            self.Error_label.configure(text="\nContraseña incorrecta.")
             logger.debug("login_password_error")
         elif x == 4:
-            self.Error_label.config(text="\nEste nombre de usuario y/o contraseña no están disponibles")
+            self.Error_label.configure(text="\nEste nombre de usuario y/o contraseña no están disponibles")
             logger.debug("register_error")
 
     def encrypt(self, strg: str) -> str:
@@ -452,7 +385,7 @@ PORT = 33000
 if __name__ == "__main__":
     logger = logging.getLogger()
     notification = ToastNotifier()
-    root = Tk()
+    root = CTk()
     app = App(root)
 
     BUFSIZ = 1024
