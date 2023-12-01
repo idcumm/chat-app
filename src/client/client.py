@@ -16,7 +16,6 @@
 
 
 import base64
-import bcrypt
 import hashlib
 import logging
 from socket import AF_INET, socket, SOCK_STREAM
@@ -178,7 +177,6 @@ class App:
                     elif dictionary["command"] == "userlist":
                         self.users = []
                         for i in eval(dictionary["users"]):
-                            i = self.decrypt(i)
                             self.users.append(i)
                     elif dictionary["command"] == "usersel":
                         dictionary["msg_list"] = self.decrypt(str(dictionary["msg_list"]))
@@ -226,7 +224,6 @@ class App:
             }
             self.onAdd(END, dictionary, True, True)
 
-            dictionary["date"] = self.encrypt(dictionary["date"])
             dictionary["name"] = self.encrypt(dictionary["name"])
             dictionary["msg"] = self.encrypt(dictionary["msg"])
             dictionary["destinatary"] = self.encrypt(dictionary["destinatary"])
@@ -256,10 +253,8 @@ class App:
                 "user": arg1,
                 "key": arg2,
             }
-            dictionary["user"] = self.hash_(dictionary["user"])
-            dictionary["key"] = self.hash_(dictionary["key"])
+            dictionary["key"] = self.hash_data(dictionary["key"])
 
-        dictionary["date"] = self.encrypt(dictionary["date"])
         dictionary["name"] = self.encrypt(dictionary["name"])
 
         self.socket.send(str(dictionary).encode("utf8"))
@@ -270,7 +265,6 @@ class App:
         if not local:
             dictionary["name"] = self.decrypt(dictionary["name"])
             dictionary["msg"] = self.decrypt(dictionary["msg"])
-            dictionary["date"] = self.decrypt(dictionary["date"])
             logger.info(dictionary)
 
             self.last_name = dictionary["name"]
@@ -360,8 +354,10 @@ class App:
         else:
             return ""
 
-    def hash_(self, data: str) -> str:
-        return (bcrypt.hashpw(data.encode(), bcrypt.gensalt())).decode()
+    def hash_data(self, data: str) -> str:
+        h = hashlib.new("sha256")
+        h.update(data.encode())
+        return h.hexdigest()
 
     def focus_out(self, *args):
         self.focus = False
