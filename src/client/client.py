@@ -3,6 +3,7 @@
 # * Aplicar tcp method (enviar info per files)
 # * Crear data.csv al __init__
 # * que es crei el b64.db al enviar missatge, no tots al principi
+# * Hashing
 # TODO posar dia i hora en missatges
 # TODO fer funcio tot allo que es repeteix molt
 # TODO millorar notification
@@ -15,6 +16,7 @@
 
 
 import base64
+import bcrypt
 import hashlib
 import logging
 from socket import AF_INET, socket, SOCK_STREAM
@@ -254,8 +256,8 @@ class App:
                 "user": arg1,
                 "key": arg2,
             }
-            dictionary["user"] = self.encrypt(dictionary["user"])
-            dictionary["key"] = self.encrypt(dictionary["key"])
+            dictionary["user"] = self.hash_(dictionary["user"])
+            dictionary["key"] = self.hash_(dictionary["key"])
 
         dictionary["date"] = self.encrypt(dictionary["date"])
         dictionary["name"] = self.encrypt(dictionary["name"])
@@ -357,6 +359,9 @@ class App:
                 return strg
         else:
             return ""
+
+    def hash_(self, data: str) -> str:
+        return (bcrypt.hashpw(data.encode(), bcrypt.gensalt())).decode()
 
     def focus_out(self, *args):
         self.focus = False

@@ -6,6 +6,7 @@ from threading import Thread
 from os import system, path
 import csv
 import logging
+import bcrypt
 from time import sleep
 
 
@@ -100,8 +101,8 @@ class Server:
                                 login_state = 3
                             else:
                                 for i in self.data:
-                                    if i[0] == self.username:
-                                        if i[1] == self.password:
+                                    if self.check_hash(i[0], self.username):
+                                        if self.check_hash(i[1], self.password):
                                             login_state = 1
                                             break
                                         else:
@@ -147,7 +148,7 @@ class Server:
                             self.command_send(client, "register")
                         else:
                             for i in self.data:
-                                if self.username == i[0]:
+                                if self.check_hash(i[0], self.username):
                                     user_in_use = True
                                     self.command_send(client, "register_error")
                                     break
@@ -207,6 +208,10 @@ class Server:
             dictionary = {"type": "command", "command": command}
         client.send(str(dictionary).encode("utf8"))
         logger.info(f"Sent: {dictionary}")
+
+    def check_hash(self, data, hash_) -> str:
+        print(data, hash_)
+        return bcrypt.checkpw(data.encode(), hash_.encode())
 
 
 # ==========>> MAIN CODE <<========== #
