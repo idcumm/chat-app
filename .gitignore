@@ -11,3 +11,6 @@ tests/include/logs/*
 
 src/server/database/*
 !src/server/database/.gitkeep
+
+app/server/database/*
+!app/server/database/.gitkeep
