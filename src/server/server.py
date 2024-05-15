@@ -29,6 +29,7 @@ class Server:
         logging.basicConfig(format="[%(levelname)s] > %(message)s")
         logger.setLevel(logging.DEBUG)
         system("title ServerSocket")
+        logger.info(HOST)
         logger.info("---- Server online! ----")
         logger.info(f"Server directory: '{absolute_path}'")
 
@@ -210,7 +211,8 @@ class Server:
 # ==========>> MAIN CODE <<========== #
 
 
-HOST = ""
+with open("ipv4.txt") as file:
+    HOST = file.read()
 PORT = 33000
 
 if __name__ == "__main__":

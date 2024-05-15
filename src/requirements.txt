@@ -1,0 +1,8 @@
+CTkListbox==0.10
+customtkinter==5.2.1
+darkdetect==0.8.0
+packaging==23.2
+pycryptodome==3.19.0
+pypiwin32==223
+pywin32==306
+win10toast==0.9

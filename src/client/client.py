@@ -121,6 +121,7 @@ class App:
         connect.start()
 
     def connect(self):
+        logger.info(HOST)
         self.must_close = False
         while True:
             try:
@@ -378,11 +379,12 @@ class App:
 
 # ==========>> MAIN CODE <<========== #
 
+with open("ipv4.txt") as file:
+    HOST = file.read()
 
 LOGGING_LEVEL = logging.DEBUG
 NOTIFICATIONS = False
 KEY = "1234"
-HOST = "127.0.0.1"
 PORT = 33000
 
 
